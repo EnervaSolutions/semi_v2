@@ -1,0 +1,40 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=cd914692:840
+run @ @tanstack_react-query.js?v=cd914692:494
+start @ @tanstack_react-query.js?v=cd914692:536
+fetch @ @tanstack_react-query.js?v=cd914692:926
+executeFetch_fn @ @tanstack_react-query.js?v=cd914692:2211
+onSubscribe @ @tanstack_react-query.js?v=cd914692:1898
+subscribe @ @tanstack_react-query.js?v=cd914692:24
+(anonymous) @ @tanstack_react-query.js?v=cd914692:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=cd914692:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=cd914692:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=cd914692:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=cd914692:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=cd914692:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=cd914692:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=cd914692:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=cd914692:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cd914692:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cd914692:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=cd914692:19432
+commitRoot @ chunk-RPCDYKBN.js?v=cd914692:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=cd914692:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=cd914692:18718
+workLoop @ chunk-RPCDYKBN.js?v=cd914692:197
+flushWork @ chunk-RPCDYKBN.js?v=cd914692:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=cd914692:384Understand this error
+content.js:37 Feature is disabled
+EnhancedFacilityForm.tsx:172 Category changed: 
+EnhancedFacilityForm.tsx:181 No category selected, clearing types
+EnhancedFacilityForm.tsx:172 Category changed: 
+EnhancedFacilityForm.tsx:181 No category selected, clearing types
+EnhancedFacilityForm.tsx:172 Category changed: 561
+EnhancedFacilityForm.tsx:175 Found facility types: 33 (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]0: {code: '561499', title: 'All Other Business Support Services', level: 6, parent: '561'}1: {code: '561990', title: 'All Other Support Services', level: 6, parent: '561'}2: {code: '561599', title: 'All Other Travel Arrangement and Reservation Services', level: 6, parent: '561'}3: {code: '561613', title: 'Armored Car Services', level: 6, parent: '561'}4: {code: '561740', title: 'Carpet and Upholstery Cleaning Services', level: 6, parent: '561'}5: {code: '561440', title: 'Collection Agencies', level: 6, parent: '561'}6: {code: '561920', title: 'Convention and Trade Show Organizers', level: 6, parent: '561'}7: {code: '561591', title: 'Convention and Visitors Bureaus', level: 6, parent: '561'}8: {code: '561492', title: 'Court Reporting and Stenotype Services', level: 6, parent: '561'}9: {code: '561450', title: 'Credit Bureaus', level: 6, parent: '561'}10: {code: '561410', title: 'Document Preparation Services', level: 6, parent: '561'}11: {code: '561311', title: 'Employment Placement Agencies', level: 6, parent: '561'}12: {code: '561312', title: 'Executive Search Services', level: 6, parent: '561'}13: {code: '561710', title: 'Exterminating and Pest Control Services', level: 6, parent: '561'}14: {code: '561210', title: 'Facilities Support Services', level: 6, parent: '561'}15: {code: '561611', title: 'Investigation and Personal Background Check Services', level: 6, parent: '561'}16: {code: '561720', title: 'Janitorial Services', level: 6, parent: '561'}17: {code: '561730', title: 'Landscaping Services', level: 6, parent: '561'}18: {code: '561622', title: 'Locksmiths', level: 6, parent: '561'}19: {code: '561110', title: 'Office Administrative Services', level: 6, parent: '561'}20: {code: '561439', title: 'Other Business Service Centers (including Copy Shops)', level: 6, parent: '561'}21: {code: '561790', title: 'Other Services to Buildings and Dwellings', level: 6, parent: '561'}22: {code: '561910', title: 'Packaging and Labeling Services', level: 6, parent: '561'}23: {code: '561431', title: 'Private Mail Centers', level: 6, parent: '561'}24: {code: '561330', title: 'Professional Employer Organizations', level: 6, parent: '561'}25: {code: '561491', title: 'Repossession Services', level: 6, parent: '561'}26: {code: '561612', title: 'Security Guards and Patrol Services', level: 6, parent: '561'}27: {code: '561621', title: 'Security Systems Services (except Locksmiths)', level: 6, parent: '561'}28: {code: '561422', title: 'Telemarketing Bureaus and Other Contact Centers', level: 6, parent: '561'}29: {code: '561421', title: 'Telephone Answering Services', level: 6, parent: '561'}30: {code: '561320', title: 'Temporary Help Services', level: 6, parent: '561'}31: {code: '561520', title: 'Tour Operators', level: 6, parent: '561'}32: {code: '561510', title: 'Travel Agencies', level: 6, parent: '561'}length: 33[[Prototype]]: Array(0)
+EnhancedFacilityForm.tsx:172 Category changed: 
+EnhancedFacilityForm.tsx:181 No category selected, clearing types

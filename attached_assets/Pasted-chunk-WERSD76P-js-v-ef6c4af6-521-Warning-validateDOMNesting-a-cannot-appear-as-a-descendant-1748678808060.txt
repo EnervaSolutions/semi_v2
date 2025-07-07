@@ -1,0 +1,42 @@
+chunk-WERSD76P.js?v=ef6c4af6:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ef6c4af6:279:18
+    at div
+    at div
+    at div
+    at nav
+    at aside
+    at Sidebar (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Sidebar.tsx:52:20)
+    at div
+    at Layout (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Layout.tsx:22:34)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ef6c4af6:321:17)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=IDT5kMRNIYpAfmPuHfmqa:43:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit…unner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=ef6c4af6:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=ef6c4af6:62:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=ef6c4af6:2805:3)
+    at App
+
+application-details.tsx:42 Application data: undefined
+application-details.tsx:43 Activity type: undefined
+application-details.tsx:44 Templates enabled: false
+application-details.tsx:45 Templates data: 
+[]
+application-details.tsx:42 Application data: 
+(2) [{…}, {…}]
+application-details.tsx:43 Activity type: undefined
+application-details.tsx:44 Templates enabled: false
+application-details.tsx:45 Templates data: 
+[]
+application-details.tsx:42 Application data: 
+(2) [{…}, {…}]
+application-details.tsx:43 Activity type: undefined
+application-details.tsx:44 Templates enabled: false
+application-details.tsx:45 Templates data: 
+[]
+application-details.tsx:42 Application data: 
+(2) [{…}, {…}]
+application-details.tsx:43 Activity type: undefined
+application-details.tsx:44 Templates enabled: false
+application-details.tsx:45 Templates data: 
+[]

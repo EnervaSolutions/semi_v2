@@ -1,0 +1,169 @@
+95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:602 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/pages/auth-page.tsx?t=1749229867746 net::ERR_ABORTED 502 (Bad Gateway)
+importUpdatedModule @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:602
+fetchUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:211
+queueUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:186
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:642
+handleMessage @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:640
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:550Understand this error
+95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2 [hmr] Failed to reload /src/pages/auth-page.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+Mt.forEach.n.<computed> @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2
+warnFailedUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:176
+fetchUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:213
+await in fetchUpdate
+queueUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:186
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:642
+handleMessage @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:640
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:550Understand this error
+95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:602 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/index.css?t=1749229867746&v=yX_TTzVnwF36x74TxUoM0 net::ERR_ABORTED 502 (Bad Gateway)
+importUpdatedModule @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:602
+fetchUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:211
+queueUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:186
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:642
+handleMessage @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:640
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:550Understand this error
+95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2 [hmr] Failed to reload /src/index.css?v=yX_TTzVnwF36x74TxUoM0. This could be due to syntax errors or importing non-existent modules. (see errors above)
+Mt.forEach.n.<computed> @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2
+warnFailedUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:176
+fetchUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:213
+await in fetchUpdate
+queueUpdate @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:186
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:642
+handleMessage @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:640
+(anonymous) @ 95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@vite/client:550Understand this error
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+window.fetch @ Network.js:219
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=be9eebfb:840
+run @ @tanstack_react-query.js?v=be9eebfb:494
+start @ @tanstack_react-query.js?v=be9eebfb:536
+fetch @ @tanstack_react-query.js?v=be9eebfb:926
+executeFetch_fn @ @tanstack_react-query.js?v=be9eebfb:2211
+onSubscribe @ @tanstack_react-query.js?v=be9eebfb:1898
+subscribe @ @tanstack_react-query.js?v=be9eebfb:24
+(anonymous) @ @tanstack_react-query.js?v=be9eebfb:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=be9eebfb:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=be9eebfb:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=be9eebfb:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=be9eebfb:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=be9eebfb:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=be9eebfb:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=be9eebfb:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=be9eebfb:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=be9eebfb:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=be9eebfb:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=be9eebfb:19432
+commitRoot @ chunk-RPCDYKBN.js?v=be9eebfb:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=be9eebfb:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=be9eebfb:18718
+workLoop @ chunk-RPCDYKBN.js?v=be9eebfb:197
+flushWork @ chunk-RPCDYKBN.js?v=be9eebfb:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=be9eebfb:384Understand this error
+ 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+window.fetch @ 95134f80-c664-4477-b…da/3.2.3/eruda.js:2
+(anonymous) @ 95134f80-c664-4477-b…b/queryClient.ts:19
+fetchFn @ 95134f80-c664-4477-b…y.js?v=be9eebfb:840
+run @ 95134f80-c664-4477-b…y.js?v=be9eebfb:494
+start @ 95134f80-c664-4477-b…y.js?v=be9eebfb:536
+fetch @ 95134f80-c664-4477-b…y.js?v=be9eebfb:926
+executeFetch_fn @ 95134f80-c664-4477-b….js?v=be9eebfb:2211
+onSubscribe @ 95134f80-c664-4477-b….js?v=be9eebfb:1898
+subscribe @ 95134f80-c664-4477-b…ry.js?v=be9eebfb:24
+(anonymous) @ 95134f80-c664-4477-b….js?v=be9eebfb:3022
+subscribeToStore @ 95134f80-c664-4477-b…js?v=be9eebfb:11984
+commitHookEffectListMount @ 95134f80-c664-4477-b…js?v=be9eebfb:16915
+commitPassiveMountOnFiber @ 95134f80-c664-4477-b…js?v=be9eebfb:18156
+commitPassiveMountEffects_complete @ 95134f80-c664-4477-b…js?v=be9eebfb:18129
+commitPassiveMountEffects_begin @ 95134f80-c664-4477-b…js?v=be9eebfb:18119
+commitPassiveMountEffects @ 95134f80-c664-4477-b…js?v=be9eebfb:18109
+flushPassiveEffectsImpl @ 95134f80-c664-4477-b…js?v=be9eebfb:19490
+flushPassiveEffects @ 95134f80-c664-4477-b…js?v=be9eebfb:19447
+performSyncWorkOnRoot @ 95134f80-c664-4477-b…js?v=be9eebfb:18868
+flushSyncCallbacks @ 95134f80-c664-4477-b….js?v=be9eebfb:9119
+commitRootImpl @ 95134f80-c664-4477-b…js?v=be9eebfb:19432
+commitRoot @ 95134f80-c664-4477-b…js?v=be9eebfb:19277
+finishConcurrentRender @ 95134f80-c664-4477-b…js?v=be9eebfb:18805
+performConcurrentWorkOnRoot @ 95134f80-c664-4477-b…js?v=be9eebfb:18718
+workLoop @ 95134f80-c664-4477-b…N.js?v=be9eebfb:197
+flushWork @ 95134f80-c664-4477-b…N.js?v=be9eebfb:176
+performWorkUntilDeadline @ 95134f80-c664-4477-b…N.js?v=be9eebfb:384Understand this error
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+window.fetch @ Network.js:219
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=be9eebfb:840
+run @ @tanstack_react-query.js?v=be9eebfb:494
+start @ @tanstack_react-query.js?v=be9eebfb:536
+fetch @ @tanstack_react-query.js?v=be9eebfb:926
+executeFetch_fn @ @tanstack_react-query.js?v=be9eebfb:2211
+onSubscribe @ @tanstack_react-query.js?v=be9eebfb:1898
+subscribe @ @tanstack_react-query.js?v=be9eebfb:24
+(anonymous) @ @tanstack_react-query.js?v=be9eebfb:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=be9eebfb:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=be9eebfb:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=be9eebfb:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=be9eebfb:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=be9eebfb:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=be9eebfb:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=be9eebfb:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=be9eebfb:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=be9eebfb:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=be9eebfb:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=be9eebfb:19432
+commitRoot @ chunk-RPCDYKBN.js?v=be9eebfb:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=be9eebfb:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=be9eebfb:18718
+workLoop @ chunk-RPCDYKBN.js?v=be9eebfb:197
+flushWork @ chunk-RPCDYKBN.js?v=be9eebfb:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=be9eebfb:384Understand this error
+Console.js:61 🚀 nextStep called on step 1
+Console.js:61 📋 Fields to validate: (6) ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'role']
+Console.js:61 📊 Current form data: {role: 'company_admin', firstName: 'Harsanjit', lastName: 'Bhullar', email: 'useraccountowner3@yopmail.com', password: 'Test1998*', …}
+Console.js:61 ✅ Validation passed, moving to next step
+queryClient.ts:15 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/resend-verification 404 (Not Found)
+window.fetch @ Network.js:219
+apiRequest @ queryClient.ts:15
+mutationFn @ auth-page.tsx:235
+fn @ @tanstack_react-query.js?v=be9eebfb:1189
+run @ @tanstack_react-query.js?v=be9eebfb:494
+start @ @tanstack_react-query.js?v=be9eebfb:536
+execute @ @tanstack_react-query.js?v=be9eebfb:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=be9eebfb:2630
+(anonymous) @ @tanstack_react-query.js?v=be9eebfb:3295
+nextStep @ auth-page.tsx:409
+callCallback2 @ chunk-RPCDYKBN.js?v=be9eebfb:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=be9eebfb:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=be9eebfb:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=be9eebfb:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=be9eebfb:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=be9eebfb:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=be9eebfb:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=be9eebfb:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=be9eebfb:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=be9eebfb:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=be9eebfb:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=be9eebfb:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=be9eebfb:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=be9eebfb:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=be9eebfb:5449Understand this error
+queryClient.ts:15 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/resend-verification 404 (Not Found)

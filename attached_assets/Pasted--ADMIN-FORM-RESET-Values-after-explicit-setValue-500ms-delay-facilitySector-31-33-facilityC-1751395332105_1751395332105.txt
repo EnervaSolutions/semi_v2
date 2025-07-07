@@ -1,0 +1,111 @@
+[ADMIN FORM RESET] Values after explicit setValue (500ms delay): {facilitySector: '31-33', facilityCategory: '', facilityType: ''}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: false, editingFacilityCategory: '335', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:403 [NAICS CATEGORY EFFECT] Setting types for category 335 - found 16 types
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '', availableTypes: 16, availableTypeNames: Array(16), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '', availableTypes: 16, availableTypeNames: Array(16), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:428 [NAICS GENERATION] Generated NAICS code: 335931 for 31-33 335 335931
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:360 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: true, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:373 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:385 [NAICS SECTOR EFFECT] Skipping clear due to form submission or validation errors
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: false, editingFacilityCategory: '335', currentType: '335931', isSubmitting: true, …}
+AdminEnhancedFacilityForm.tsx:403 [NAICS CATEGORY EFFECT] Setting types for category 335 - found 16 types
+AdminEnhancedFacilityForm.tsx:621 [ADMIN FACILITY FORM] Form submitted with data: {name: 'Test Admin Facility', facilitySector: '31-33', facilityCategory: '335', facilityType: '335931', naicsCode: '335931', …}
+AdminEnhancedFacilityForm.tsx:622 [ADMIN FACILITY FORM] NAICS fields in submission: {facilitySector: '31-33', facilityCategory: '335', facilityType: '335931', naicsCode: '335931'}
+AdminEnhancedFacilityForm.tsx:628 [ADMIN FACILITY FORM] Energy management fields in submission: {hasEMIS: true, emisRealtimeMonitoring: true, emisDescription: 'Test', hasEnergyManager: true, energyManagerFullTime: false}
+AdminEnhancedFacilityForm.tsx:635 [ADMIN FACILITY FORM] Form errors: {}
+AdminEnhancedFacilityForm.tsx:636 [ADMIN FACILITY FORM] Form state: {isSubmitting: true, isValid: false, isDirty: false}
+AdminEnhancedFacilityForm.tsx:641 [ADMIN FACILITY FORM] Current watched values: {watchedSector: '31-33', watchedCategory: '335', watchedType: '335931', generatedNAICS: '335931', naicsDescription: 'Manufacturing > Electrical Equipment, Appliance, a…ng > Current-Carrying Wiring Device Manufacturing'}
+AdminEnhancedFacilityForm.tsx:648 [ADMIN FACILITY FORM] Company ID: 53
+AdminEnhancedFacilityForm.tsx:649 [ADMIN FACILITY FORM] Mutation pending state: false
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:360 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: true, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:373 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:385 [NAICS SECTOR EFFECT] Skipping clear due to form submission or validation errors
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: false, editingFacilityCategory: '335', currentType: '335931', isSubmitting: true, …}
+AdminEnhancedFacilityForm.tsx:403 [NAICS CATEGORY EFFECT] Setting types for category 335 - found 16 types
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:360 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:373 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:379 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: false, editingFacilityCategory: '335', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:403 [NAICS CATEGORY EFFECT] Setting types for category 335 - found 16 types
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:479 [ADMIN FACILITY MUTATION] Starting mutation with form values: {name: 'Test Admin Facility', facilitySector: '31-33', facilityCategory: '335', facilityType: '335931', naicsCode: '335931', …}
+AdminEnhancedFacilityForm.tsx:480 [ADMIN FACILITY MUTATION] Company ID for API call: 53
+AdminEnhancedFacilityForm.tsx:481 [ADMIN FACILITY MUTATION] Editing facility: {id: 22, companyId: 53, name: 'Test Admin Facility', code: null, naicsCode: '335931', …}
+AdminEnhancedFacilityForm.tsx:569 [ADMIN FACILITY MUTATION] Facility data being sent to API: {name: 'Test Admin Facility', facilitySector: '31-33', facilityCategory: '335', facilityType: '335931', naicsCode: '335931', …}
+AdminEnhancedFacilityForm.tsx:583 [ADMIN FACILITY MUTATION] Making API request: PATCH /api/admin/facilities/22
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 16, availableTypeNames: Array(16), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '', isInitializing: false, editingFacilityCategory: '335', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:414 [NAICS CATEGORY EFFECT] No category selected, clearing types array
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:586 [ADMIN FACILITY MUTATION] Raw API response received
+AdminEnhancedFacilityForm.tsx:595 [ADMIN FACILITY MUTATION] API response parsed successfully: {id: 22, companyId: 53, name: 'Test Admin Facility', code: null, naicsCode: '335931', …}
+AdminCompaniesPage.tsx:274 Fetching details for company: 53
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminCompaniesPage.tsx:281 Company details received: {id: 53, name: 'Test Comp KM 2', shortName: 'TECOKM', businessNumber: '6477720863', website: null, …}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:204 [ADMIN FORM RESET] Starting initialization for editing facility: {facilitySector: '31-33', facilityCategory: '335', facilityType: '335931', naicsCode: '335931', hasEMIS: true, …}
+AdminEnhancedFacilityForm.tsx:218 [ADMIN FORM RESET] Setting available categories: 21 categories for sector 31-33
+AdminEnhancedFacilityForm.tsx:224 [ADMIN FORM RESET] Setting available types: 16 types for category 335
+AdminEnhancedFacilityForm.tsx:230 [ADMIN FORM RESET] Setting NAICS description for code 335931 : Manufacturing > Electrical Equipment, Appliance, and Component Manufacturing > Current-Carrying Wiring Device Manufacturing
+AdminEnhancedFacilityForm.tsx:283 [ADMIN FORM RESET] Prepared form data: {facilitySector: '31-33', facilityCategory: '335', facilityType: '335931', hasEMIS: true, emisRealtimeMonitoring: true, …}
+AdminEnhancedFacilityForm.tsx:354 [ADMIN FORM RESET] Initialization complete
+AdminEnhancedFacilityForm.tsx:360 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: true, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: true, editingFacilityCategory: '335', currentType: '335931', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:360 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:373 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:379 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: false, editingFacilityCategory: '335', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:403 [NAICS CATEGORY EFFECT] Setting types for category 335 - found 16 types
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:428 [NAICS GENERATION] Generated NAICS code: 335931 for 31-33 335 335931
+AdminEnhancedFacilityForm.tsx:294 [ADMIN FORM RESET] Calling reset with formData
+AdminEnhancedFacilityForm.tsx:298 [ADMIN FORM RESET] Setting explicit values for NAICS and energy management fields
+AdminEnhancedFacilityForm.tsx:299 [ADMIN FORM RESET] About to set NAICS values: {sector: '31-33', category: '335', type: '335931'}
+AdminEnhancedFacilityForm.tsx:306 [ADMIN FORM RESET] Set facilitySector to: 31-33 current watch value: 31-33
+AdminEnhancedFacilityForm.tsx:309 [ADMIN FORM RESET] Set facilityCategory to: 335 current watch value: 335
+AdminEnhancedFacilityForm.tsx:312 [ADMIN FORM RESET] Set facilityType to: 335931 current watch value: 335931
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '335', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '335: Electrical Equipment, Appliance, and Component Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '335', watchedType: '335931', availableTypes: 16, availableTypeNames: Array(16), typeFound: '335931: Current-Carrying Wiring Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:360 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:373 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:379 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '335', isInitializing: false, editingFacilityCategory: '335', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:403 [NAICS CATEGORY EFFECT] Setting types for category 335 - found 16 types
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 16, availableTypeNames: Array(16), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:392 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '', isInitializing: false, editingFacilityCategory: '335', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:414 [NAICS CATEGORY EFFECT] No category selected, clearing types array
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:322 [ADMIN FORM RESET] Values after explicit setValue (100ms delay): {facilitySector: '31-33', facilityCategory: '', facilityType: '', emisRealtimeMonitoring: true, energyManagerFullTime: false, …}
+AdminEnhancedFacilityForm.tsx:335 [ADMIN FORM RESET] Complete form values (100ms delay): {facilitySector: '31-33', facilityCategory: '', facilityType: ''}
+AdminEnhancedFacilityForm.tsx:344 [ADMIN FORM RESET] Values after explicit setValue (500ms delay): {facilitySector: '31-33', facilityCategory: '', facilityType: ''}
+AdminEnhancedFacilityForm.tsx:445 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:462 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}

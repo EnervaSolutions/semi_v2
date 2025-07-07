@@ -1,0 +1,42 @@
+Application ID Format:
+The format for each Application ID is structured as follows:
+[Company Short Name] - [Three Digits for Facility] - [ActivityID + Two Digits for Application Number Starting with 01]
+Each segment represents specific information about the application. Here’s a breakdown of each part:
+Company Short Name:
+This is a unique identifier for each company, which consists of the first six letters of the company name (e.g., "Lantic" for Lantic Sugar).
+Facility Code:
+A three-digit code assigned to each specific facility belonging to the company.
+This code helps identify the specific location or facility for which the application is made. For example, the first Lantic Sugar facility might be coded as 001.
+Activity ID:
+A one-digit code that represents the specific activity related to the application. Here’s the list of activity codes:
+1 - Facility Readiness Assessment (FRA)
+2 - Comprehensive Energy Study (CES)
+3 - Strategic Energy Manager (SEM)
+4 - Energy Management Information System (EMIS)
+5 - Capital Retrofit (CR)
+Application Number:
+This is a two-digit identifier for each application of the same type for the same facility, beginning with 01.
+This number increases incrementally for each new application for a given facility and activity. For example, if a facility submits multiple EMIS applications, the first would be 01, the second 02, and so on.
+Example Breakdown
+Let’s look at some specific examples to see how this format works in practice.
+Example 1: Lantic-001-101
+Meaning: This ID represents the first Facility Readiness Assessment application for the first Lantic Sugar facility.
+Company Short Name: Lantic
+Facility Code: 001 (first facility for Lantic Sugar)
+Activity Code + Application Number: 101
+Activity Code 1 (Facility Readiness Assessment)
+Application Number 01 (the first FRA application for this facility)
+Example 2: Lantic-001-401
+Meaning: This ID represents the first Energy Management Information System application for the same facility.
+Company Short Name: Lantic
+Facility Code: 001 (still the first facility for Lantic Sugar)
+Activity Code + Application Number: 401
+Activity Code 4 (Energy Management Information System)
+Application Number 01 (the first EMIS application for this facility)
+Example 3: Lantic-001-402
+Meaning: This ID represents the second EMIS application for the same facility.
+Company Short Name: Lantic
+Facility Code: 001
+Activity Code + Application Number: 402
+Activity Code 4 (Energy Management Information System)
+Application Number 02 (the second EMIS application for this facility)

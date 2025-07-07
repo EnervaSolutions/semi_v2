@@ -1,0 +1,348 @@
+Feature is disabled
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+GeographicDistributionChart.tsx:33 GeographicDistributionChart - height: 320, cardSize: medium, className: w-full
+GeographicDistributionChart.tsx:34 Chart dimensions - chartHeight: 300, totalContentHeight: 420
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+FacilityMetricsChart.tsx:39 Facility Metrics Debug: {facilitiesCount: 0, facilitiesLoading: true, facilitiesError: null, firstFacility: undefined, applicationsCount: 0}
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+GeographicDistributionChart.tsx:33 GeographicDistributionChart - height: 320, cardSize: medium, className: w-full
+GeographicDistributionChart.tsx:34 Chart dimensions - chartHeight: 300, totalContentHeight: 420
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+FacilityMetricsChart.tsx:39 Facility Metrics Debug: {facilitiesCount: 0, facilitiesLoading: true, facilitiesError: null, firstFacility: undefined, applicationsCount: 0}
+queryClient.ts:49 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/companies/current 400 (Bad Request)
+(anonymous) @ queryClient.ts:49
+fetchFn @ @tanstack_react-query.js?v=cf15b779:840
+run @ @tanstack_react-query.js?v=cf15b779:494
+start @ @tanstack_react-query.js?v=cf15b779:536
+fetch @ @tanstack_react-query.js?v=cf15b779:926
+executeFetch_fn @ @tanstack_react-query.js?v=cf15b779:2211
+onSubscribe @ @tanstack_react-query.js?v=cf15b779:1898
+subscribe @ @tanstack_react-query.js?v=cf15b779:24
+(anonymous) @ @tanstack_react-query.js?v=cf15b779:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=cf15b779:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=cf15b779:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=cf15b779:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=cf15b779:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=cf15b779:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=cf15b779:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=cf15b779:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=cf15b779:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=cf15b779:19416
+commitRoot @ chunk-RPCDYKBN.js?v=cf15b779:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cf15b779:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=cf15b779:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=cf15b779:555
+flush @ @tanstack_react-query.js?v=cf15b779:569
+batch @ @tanstack_react-query.js?v=cf15b779:587
+dispatch_fn @ @tanstack_react-query.js?v=cf15b779:996
+setData @ @tanstack_react-query.js?v=cf15b779:696
+onSuccess @ @tanstack_react-query.js?v=cf15b779:897
+resolve @ @tanstack_react-query.js?v=cf15b779:456
+Promise.then
+run @ @tanstack_react-query.js?v=cf15b779:498
+start @ @tanstack_react-query.js?v=cf15b779:536
+fetch @ @tanstack_react-query.js?v=cf15b779:926
+executeFetch_fn @ @tanstack_react-query.js?v=cf15b779:2211
+onSubscribe @ @tanstack_react-query.js?v=cf15b779:1898
+subscribe @ @tanstack_react-query.js?v=cf15b779:24
+(anonymous) @ @tanstack_react-query.js?v=cf15b779:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=cf15b779:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=cf15b779:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=cf15b779:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=cf15b779:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=cf15b779:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=cf15b779:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=cf15b779:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=cf15b779:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cf15b779:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=cf15b779:19432
+commitRoot @ chunk-RPCDYKBN.js?v=cf15b779:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=cf15b779:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18718
+workLoop @ chunk-RPCDYKBN.js?v=cf15b779:197
+flushWork @ chunk-RPCDYKBN.js?v=cf15b779:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=cf15b779:384Understand this error
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+GeographicDistributionChart.tsx:33 GeographicDistributionChart - height: 320, cardSize: medium, className: w-full
+GeographicDistributionChart.tsx:34 Chart dimensions - chartHeight: 300, totalContentHeight: 420
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+FacilityMetricsChart.tsx:39 Facility Metrics Debug: {facilitiesCount: 0, facilitiesLoading: true, facilitiesError: null, firstFacility: undefined, applicationsCount: 0}
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+FacilityMetricsChart.tsx:39 Facility Metrics Debug: {facilitiesCount: 21, facilitiesLoading: false, facilitiesError: null, firstFacility: {…}, applicationsCount: 0}
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+GeographicDistributionChart.tsx:33 GeographicDistributionChart - height: 320, cardSize: medium, className: w-full
+GeographicDistributionChart.tsx:34 Chart dimensions - chartHeight: 300, totalContentHeight: 420
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+FacilityMetricsChart.tsx:39 Facility Metrics Debug: {facilitiesCount: 21, facilitiesLoading: false, facilitiesError: null, firstFacility: {…}, applicationsCount: 0}
+queryClient.ts:49 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/companies/current 400 (Bad Request)
+(anonymous) @ queryClient.ts:49
+fetchFn @ @tanstack_react-query.js?v=cf15b779:840
+run @ @tanstack_react-query.js?v=cf15b779:494
+(anonymous) @ @tanstack_react-query.js?v=cf15b779:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=cf15b779:515
+Promise.catch
+run @ @tanstack_react-query.js?v=cf15b779:498
+start @ @tanstack_react-query.js?v=cf15b779:536
+fetch @ @tanstack_react-query.js?v=cf15b779:926
+executeFetch_fn @ @tanstack_react-query.js?v=cf15b779:2211
+onSubscribe @ @tanstack_react-query.js?v=cf15b779:1898
+subscribe @ @tanstack_react-query.js?v=cf15b779:24
+(anonymous) @ @tanstack_react-query.js?v=cf15b779:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=cf15b779:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=cf15b779:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=cf15b779:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=cf15b779:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=cf15b779:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=cf15b779:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=cf15b779:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=cf15b779:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=cf15b779:19416
+commitRoot @ chunk-RPCDYKBN.js?v=cf15b779:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cf15b779:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=cf15b779:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=cf15b779:555
+flush @ @tanstack_react-query.js?v=cf15b779:569
+batch @ @tanstack_react-query.js?v=cf15b779:587
+dispatch_fn @ @tanstack_react-query.js?v=cf15b779:996
+setData @ @tanstack_react-query.js?v=cf15b779:696
+onSuccess @ @tanstack_react-query.js?v=cf15b779:897
+resolve @ @tanstack_react-query.js?v=cf15b779:456
+Promise.then
+run @ @tanstack_react-query.js?v=cf15b779:498
+start @ @tanstack_react-query.js?v=cf15b779:536
+fetch @ @tanstack_react-query.js?v=cf15b779:926
+executeFetch_fn @ @tanstack_react-query.js?v=cf15b779:2211
+onSubscribe @ @tanstack_react-query.js?v=cf15b779:1898
+subscribe @ @tanstack_react-query.js?v=cf15b779:24
+(anonymous) @ @tanstack_react-query.js?v=cf15b779:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=cf15b779:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=cf15b779:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=cf15b779:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=cf15b779:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=cf15b779:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=cf15b779:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=cf15b779:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=cf15b779:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cf15b779:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=cf15b779:19432
+commitRoot @ chunk-RPCDYKBN.js?v=cf15b779:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=cf15b779:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18718
+workLoop @ chunk-RPCDYKBN.js?v=cf15b779:197
+flushWork @ chunk-RPCDYKBN.js?v=cf15b779:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=cf15b779:384Understand this error
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+GeographicDistributionChart.tsx:33 GeographicDistributionChart - height: 320, cardSize: medium, className: w-full
+GeographicDistributionChart.tsx:34 Chart dimensions - chartHeight: 300, totalContentHeight: 420
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+FacilityMetricsChart.tsx:39 Facility Metrics Debug: {facilitiesCount: 21, facilitiesLoading: false, facilitiesError: null, firstFacility: {…}, applicationsCount: 12}
+IndustrySectorChart.tsx:69 IndustrySectorChart - height: 320, cardSize: large, className: w-full
+IndustrySectorChart.tsx:78 Chart dimensions - chartHeight: 500, totalContentHeight: 680
+GeographicDistributionChart.tsx:33 GeographicDistributionChart - height: 320, cardSize: medium, className: w-full
+GeographicDistributionChart.tsx:34 Chart dimensions - chartHeight: 300, totalContentHeight: 420
+ProcessingTimeChart.tsx:61 ProcessingTimeChart - height: 320, cardSize: medium, className: w-full
+ProcessingTimeChart.tsx:62 Chart dimensions - chartHeight: 350, totalContentHeight: 510
+AdminCompaniesPage.tsx:274 Fetching details for company: 53
+AdminCompaniesPage.tsx:281 Company details received: {id: 53, name: 'Test Comp KM 2', shortName: 'TECOKM', businessNumber: '6477720863', website: null, …}
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '334', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '334: Computer and Electronic Product Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '334', watchedType: '334112', availableTypes: 23, availableTypeNames: Array(23), typeFound: '334112: Computer Storage Device Manufacturing', …}
+chunk-RPCDYKBN.js?v=cf15b779:521 Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+    at div
+    at Badge (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/badge.tsx:35:18)
+    at p
+    at div
+    at div
+    at _c5 (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/alert.tsx:80:12)
+    at div
+    at _c (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/alert.tsx:35:11)
+    at div
+    at _c9 (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at form
+    at div
+    at AdminEnhancedFacilityForm (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/AdminEnhancedFacilityForm.tsx:115:53)
+    at div
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=cf15b779:42:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AFLIZ4FI.js?v=cf15b779:61:7
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=cf15b779:79:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=cf15b779:56:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=cf15b779:42:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-56SX6AGS.js?v=cf15b779:34:5
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-N26SQFIV.js?v=cf15b779:235:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-N26SQFIV.js?v=cf15b779:158:58
+    at Presence (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-LUE5KDWX.js?v=cf15b779:24:11)
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-N26SQFIV.js?v=cf15b779:149:64
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=cf15b779:79:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=cf15b779:56:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AXMZZQ2X.js?v=cf15b779:42:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-AFLIZ4FI.js?v=cf15b779:260:22
+    at Presence (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-LUE5KDWX.js?v=cf15b779:24:11)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cf15b779:38:15)
+    at DialogPortal (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-N26SQFIV.js?v=cf15b779:111:11)
+    at _c3 (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/dialog.tsx:52:12)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cf15b779:38:15)
+    at Dialog (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-N26SQFIV.js?v=cf15b779:52:5)
+    at div
+    at AdminCompaniesPage (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/pages/AdminCompaniesPage.tsx:75:39)
+    at Route (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cf15b779:265:16)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=cf15b779:321:17)
+    at main
+    at div
+    at div
+    at Layout (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Layout.tsx:22:34)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=1aNlw5EmHdmbQy6yWkjCX:81:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=cf15b779:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=cf15b779:64:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=cf15b779:2805:3)
+    at App
+printWarning @ chunk-RPCDYKBN.js?v=cf15b779:521
+error @ chunk-RPCDYKBN.js?v=cf15b779:505
+validateDOMNesting @ chunk-RPCDYKBN.js?v=cf15b779:8256
+createInstance @ chunk-RPCDYKBN.js?v=cf15b779:8328
+completeWork @ chunk-RPCDYKBN.js?v=cf15b779:16290
+completeUnitOfWork @ chunk-RPCDYKBN.js?v=cf15b779:19224
+performUnitOfWork @ chunk-RPCDYKBN.js?v=cf15b779:19206
+workLoopSync @ chunk-RPCDYKBN.js?v=cf15b779:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=cf15b779:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cf15b779:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cf15b779:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=cf15b779:18627Understand this error
+AdminEnhancedFacilityForm.tsx:206 [ADMIN FORM RESET] Starting initialization for editing facility: {facilitySector: '31-33', facilityCategory: '334', facilityType: '334112', naicsCode: '334112', hasEMIS: true, …}
+AdminEnhancedFacilityForm.tsx:220 [ADMIN FORM RESET] Setting available categories: 21 categories for sector 31-33
+AdminEnhancedFacilityForm.tsx:226 [ADMIN FORM RESET] Setting available types: 23 types for category 334
+AdminEnhancedFacilityForm.tsx:232 [ADMIN FORM RESET] Setting NAICS description for code 334112 : Manufacturing > Computer and Electronic Product Manufacturing > Computer Storage Device Manufacturing
+AdminEnhancedFacilityForm.tsx:285 [ADMIN FORM RESET] Prepared form data: {facilitySector: '31-33', facilityCategory: '334', facilityType: '334112', hasEMIS: true, emisRealtimeMonitoring: true, …}
+AdminEnhancedFacilityForm.tsx:359 [ADMIN FORM RESET] Initialization complete
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: true, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '334', isInitializing: true, editingFacilityCategory: '334', currentType: '334112', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '334', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '334: Computer and Electronic Product Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '334', watchedType: '334112', availableTypes: 23, availableTypeNames: Array(23), typeFound: '334112: Computer Storage Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:383 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:384 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '334', isInitializing: false, editingFacilityCategory: '334', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] Setting types for category 334 - found 23 types
+AdminEnhancedFacilityForm.tsx:413 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:435 [NAICS GENERATION] Generated NAICS code: 334112 for 31-33 334 334112
+AdminEnhancedFacilityForm.tsx:296 [ADMIN FORM RESET] Calling reset with formData and setting isResetting flag
+AdminEnhancedFacilityForm.tsx:301 [ADMIN FORM RESET] Setting explicit values for NAICS and energy management fields
+AdminEnhancedFacilityForm.tsx:302 [ADMIN FORM RESET] About to set NAICS values: {sector: '31-33', category: '334', type: '334112'}
+AdminEnhancedFacilityForm.tsx:309 [ADMIN FORM RESET] Set facilitySector to: 31-33 current watch value: 31-33
+AdminEnhancedFacilityForm.tsx:312 [ADMIN FORM RESET] Set facilityCategory to: 334 current watch value: 334
+AdminEnhancedFacilityForm.tsx:315 [ADMIN FORM RESET] Set facilityType to: 334112 current watch value: 334112
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '334', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '334: Computer and Electronic Product Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '334', watchedType: '334112', availableTypes: 23, availableTypeNames: Array(23), typeFound: '334112: Computer Storage Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:390 [NAICS SECTOR EFFECT] Skipping clear due to form submission, validation errors, recent form submission, or reset in progress
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '334', isInitializing: false, editingFacilityCategory: '334', currentType: '334112', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] Setting types for category 334 - found 23 types
+AdminEnhancedFacilityForm.tsx:418 [NAICS CATEGORY EFFECT] Skipping clear due to form submission, validation errors, recent form submission, or reset in progress
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '334', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '334: Computer and Electronic Product Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '334', watchedType: '334112', availableTypes: 23, availableTypeNames: Array(23), typeFound: '334112: Computer Storage Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:325 [ADMIN FORM RESET] Values after explicit setValue (100ms delay): {facilitySector: '31-33', facilityCategory: '334', facilityType: '334112', emisRealtimeMonitoring: true, energyManagerFullTime: false, …}
+AdminEnhancedFacilityForm.tsx:338 [ADMIN FORM RESET] Complete form values (100ms delay): {facilitySector: '31-33', facilityCategory: '334', facilityType: '334112'}
+AdminEnhancedFacilityForm.tsx:347 [ADMIN FORM RESET] Values after explicit setValue (500ms delay): {facilitySector: '31-33', facilityCategory: '334', facilityType: '334112'}
+AdminEnhancedFacilityForm.tsx:352 [ADMIN FORM RESET] Clearing isResetting flag
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '334', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: '334: Computer and Electronic Product Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '334', watchedType: '334112', availableTypes: 23, availableTypeNames: Array(23), typeFound: '334112: Computer Storage Device Manufacturing', …}
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '31-33', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] Setting categories for sector 31-33 - found 21 categories
+AdminEnhancedFacilityForm.tsx:383 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:384 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '334', isInitializing: false, editingFacilityCategory: '334', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] Setting types for category 334 - found 23 types
+AdminEnhancedFacilityForm.tsx:413 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 23, availableTypeNames: Array(23), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '', isInitializing: false, editingFacilityCategory: '334', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:421 [NAICS CATEGORY EFFECT] No category selected, clearing types array
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '31-33', watchedCategory: '', availableCategories: 21, availableCategoryNames: Array(21), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '211', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: '211: Oil and Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '211', watchedType: '211130', availableTypes: 2, availableTypeNames: Array(2), typeFound: '211130: Natural Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:206 [ADMIN FORM RESET] Starting initialization for editing facility: {facilitySector: '21', facilityCategory: '211', facilityType: '211130', naicsCode: '211130', hasEMIS: true, …}
+AdminEnhancedFacilityForm.tsx:220 [ADMIN FORM RESET] Setting available categories: 3 categories for sector 21
+AdminEnhancedFacilityForm.tsx:226 [ADMIN FORM RESET] Setting available types: 2 types for category 211
+AdminEnhancedFacilityForm.tsx:232 [ADMIN FORM RESET] Setting NAICS description for code 211130 : Mining, Quarrying, and Oil and Gas Extraction > Oil and Gas Extraction > Natural Gas Extraction
+AdminEnhancedFacilityForm.tsx:285 [ADMIN FORM RESET] Prepared form data: {facilitySector: '21', facilityCategory: '211', facilityType: '211130', hasEMIS: true, emisRealtimeMonitoring: false, …}
+AdminEnhancedFacilityForm.tsx:359 [ADMIN FORM RESET] Initialization complete
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '21', isInitializing: true, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '211', isInitializing: true, editingFacilityCategory: '211', currentType: '211130', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '211', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: '211: Oil and Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '211', watchedType: '211130', availableTypes: 2, availableTypeNames: Array(2), typeFound: '211130: Natural Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '21', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] Setting categories for sector 21 - found 3 categories
+AdminEnhancedFacilityForm.tsx:383 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:384 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '211', isInitializing: false, editingFacilityCategory: '211', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] Setting types for category 211 - found 2 types
+AdminEnhancedFacilityForm.tsx:413 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:435 [NAICS GENERATION] Generated NAICS code: 211130 for 21 211 211130
+AdminEnhancedFacilityForm.tsx:296 [ADMIN FORM RESET] Calling reset with formData and setting isResetting flag
+AdminEnhancedFacilityForm.tsx:301 [ADMIN FORM RESET] Setting explicit values for NAICS and energy management fields
+AdminEnhancedFacilityForm.tsx:302 [ADMIN FORM RESET] About to set NAICS values: {sector: '21', category: '211', type: '211130'}
+AdminEnhancedFacilityForm.tsx:309 [ADMIN FORM RESET] Set facilitySector to: 21 current watch value: 21
+AdminEnhancedFacilityForm.tsx:312 [ADMIN FORM RESET] Set facilityCategory to: 211 current watch value: 211
+AdminEnhancedFacilityForm.tsx:315 [ADMIN FORM RESET] Set facilityType to: 211130 current watch value: 211130
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '211', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: '211: Oil and Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '211', watchedType: '211130', availableTypes: 2, availableTypeNames: Array(2), typeFound: '211130: Natural Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '21', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] Setting categories for sector 21 - found 3 categories
+AdminEnhancedFacilityForm.tsx:390 [NAICS SECTOR EFFECT] Skipping clear due to form submission, validation errors, recent form submission, or reset in progress
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '211', isInitializing: false, editingFacilityCategory: '211', currentType: '211130', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] Setting types for category 211 - found 2 types
+AdminEnhancedFacilityForm.tsx:418 [NAICS CATEGORY EFFECT] Skipping clear due to form submission, validation errors, recent form submission, or reset in progress
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '211', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: '211: Oil and Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '211', watchedType: '211130', availableTypes: 2, availableTypeNames: Array(2), typeFound: '211130: Natural Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:325 [ADMIN FORM RESET] Values after explicit setValue (100ms delay): {facilitySector: '21', facilityCategory: '211', facilityType: '211130', emisRealtimeMonitoring: false, energyManagerFullTime: false, …}
+AdminEnhancedFacilityForm.tsx:338 [ADMIN FORM RESET] Complete form values (100ms delay): {facilitySector: '21', facilityCategory: '211', facilityType: '211130'}
+AdminEnhancedFacilityForm.tsx:347 [ADMIN FORM RESET] Values after explicit setValue (500ms delay): {facilitySector: '21', facilityCategory: '211', facilityType: '211130'}
+AdminEnhancedFacilityForm.tsx:352 [ADMIN FORM RESET] Clearing isResetting flag
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '211', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: '211: Oil and Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '211', watchedType: '211130', availableTypes: 2, availableTypeNames: Array(2), typeFound: '211130: Natural Gas Extraction', …}
+AdminEnhancedFacilityForm.tsx:365 [NAICS SECTOR EFFECT] Triggered with: {watchedSector: '21', isInitializing: false, isSubmitting: false, hasErrors: false, errors: {…}, …}
+AdminEnhancedFacilityForm.tsx:378 [NAICS SECTOR EFFECT] Setting categories for sector 21 - found 3 categories
+AdminEnhancedFacilityForm.tsx:383 [NAICS SECTOR EFFECT] About to clear category and type fields due to sector change
+AdminEnhancedFacilityForm.tsx:384 [NAICS SECTOR EFFECT] Clearing category/type fields due to sector change
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '211', isInitializing: false, editingFacilityCategory: '211', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:408 [NAICS CATEGORY EFFECT] Setting types for category 211 - found 2 types
+AdminEnhancedFacilityForm.tsx:413 [NAICS CATEGORY EFFECT] About to clear facilityType due to category change
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 2, availableTypeNames: Array(2), typeFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:397 [NAICS CATEGORY EFFECT] Triggered with: {watchedCategory: '', isInitializing: false, editingFacilityCategory: '211', currentType: '', isSubmitting: false, …}
+AdminEnhancedFacilityForm.tsx:421 [NAICS CATEGORY EFFECT] No category selected, clearing types array
+AdminEnhancedFacilityForm.tsx:452 [NAICS DISPLAY] getCategoryDisplayText called with: {watchedSector: '21', watchedCategory: '', availableCategories: 3, availableCategoryNames: Array(3), categoryFound: 'NOT FOUND', …}
+AdminEnhancedFacilityForm.tsx:469 [NAICS DISPLAY] getTypeDisplayText called with: {watchedCategory: '', watchedType: '', availableTypes: 0, availableTypeNames: Array(0), typeFound: 'NOT FOUND', …}

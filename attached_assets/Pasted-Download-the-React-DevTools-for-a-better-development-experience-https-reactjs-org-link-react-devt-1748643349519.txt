@@ -1,0 +1,59 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/auth/user:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+content.js:37 Feature is disabled
+chunk-WERSD76P.js?v=dc756905:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=dc756905:337:18
+    at div
+    at div
+    at div
+    at nav
+    at aside
+    at Sidebar (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Sidebar.tsx:49:20)
+    at div
+    at Layout (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Layout.tsx:21:34)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=dc756905:379:17)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=_i-krTAMTRVkSw2tF1OV9:39:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=dc756905:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=dc756905:62:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=dc756905:2805:3)
+    at App
+printWarning @ chunk-WERSD76P.js?v=dc756905:521Understand this error
+chunk-WERSD76P.js?v=dc756905:521 Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+    at div
+    at Badge (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/badge.tsx:35:18)
+    at p
+    at div
+    at div
+    at header
+    at Header (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Header.tsx:34:20)
+    at div
+    at div
+    at Layout (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Layout.tsx:21:34)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=dc756905:379:17)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=_i-krTAMTRVkSw2tF1OV9:39:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=dc756905:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=dc756905:62:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=dc756905:2805:3)
+    at App
+printWarning @ chunk-WERSD76P.js?v=dc756905:521Understand this error
+Documents.tsx:34 Documents data: Array(0)
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: Array(0)
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: Array(0)
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: Array(0)
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: Array(0)
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0

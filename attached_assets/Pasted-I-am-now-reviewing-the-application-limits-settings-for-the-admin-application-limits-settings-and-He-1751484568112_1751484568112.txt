@@ -1,0 +1,48 @@
+I am now reviewing the application limits settings for the /admin/application-limits settings and Here are the activity limits configuration shown to the system admin:
+Activity Limits Configuration
+Activity	Status	Application Limit	Usage Status	Actions
+F
+Facility Readiness Assessment (FRA)
+Activity 1 - Facility Readiness Assessment
+
+Enabled
+1
+
+Exceeded
+11/1 (1100%)
+S
+Strategic Energy Manager (SEM)
+Activity 2 - Strategic Energy Manager
+
+Enabled
+No limit
+
+Unlimited	
+E
+Energy Management Information Systems (EMIS)
+Activity 3 - Energy Management Information Systems
+
+Disabled
+No limit
+
+Unlimited	
+A
+Energy Assessments and Audits (EAA)
+Activity 4 - Energy Assessments and Audits
+
+Disabled
+No limit
+
+Unlimited	
+R
+Capital Retrofits (CR)
+Activity 5 - Capital Retrofits
+
+Disabled
+No limit
+
+Unlimited	
+
+Why does usage status show exceeded. This does not make sense. This section is all working correctly except the logic begin the usage status. Technically, the usage status is just supposed to show the total number of FRAs that have been created. Since application limit is the number of applications that can be created for that specific facility, it isn't correct to say 11/1 FRAs have been created because there are 11 facilities that have an FRA. So usage should simply be the number of that specific application type. It can maybe elaborate by showing the total number of facilities that haven't created that activityt so if there are 100 facilities and based on the limit, only 60 FRAs have bveen created then it can show how many out of the limit. For activities without any limits, it should only show how many have been created in total. On this same page, below the activity limits configuration section, there is a application usage overview. Is it possible to change this card so it allows the system admin to export the list of users that have completed or entered data into that specific activity. This would be a very elaborate document that would need to incldue all the data that was entered into every application for that specific activity. You would need to inlcude the name of the user, company information, and facility information as well for that specific application data. Each template field that had data input should be included as well. So for the first activity template (Pre-Activity Test), if a document was submitted, it should include a name of the documents uploaded. We should also be able to download a zip file that contains the list of all companies (as folders) with sub folders for the facilities and then within each facility folder, the files that the user uploaded). I know there is a lot that needs to happen in the background so if we need to inform the user that the documents are being zipped together and the download file will start downloading shortly, that is fine. If this will require a lot of procewssing, there should be a progress notification popup window that shows the user the percentage done and what it is currently working on to create the download file.
+
+Remember, this export functionality is only available on the application limits page on the application usage card. I will test your output after you have craeted these output or export buttons for each actviites. Review the database in full so you understand what data is available and then import whatever libraries are necessary for you to complete this functionaliy. ALongisde each download button (or export button if that it what you are calling it), include a description (short description) that mentions exactly what you are doing. 

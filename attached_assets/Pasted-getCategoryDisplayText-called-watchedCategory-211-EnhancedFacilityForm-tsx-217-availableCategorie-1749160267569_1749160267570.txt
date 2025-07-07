@@ -1,0 +1,251 @@
+getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:252 Initializing form with facility: {id: 13, name: 'Test Again', code: '010', facilityCode: '010', description: 'Contact: N/A (N/A)', …}
+EnhancedFacilityForm.tsx:258 Set available categories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:265 Set available types: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:283 Resetting form with complete data: {id: 13, name: 'Test Again', code: '010', facilityCode: '010', description: 'Contact: N/A (N/A)', …}
+EnhancedFacilityForm.tsx:284 NAICS fields in reset data: {facilitySector: '21', facilityCategory: '211', facilityType: '211130'}
+EnhancedFacilityForm.tsx:289 Checkbox fields in reset data: {grossFloorAreaUnit: undefined, grossFloorAreaIsTemporary: undefined, weeklyOperatingHoursIsTemporary: undefined, numberOfWorkersMainShiftIsTemporary: undefined, processFacilitySubmetering: undefined, …}
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:301 Form reset completed
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:252 Initializing form with facility: {id: 13, name: 'Test Again', code: '010', facilityCode: '010', description: 'Contact: N/A (N/A)', …}
+EnhancedFacilityForm.tsx:258 Set available categories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:265 Set available types: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:283 Resetting form with complete data: {id: 13, name: 'Test Again', code: '010', facilityCode: '010', description: 'Contact: N/A (N/A)', …}
+EnhancedFacilityForm.tsx:284 NAICS fields in reset data: {facilitySector: '21', facilityCategory: '211', facilityType: '211130'}
+EnhancedFacilityForm.tsx:289 Checkbox fields in reset data: {grossFloorAreaUnit: undefined, grossFloorAreaIsTemporary: undefined, weeklyOperatingHoursIsTemporary: undefined, numberOfWorkersMainShiftIsTemporary: undefined, processFacilitySubmetering: undefined, …}
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:301 Form reset completed
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:252 Initializing form with facility: {id: 13, name: 'Test Again', code: '010', facilityCode: '010', description: 'Contact: N/A (N/A)', …}
+EnhancedFacilityForm.tsx:258 Set available categories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:265 Set available types: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:283 Resetting form with complete data: {id: 13, name: 'Test Again', code: '010', facilityCode: '010', description: 'Contact: N/A (N/A)', …}
+EnhancedFacilityForm.tsx:284 NAICS fields in reset data: {facilitySector: '21', facilityCategory: '211', facilityType: '211130'}
+EnhancedFacilityForm.tsx:289 Checkbox fields in reset data: {grossFloorAreaUnit: undefined, grossFloorAreaIsTemporary: undefined, weeklyOperatingHoursIsTemporary: undefined, numberOfWorkersMainShiftIsTemporary: undefined, processFacilitySubmetering: undefined, …}
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:301 Form reset completed
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction
+EnhancedFacilityForm.tsx:216 getCategoryDisplayText called - watchedCategory: 211
+EnhancedFacilityForm.tsx:217 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 foundInAvailable: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:224 foundInAll: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}
+EnhancedFacilityForm.tsx:228 getCategoryDisplayText result: Oil and Gas Extraction
+EnhancedFacilityForm.tsx:233 getTypeDisplayText called - watchedType: 211130
+EnhancedFacilityForm.tsx:234 availableTypes: (2) [{…}, {…}]
+EnhancedFacilityForm.tsx:240 foundInAvailable: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:241 foundInAll: {code: '211130', title: 'Natural Gas Extraction', level: 6, parent: '211'}
+EnhancedFacilityForm.tsx:245 getTypeDisplayText result: Natural Gas Extraction

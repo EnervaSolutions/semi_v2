@@ -1,0 +1,44 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=cd914692:840
+run @ @tanstack_react-query.js?v=cd914692:494
+start @ @tanstack_react-query.js?v=cd914692:536
+fetch @ @tanstack_react-query.js?v=cd914692:926
+executeFetch_fn @ @tanstack_react-query.js?v=cd914692:2211
+onSubscribe @ @tanstack_react-query.js?v=cd914692:1898
+subscribe @ @tanstack_react-query.js?v=cd914692:24
+(anonymous) @ @tanstack_react-query.js?v=cd914692:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=cd914692:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=cd914692:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=cd914692:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=cd914692:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=cd914692:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=cd914692:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=cd914692:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=cd914692:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=cd914692:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=cd914692:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=cd914692:19432
+commitRoot @ chunk-RPCDYKBN.js?v=cd914692:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=cd914692:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=cd914692:18718
+workLoop @ chunk-RPCDYKBN.js?v=cd914692:197
+flushWork @ chunk-RPCDYKBN.js?v=cd914692:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=cd914692:384Understand this error
+content.js:37 Feature is disabled
+EnhancedFacilityForm.tsx:208 getCategoryDisplayText called with: 212
+EnhancedFacilityForm.tsx:209 availableCategories: (3) [{…}, {…}, {…}]0: {code: '212', title: 'Mining (except Oil and Gas)', level: 3, parent: '21'}1: {code: '211', title: 'Oil and Gas Extraction', level: 3, parent: '21'}2: {code: '213', title: 'Support Activities for Mining', level: 3, parent: '21'}length: 3[[Prototype]]: Array(0)
+EnhancedFacilityForm.tsx:213 getCategoryDisplayText result: Mining (except Oil and Gas)
+EnhancedFacilityForm.tsx:218 getTypeDisplayText called with: 212312
+EnhancedFacilityForm.tsx:219 availableTypes: (14) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 getTypeDisplayText result: Crushed and Broken Limestone Mining and Quarrying
+EnhancedFacilityForm.tsx:208 getCategoryDisplayText called with: 212
+EnhancedFacilityForm.tsx:209 availableCategories: (3) [{…}, {…}, {…}]
+EnhancedFacilityForm.tsx:213 getCategoryDisplayText result: Mining (except Oil and Gas)
+EnhancedFacilityForm.tsx:218 getTypeDisplayText called with: 212312
+EnhancedFacilityForm.tsx:219 availableTypes: (14) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+EnhancedFacilityForm.tsx:223 getTypeDisplayText result: Crushed and Broken Limestone Mining and Quarrying

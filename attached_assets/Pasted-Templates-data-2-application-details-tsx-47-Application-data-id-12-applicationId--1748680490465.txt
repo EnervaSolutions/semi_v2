@@ -1,0 +1,83 @@
+Templates data: (2) [{…}, {…}]
+application-details.tsx:47 Application data: {id: 12, applicationId: 'TESTC3-001-102', companyId: 7, facilityId: 3, activityType: 'FRA', …}
+application-details.tsx:48 Activity type: FRA
+application-details.tsx:49 Templates enabled: true
+application-details.tsx:50 Templates data: (2) [{…}, {…}]
+application-details.tsx:47 Application data: {id: 12, applicationId: 'TESTC3-001-102', companyId: 7, facilityId: 3, activityType: 'FRA', …}
+application-details.tsx:48 Activity type: FRA
+application-details.tsx:49 Templates enabled: true
+application-details.tsx:50 Templates data: (2) [{…}, {…}]
+application-details.tsx:61 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/applications/12/submit/pre_activity 404 (Not Found)
+mutationFn @ application-details.tsx:61
+fn @ @tanstack_react-query.js?v=ef6c4af6:1189
+run @ @tanstack_react-query.js?v=ef6c4af6:494
+start @ @tanstack_react-query.js?v=ef6c4af6:536
+execute @ @tanstack_react-query.js?v=ef6c4af6:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=ef6c4af6:2630
+(anonymous) @ @tanstack_react-query.js?v=ef6c4af6:3295
+onSubmit @ application-details.tsx:276
+handleSubmit @ application-details.tsx:316
+callCallback2 @ chunk-WERSD76P.js?v=ef6c4af6:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=ef6c4af6:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=ef6c4af6:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=ef6c4af6:3736
+executeDispatch @ chunk-WERSD76P.js?v=ef6c4af6:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=ef6c4af6:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=ef6c4af6:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=ef6c4af6:7051
+(anonymous) @ chunk-WERSD76P.js?v=ef6c4af6:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=ef6c4af6:18913
+batchedUpdates @ chunk-WERSD76P.js?v=ef6c4af6:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=ef6c4af6:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=ef6c4af6:5478
+dispatchEvent @ chunk-WERSD76P.js?v=ef6c4af6:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=ef6c4af6:5449Understand this error
+application-details.tsx:47 Application data: {id: 12, applicationId: 'TESTC3-001-102', companyId: 7, facilityId: 3, activityType: 'FRA', …}
+application-details.tsx:48 Activity type: FRA
+application-details.tsx:49 Templates enabled: true
+application-details.tsx:50 Templates data: (2) [{…}, {…}]
+application-details.tsx:47 Application data: {id: 12, applicationId: 'TESTC3-001-102', companyId: 7, facilityId: 3, activityType: 'FRA', …}
+application-details.tsx:48 Activity type: FRA
+application-details.tsx:49 Templates enabled: true
+application-details.tsx:50 Templates data: (2) [{…}, {…}]
+application-details.tsx:61 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/applications/12/submit/pre_activity 404 (Not Found)
+mutationFn @ application-details.tsx:61
+fn @ @tanstack_react-query.js?v=ef6c4af6:1189
+run @ @tanstack_react-query.js?v=ef6c4af6:494
+start @ @tanstack_react-query.js?v=ef6c4af6:536
+execute @ @tanstack_react-query.js?v=ef6c4af6:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=ef6c4af6:2630
+(anonymous) @ @tanstack_react-query.js?v=ef6c4af6:3295
+onSubmit @ application-details.tsx:276
+handleSubmit @ application-details.tsx:316
+callCallback2 @ chunk-WERSD76P.js?v=ef6c4af6:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=ef6c4af6:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=ef6c4af6:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=ef6c4af6:3736
+executeDispatch @ chunk-WERSD76P.js?v=ef6c4af6:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=ef6c4af6:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=ef6c4af6:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=ef6c4af6:7051
+(anonymous) @ chunk-WERSD76P.js?v=ef6c4af6:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=ef6c4af6:18913
+batchedUpdates @ chunk-WERSD76P.js?v=ef6c4af6:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=ef6c4af6:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=ef6c4af6:5478
+dispatchEvent @ chunk-WERSD76P.js?v=ef6c4af6:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=ef6c4af6:5449Understand this error
+application-details.tsx:47 Application data: {id: 12, applicationId: 'TESTC3-001-102', companyId: 7, facilityId: 3, activityType: 'FRA', …}
+application-details.tsx:48 Activity type: FRA
+application-details.tsx:49 Templates enabled: true
+application-details.tsx:50 Templates data: (2) [{…}, {…}]
+application-details.tsx:47 Application data: {id: 12, applicationId: 'TESTC3-001-102', companyId: 7, facilityId: 3, activityType: 'FRA', …}
+application-details.tsx:48 Activity type: FRA
+application-details.tsx:49 Templates enabled: true
+application-details.tsx:50 Templates data: (2) [{…}, {…}]

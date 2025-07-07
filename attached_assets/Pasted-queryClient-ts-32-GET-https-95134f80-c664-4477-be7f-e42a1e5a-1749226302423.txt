@@ -1,0 +1,60 @@
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+window.fetch @ Network.js:219
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=5d5d229d:840
+run @ @tanstack_react-query.js?v=5d5d229d:494
+start @ @tanstack_react-query.js?v=5d5d229d:536
+fetch @ @tanstack_react-query.js?v=5d5d229d:926
+executeFetch_fn @ @tanstack_react-query.js?v=5d5d229d:2211
+onSubscribe @ @tanstack_react-query.js?v=5d5d229d:1898
+subscribe @ @tanstack_react-query.js?v=5d5d229d:24
+(anonymous) @ @tanstack_react-query.js?v=5d5d229d:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=5d5d229d:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=5d5d229d:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=5d5d229d:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=5d5d229d:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=5d5d229d:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=5d5d229d:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=5d5d229d:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=5d5d229d:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=5d5d229d:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=5d5d229d:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=5d5d229d:19432
+commitRoot @ chunk-RPCDYKBN.js?v=5d5d229d:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=5d5d229d:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=5d5d229d:18718
+workLoop @ chunk-RPCDYKBN.js?v=5d5d229d:197
+flushWork @ chunk-RPCDYKBN.js?v=5d5d229d:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=5d5d229d:384Understand this error
+Console.js:61 Warning: A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://reactjs.org/link/controlled-components
+    at input
+    at _c (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/input.tsx:20:11)
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=5d5d229d:79:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2K77HOHX.js?v=5d5d229d:56:13
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/form.tsx:130:9
+    at div
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/form.tsx:72:6
+    at Controller (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4BFJKWC4.js?v=5d5d229d:298:35)
+    at FormField (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/form.tsx:33:6)
+    at div
+    at div
+    at form
+    at FormProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-4BFJKWC4.js?v=5d5d229d:102:11)
+    at div
+    at _c9 (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at div
+    at AuthPage (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/pages/auth-page.tsx:89:33)
+    at Route (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5d5d229d:265:16)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5d5d229d:321:17)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=cuGYac6v1aoYok3QB-N8p:45:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=5d5d229d:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=5d5d229d:62:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=5d5d229d:2805:3)
+    at App

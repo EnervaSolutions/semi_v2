@@ -1,0 +1,177 @@
+Skip to content
+Emissions Reduction Alberta
+Impact
+Projects
+Funding
+About
+
+
+
+Home > Strategic Energy Management for Industry > Frequently Asked Questions
+Last updated: January 2025
+
+General
+
+1. Who is ERA?
+ERA is Emissions Reduction Alberta. We previously operated as the Climate Change and Emissions Management (CCEMC) Corporation. ERA is a key partner in implementing Alberta’s climate change strategy. Funding for the Strategic Energy Management for Industry (SEMI program), which comes from the Government of Alberta’s Technology Innovation and Emissions Reduction (TIER) Fund and Natural Resources Canada (NRCan), is helping to shape a province with a diverse economy, a healthy environment and a robust innovation ecosystem.
+
+For more information, visit the About ERA web page.
+
+
+2. Who is Enerva Energy Solutions?
+Enerva Energy Solutions Inc (Enerva) is supporting ERA with the delivery of the Strategic Energy Management for Industry (SEMI) program. Enerva specializes in the design & delivery of energy efficiency and decarbonization programs for partners and customers across Canada. Its team consists of outreach, technical review, and engineering services professionals with expertise in advanced data analysis, energy modeling, energy saving technologies, and financial analysis, with expertise spanning various industrial sectors and equipment types. Within the SEMI program framework, Enerva will help participants optimize energy performance, reduce energy costs & emissions, and leverage co-funding activities.
+
+
+3. What does ‘50001 Ready’ mean and what are the benefits?
+The 50001 Ready Canada program recognizes facilities that demonstrate energy management leadership and energy performance improvement. Achieving the 50001 Ready designation requires facilities to self-attest the structure of the ISO 50001 energy management standard and to measure and report energy performance improvement. To date, almost 300 facilities or buildings in Canada have achieved the 50001 Ready status.
+
+50001 Ready status does not indicate that your project conforms to the ISO 50001 standard or that it will pass an ISO 50001 audit. However, a building or facility with 50001 Ready status is recognized as being in good preparation for ISO 50001 certification.
+
+Participants in SEMI are not required to obtain 50001 Ready status; however, the benefit of working towards 50001 Ready status is that it allows you to maintain and continually improve your facility’s performance by renewing your recognition annually at no cost. The 50001 Ready Navigator tool also provides you with decarbonization management guidance to help you reach your Net Zero goals. This guidance is focused on the organization-level actions that are required to manage energy and energy-related GHG emissions.
+
+Please see the 50001 Ready process flow chart below for additional detail:
+
+
+Image Source: 50001 Ready Canada recognition process
+
+4. What is a small and medium-sized enterprise (SME)?
+The Canadian government has defined Canadian Industry Statistics that dictate what type of company a business is based on the number of employees. As a result, small and medium-sized enterprises are businesses which have 5 to 499 employees.
+
+Micro businesses have 1-4 employees.
+Small businesses have 5-99 employees.
+Medium businesses have 100-499 employees.
+Large businesses have 500+ employees.
+The SEMI program is committed to supporting both SME and large enterprises.
+
+
+5. Is ERA able to provide a list of eligible service providers and contractors for SEMI?
+ERA does not provide a list of service providers or contractors for SEMI. However, if you require assistance in finding a contractor for your project, please reach out and we can provide you links to resources.
+
+Please note that ERA does not endorse any contractors and we always recommend getting quotes from a minimum of three contractors before proceeding with a project.
+
+
+6. Can an eligible contractor complete an application on behalf of a customer?
+Participants (i.e., customers) must register on the portal and start their application. Once the application has been started, the participant has the ability to grant access to an eligible contractor and assist with filling in required information. Once the information has been filled in, the participant is responsible for submitting the application.
+
+
+7. How do I submit an application for a second facility?
+The portal is designed to allow each account owner to add multiple facilities under a single account. You do not need to register a new user for each facility. To submit an application for a second facility, navigate to your account dashboard, where the option to add additional facility applications is available. If you’re not seeing this option, please ensure your account permissions are up to date, or contact our support team for further assistance.
+
+
+8. How will emission reductions be accurately calculated?
+Emission reductions are accurately calculated by comparing baseline emissions to post-implementation emissions, following established measurement and verification (M&V) protocols like those outlined in the IPMVP (International Performance Measurement and Verification Protocol).
+
+
+9. Am I required to submit separate applications for multiple facilities on the same site?
+Since SEMI incentive caps apply to each facility individually, each facility located within a site would need to submit a separate application. A facility is defined as a physical location where industrial activities take place, involving energy use for producing, transforming, or assembling goods. If a site comprises of multiple buildings, each building or group of buildings used for industrial activities is considered a separate facility, provided they have distinct energy boundaries set by provider-owned meters.
+
+
+10. Can proponents use a contractor of their choice to complete the different activities in SEMI?
+Proponents can use an Eligible Contractor of their choice to complete the Energy Audits and Assessments, Energy Management Information Systems, and Capital Retrofits activities. Eligible Contractors are defined as contractors that have met the requirements in the SEMI Contractor Code of Conduct. Only Enerva Energy Solutions will deliver the Facility Readiness Assessment and Strategic Energy Management activities. This will help ensure we are able to consistently collect baseline data and efficiently guide proponents through the other program activities.
+
+
+11. Can I participate in just one eligible activity? Or do I need to participate in all four?
+All participants must first complete a Facility Readiness Assessment (FRA). After that, you can participate in all four eligible activities.
+
+
+12. How long will a Facility Readiness Assessment (FRA) take to complete and what is the approximate cost?
+The duration and cost of the FRA will depend on several variables including the size and complexity of your facility. Additionally, the duration will depend on your ability to provide documentation required to complete the FRA.
+
+NAICS Codes
+
+1. What is a NAICS code?
+
+2. How do I find my NAICS code?
+
+3. Which NAICS codes are eligible?
+
+4. What if my NAICS code isn’t on the list of eligible sectors but I am an industrial or manufacturing facility?
+Eligibility
+
+1. I previously completed an energy audit outside of the SEMI program. Can I now apply to complete a capital retrofit?
+
+2. I already completed a detailed study outside of the SEMI program that includes opportunities for energy and/or GHG emissions improvements. Can I retroactively apply the cost to in-kind contributions?
+
+3. Which energy efficiency projects are eligible under the Capital Retrofits activity?
+
+4. What is the deadline to apply to the SEMI program?
+
+5. What is the process for a contractor to become eligible to complete projects in SEMI?
+
+6. Can I submit an application to SEMI for a project that has already started?
+
+7. Are there any eligibility requirements for installing solar PV and General Purpose LED lighting?
+
+8. Why is there a requirement to bundle solar PV with another energy efficiency technology?
+
+9. I have a facility that has been vacant for more than one year. Can I participate SEMI?
+Funding
+
+1. What is considered an in-kind contribution?
+
+2. As a for-profit organization, can I cover up to 50% of project costs using in-kind contributions for all activities?
+
+3. Is there a parent company cap on the number of facilities that can participate?
+
+4. What are the maximum incentive levels in SEMI?
+
+5. What are the eligible expenditures in SEMI?
+Please refer to the Terms and Conditions of each activity in Schedule B for information on eligible expenditures.
+
+For FRA, information on the co-funding mechanism can be found in the related T&Cs, Schedule B. Please see FRA Terms and Conditions.
+For SEM, participants must commit to 80% of the training sessions and complete reporting tasks, which serves as the co-funding mechanism. For more information, please see SEM Terms and Conditions.
+For Capital Retrofits, please refer to Capital Retrofits Terms and Conditions.
+For EMIS, please refer to EMIS Terms and Conditions.
+For EAA, please refer to EAA Terms and Conditions.
+
+6. What expenditures are not eligible?
+
+7. Does ERA keep the environmental attributes?
+
+8. Can I apply for other funding programs at the same time as SEMI?
+
+9. Does the Government of Canada’s Investment Tax Credits count towards the 75% maximum of total government funding in the SEMI program?
+
+10. If I have already received funding from ERA, can I still apply?
+Ready to get started with SEMI?
+Register on the SEMI portal.
+
+Register/Login
+Program Updates
+Sign up for the SEMI Newsletter
+
+Resources
+SEMI Brochure
+How to Participate
+FRA-Application-Guide
+FRA Terms and Conditions
+Contractor Code of Conduct
+Questions?
+Visit our FAQ or Contact Us
+
+Emissions Reduction Alberta
+© 2024 Emissions Reduction Alberta (ERA)
+
+#2503, 10088 102 Avenue NW
+Edmonton, Alberta, T5J 2Z1
+#3120, 715 5 Avenue SW
+Calgary, Alberta, T2P 2X6
+
+Privacy Policy
+Terms of Use
+General Inquiries
+Email: info@eralberta.ca 
+Phone: 780-498-2068
+
+Stay Updated
+LinkedIn
+YouTube
+Twitter
+Mail
+ERA receives its funding from the Government of Alberta through the Technology Innovation Emissions  Reduction (TIER) Fund.
+
+
+Emissions Reduction Alberta is a registered tradename of the Climate Change and Emissions Management (CCEMC) Corporation.
+
+In the spirit of reconciliation, we have the privilege of living, working, and investing on traditional territories, which include Treaty 6, Treaty 7, and Treaty 8 Nations; Metis Nations (Region 3 and 4); Inuit; and all others who live and care for these lands. We are dedicated to promoting a culture of collaboration and meaningful engagement.
+

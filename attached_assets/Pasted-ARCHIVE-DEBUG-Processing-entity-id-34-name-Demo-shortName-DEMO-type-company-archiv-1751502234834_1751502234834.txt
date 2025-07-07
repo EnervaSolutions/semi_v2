@@ -1,0 +1,76 @@
+ARCHIVE DEBUG - Processing entity: {id: 34, name: 'Demo', shortName: 'DEMO', type: 'company', archivedAt: '2025-07-02T23:41:43.668Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 35, name: 'Magic Inc', shortName: 'MAGINC', type: 'company', archivedAt: '2025-07-02T23:41:43.456Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 36, name: 'Hoggy', shortName: 'HOGGY', type: 'company', archivedAt: '2025-07-02T23:41:43.243Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 37, name: 'Religions Inc', shortName: 'QUISH', type: 'company', archivedAt: '2025-07-02T23:41:43.031Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 38, name: '234', shortName: '234', type: 'company', archivedAt: '2025-07-02T23:41:42.818Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 39, name: 'Energizers', shortName: 'ENERGI', type: 'company', archivedAt: '2025-07-02T23:41:42.606Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 40, name: 'Tony Skates', shortName: 'TONSKA', type: 'company', archivedAt: '2025-07-02T23:41:42.394Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 41, name: 'Test', shortName: 'TEST', type: 'company', archivedAt: '2025-07-02T23:41:42.181Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 42, name: 'Harsanjit Company 123', shortName: 'HACO12', type: 'company', archivedAt: '2025-07-02T23:41:41.967Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 43, name: 'Harsanjit Contracting ', shortName: 'HARSA4', type: 'company', archivedAt: '2025-07-02T23:41:41.747Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 45, name: 'Rocket Sales Corp', shortName: 'ROCKET', type: 'company', archivedAt: '2025-07-02T23:41:41.527Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 46, name: 'Semi', shortName: 'SEMI', type: 'company', archivedAt: '2025-07-02T23:41:41.313Z', …}
+AdminArchiveSettingsPage.tsx:254 ARCHIVE DEBUG - Processing entity: {id: 55, name: 'TestCompano', shortName: 'TESTO', type: 'company', archivedAt: '2025-07-02T23:41:41.091Z', …}
+AdminArchiveSettingsPage.tsx:309 ARCHIVE DEBUG - Flattened entities: 42
+AdminArchiveSettingsPage.tsx:310 ARCHIVE DEBUG - Final grouped entities: {company: Array(35), facility: Array(7)}
+AdminArchiveSettingsPage.tsx:138 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/admin/archive/delete 500 (Internal Server Error)
+mutationFn @ AdminArchiveSettingsPage.tsx:138
+fn @ @tanstack_react-query.js?v=0d9f22c2:1189
+run @ @tanstack_react-query.js?v=0d9f22c2:494
+start @ @tanstack_react-query.js?v=0d9f22c2:536
+execute @ @tanstack_react-query.js?v=0d9f22c2:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=0d9f22c2:2630
+(anonymous) @ @tanstack_react-query.js?v=0d9f22c2:3295
+handleBulkDelete @ AdminArchiveSettingsPage.tsx:227
+callCallback2 @ chunk-RPCDYKBN.js?v=0d9f22c2:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=0d9f22c2:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=0d9f22c2:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=0d9f22c2:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=0d9f22c2:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=0d9f22c2:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=0d9f22c2:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=0d9f22c2:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=0d9f22c2:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=0d9f22c2:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=0d9f22c2:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=0d9f22c2:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=0d9f22c2:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=0d9f22c2:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=0d9f22c2:5449Understand this error
+AdminArchiveSettingsPage.tsx:138 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/admin/archive/delete 500 (Internal Server Error)
+mutationFn @ AdminArchiveSettingsPage.tsx:138
+fn @ @tanstack_react-query.js?v=0d9f22c2:1189
+run @ @tanstack_react-query.js?v=0d9f22c2:494
+(anonymous) @ @tanstack_react-query.js?v=0d9f22c2:519
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=0d9f22c2:515
+Promise.catch
+run @ @tanstack_react-query.js?v=0d9f22c2:498
+start @ @tanstack_react-query.js?v=0d9f22c2:536
+execute @ @tanstack_react-query.js?v=0d9f22c2:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=0d9f22c2:2630
+(anonymous) @ @tanstack_react-query.js?v=0d9f22c2:3295
+handleBulkDelete @ AdminArchiveSettingsPage.tsx:227
+callCallback2 @ chunk-RPCDYKBN.js?v=0d9f22c2:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=0d9f22c2:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=0d9f22c2:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=0d9f22c2:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=0d9f22c2:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=0d9f22c2:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=0d9f22c2:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=0d9f22c2:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=0d9f22c2:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=0d9f22c2:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=0d9f22c2:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=0d9f22c2:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=0d9f22c2:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=0d9f22c2:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=0d9f22c2:5449Understand this error

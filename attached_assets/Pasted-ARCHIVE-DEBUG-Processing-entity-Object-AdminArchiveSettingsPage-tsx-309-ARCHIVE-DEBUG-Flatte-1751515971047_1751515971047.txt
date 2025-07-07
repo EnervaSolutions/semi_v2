@@ -1,0 +1,45 @@
+ARCHIVE DEBUG - Processing entity: 
+Object
+AdminArchiveSettingsPage.tsx:309 ARCHIVE DEBUG - Flattened entities: 6
+AdminArchiveSettingsPage.tsx:310 ARCHIVE DEBUG - Final grouped entities: 
+Object
+AddApplicationDialog.tsx:58 Fetching facilities for company: 56
+AddApplicationDialog.tsx:61 Facilities response: 
+Array(2)
+AddApplicationDialog.tsx:81 Predicting application ID for: 
+Object
+AddApplicationDialog.tsx:97 Creating application with data: 
+Object
+AddApplicationDialog.tsx:100 Application creation result: 
+Object
+AddApplicationDialog.tsx:104 Application created successfully: 
+Object
+AddApplicationDialog.tsx:81 Predicting application ID for: 
+Object
+AddApplicationDialog.tsx:97 Creating application with data: 
+Object
+api/admin/applications:1 
+ Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+AddApplicationDialog.tsx:81 Predicting application ID for: 
+Object
+AddApplicationDialog.tsx:97 Creating application with data: 
+Object
+api/admin/applications:1 
+ Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+AddApplicationDialog.tsx:120 Application creation failed: Error: 500: {"message":"duplicate key value violates unique constraint \"applications_application_id_unique_active\""}
+    at throwIfResNotOk (queryClient.ts:17:11)
+    at async apiRequest (queryClient.ts:39:3)
+    at async Object.mutationFn (AddApplicationDialog.tsx:98:24)
+AddApplicationDialog.tsx:97 Creating application with data: 
+Object
+api/admin/applications:1 
+ Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+AddApplicationDialog.tsx:97 Creating application with data: 
+Object
+api/admin/applications:1 
+ Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+AddApplicationDialog.tsx:120 Application creation failed: Error: 500: {"message":"duplicate key value violates unique constraint \"applications_application_id_unique_active\""}
+    at throwIfResNotOk (queryClient.ts:17:11)
+    at async apiRequest (queryClient.ts:39:3)
+    at async Object.mutationFn (AddApplicationDialog.tsx:98:24)
+onError	@	AddApplicationDialog.tsx:120

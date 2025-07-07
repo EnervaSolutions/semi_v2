@@ -1,0 +1,20 @@
+[FORM INIT] useEffect triggered: {editingFacility: true, isInitializing: true, facilityId: 20}
+EnhancedFacilityForm.tsx:310 [FORM RESET] Raw facility data: {emisRealtimeMonitoring: undefined, energyManagerFullTime: undefined, hasEMIS: true, hasEnergyManager: true, emisDescription: undefined}
+EnhancedFacilityForm.tsx:318 [FORM RESET] Prepared form data: {emisRealtimeMonitoring: false, energyManagerFullTime: false, hasEMIS: true, hasEnergyManager: true, emisDescription: ''}
+EnhancedFacilityForm.tsx:264 [FORM INIT] useEffect triggered: {editingFacility: true, isInitializing: false, facilityId: 20}
+EnhancedFacilityForm.tsx:328 [FORM RESET] Calling reset with formData
+EnhancedFacilityForm.tsx:332 [FORM RESET] Setting explicit values for energy management fields
+EnhancedFacilityForm.tsx:341 [FORM RESET] Values after explicit setValue: {emisRealtimeMonitoring: false, energyManagerFullTime: false, hasEMIS: true, hasEnergyManager: true, emisDescription: ''}
+EnhancedFacilityForm.tsx:963 [CHECKBOX] emisRealtimeMonitoring changed to: true
+EnhancedFacilityForm.tsx:981 [TEXTAREA] emisDescription changed to: T
+EnhancedFacilityForm.tsx:981 [TEXTAREA] emisDescription changed to: Te
+EnhancedFacilityForm.tsx:981 [TEXTAREA] emisDescription changed to: Tes
+EnhancedFacilityForm.tsx:981 [TEXTAREA] emisDescription changed to: Test
+EnhancedFacilityForm.tsx:422 [FORM SUBMISSION] Energy management values: {emisRealtimeMonitoring: true, energyManagerFullTime: false, hasEMIS: true, hasEnergyManager: true}
+EnhancedFacilityForm.tsx:264 [FORM INIT] useEffect triggered: {editingFacility: true, isInitializing: true, facilityId: 20}
+EnhancedFacilityForm.tsx:310 [FORM RESET] Raw facility data: {emisRealtimeMonitoring: undefined, energyManagerFullTime: undefined, hasEMIS: true, hasEnergyManager: true, emisDescription: undefined}
+EnhancedFacilityForm.tsx:318 [FORM RESET] Prepared form data: {emisRealtimeMonitoring: false, energyManagerFullTime: false, hasEMIS: true, hasEnergyManager: true, emisDescription: ''}
+EnhancedFacilityForm.tsx:264 [FORM INIT] useEffect triggered: {editingFacility: true, isInitializing: false, facilityId: 20}
+EnhancedFacilityForm.tsx:328 [FORM RESET] Calling reset with formData
+EnhancedFacilityForm.tsx:332 [FORM RESET] Setting explicit values for energy management fields
+EnhancedFacilityForm.tsx:341 [FORM RESET] Values after explicit setValue: {emisRealtimeMonitoring: false, energyManagerFullTime: false, hasEMIS: true, hasEnergyManager: true, emisDescription: ''}

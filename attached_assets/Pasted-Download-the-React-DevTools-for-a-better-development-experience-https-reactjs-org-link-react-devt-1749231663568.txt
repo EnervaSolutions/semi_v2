@@ -1,0 +1,98 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=be9eebfb:840
+run @ @tanstack_react-query.js?v=be9eebfb:494
+start @ @tanstack_react-query.js?v=be9eebfb:536
+fetch @ @tanstack_react-query.js?v=be9eebfb:926
+executeFetch_fn @ @tanstack_react-query.js?v=be9eebfb:2211
+onSubscribe @ @tanstack_react-query.js?v=be9eebfb:1898
+subscribe @ @tanstack_react-query.js?v=be9eebfb:24
+(anonymous) @ @tanstack_react-query.js?v=be9eebfb:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=be9eebfb:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=be9eebfb:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=be9eebfb:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=be9eebfb:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=be9eebfb:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=be9eebfb:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=be9eebfb:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=be9eebfb:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=be9eebfb:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=be9eebfb:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=be9eebfb:19432
+commitRoot @ chunk-RPCDYKBN.js?v=be9eebfb:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=be9eebfb:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=be9eebfb:18718
+workLoop @ chunk-RPCDYKBN.js?v=be9eebfb:197
+flushWork @ chunk-RPCDYKBN.js?v=be9eebfb:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=be9eebfb:384Understand this error
+content.js:37 Feature is disabled
+auth-page.tsx:364 🚀 nextStep called on step 1
+auth-page.tsx:366 📋 Fields to validate: (6) ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'role']
+auth-page.tsx:370 📊 Current form data: {role: 'company_admin', firstName: 'Test User', lastName: 'Harsanjit', email: 'useraccountowner4@yopmail.com', password: 'Test1998*', …}
+auth-page.tsx:406 ✅ Validation passed, moving to next step
+queryClient.ts:15 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/send-registration-verification 500 (Internal Server Error)
+apiRequest @ queryClient.ts:15
+mutationFn @ auth-page.tsx:237
+fn @ @tanstack_react-query.js?v=be9eebfb:1189
+run @ @tanstack_react-query.js?v=be9eebfb:494
+start @ @tanstack_react-query.js?v=be9eebfb:536
+execute @ @tanstack_react-query.js?v=be9eebfb:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=be9eebfb:2630
+(anonymous) @ @tanstack_react-query.js?v=be9eebfb:3295
+nextStep @ auth-page.tsx:414
+callCallback2 @ chunk-RPCDYKBN.js?v=be9eebfb:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=be9eebfb:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=be9eebfb:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=be9eebfb:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=be9eebfb:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=be9eebfb:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=be9eebfb:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=be9eebfb:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=be9eebfb:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=be9eebfb:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=be9eebfb:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=be9eebfb:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=be9eebfb:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=be9eebfb:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=be9eebfb:5449Understand this error
+queryClient.ts:15 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/send-registration-verification 500 (Internal Server Error)
+apiRequest @ queryClient.ts:15
+mutationFn @ auth-page.tsx:237
+fn @ @tanstack_react-query.js?v=be9eebfb:1189
+run @ @tanstack_react-query.js?v=be9eebfb:494
+start @ @tanstack_react-query.js?v=be9eebfb:536
+execute @ @tanstack_react-query.js?v=be9eebfb:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=be9eebfb:2630
+(anonymous) @ @tanstack_react-query.js?v=be9eebfb:3295
+onClick @ auth-page.tsx:1423
+callCallback2 @ chunk-RPCDYKBN.js?v=be9eebfb:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=be9eebfb:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=be9eebfb:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=be9eebfb:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=be9eebfb:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=be9eebfb:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=be9eebfb:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=be9eebfb:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=be9eebfb:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=be9eebfb:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=be9eebfb:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=be9eebfb:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=be9eebfb:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=be9eebfb:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=be9eebfb:5449Understand this error
+queryClient.ts:15 
+            
+            
+           POST https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/send-registration-verification 500 (Internal Server Error)

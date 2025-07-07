@@ -1,0 +1,195 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+queryClient.ts:32 
+            
+            
+           GET https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=dc756905:840
+run @ @tanstack_react-query.js?v=dc756905:494
+start @ @tanstack_react-query.js?v=dc756905:536
+fetch @ @tanstack_react-query.js?v=dc756905:926
+executeFetch_fn @ @tanstack_react-query.js?v=dc756905:2211
+onSubscribe @ @tanstack_react-query.js?v=dc756905:1898
+subscribe @ @tanstack_react-query.js?v=dc756905:24
+(anonymous) @ @tanstack_react-query.js?v=dc756905:3022
+subscribeToStore @ chunk-WERSD76P.js?v=dc756905:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=dc756905:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=dc756905:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=dc756905:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=dc756905:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=dc756905:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=dc756905:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=dc756905:19447
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=dc756905:18868
+flushSyncCallbacks @ chunk-WERSD76P.js?v=dc756905:9119
+commitRootImpl @ chunk-WERSD76P.js?v=dc756905:19432
+commitRoot @ chunk-WERSD76P.js?v=dc756905:19277
+finishConcurrentRender @ chunk-WERSD76P.js?v=dc756905:18805
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=dc756905:18718
+workLoop @ chunk-WERSD76P.js?v=dc756905:197
+flushWork @ chunk-WERSD76P.js?v=dc756905:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=dc756905:384Understand this error
+content.js:37 Feature is disabled
+auth-page.tsx:94 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=dc756905:337:18
+    at div
+    at div
+    at div
+    at nav
+    at aside
+    at Sidebar (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Sidebar.tsx:49:20)
+    at div
+    at Layout (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Layout.tsx:21:34)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=dc756905:379:17)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=zodlnYWNAaR-y-qipI9BQ:39:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=dc756905:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=dc756905:62:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=dc756905:2805:3)
+    at App
+printWarning @ chunk-WERSD76P.js?v=dc756905:521
+error @ chunk-WERSD76P.js?v=dc756905:505
+validateDOMNesting @ chunk-WERSD76P.js?v=dc756905:8256
+createInstance @ chunk-WERSD76P.js?v=dc756905:8328
+completeWork @ chunk-WERSD76P.js?v=dc756905:16290
+completeUnitOfWork @ chunk-WERSD76P.js?v=dc756905:19224
+performUnitOfWork @ chunk-WERSD76P.js?v=dc756905:19206
+workLoopSync @ chunk-WERSD76P.js?v=dc756905:19137
+renderRootSync @ chunk-WERSD76P.js?v=dc756905:19116
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=dc756905:18874
+flushSyncCallbacks @ chunk-WERSD76P.js?v=dc756905:9119
+(anonymous) @ chunk-WERSD76P.js?v=dc756905:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=dc756905:555
+flush @ @tanstack_react-query.js?v=dc756905:569
+batch @ @tanstack_react-query.js?v=dc756905:587
+dispatch_fn @ @tanstack_react-query.js?v=dc756905:996
+setData @ @tanstack_react-query.js?v=dc756905:696
+onSuccess @ @tanstack_react-query.js?v=dc756905:897
+resolve @ @tanstack_react-query.js?v=dc756905:456
+Promise.then
+run @ @tanstack_react-query.js?v=dc756905:498
+start @ @tanstack_react-query.js?v=dc756905:536
+fetch @ @tanstack_react-query.js?v=dc756905:926
+(anonymous) @ @tanstack_react-query.js?v=dc756905:1726
+(anonymous) @ @tanstack_react-query.js?v=dc756905:1725
+batch @ @tanstack_react-query.js?v=dc756905:583
+refetchQueries @ @tanstack_react-query.js?v=dc756905:1724
+(anonymous) @ @tanstack_react-query.js?v=dc756905:1716
+batch @ @tanstack_react-query.js?v=dc756905:583
+invalidateQueries @ @tanstack_react-query.js?v=dc756905:1705
+onSuccess @ auth-page.tsx:94
+execute @ @tanstack_react-query.js?v=dc756905:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=dc756905:2630
+(anonymous) @ @tanstack_react-query.js?v=dc756905:3295
+onLogin @ auth-page.tsx:145
+(anonymous) @ chunk-CXJMC5RA.js?v=dc756905:1465
+await in (anonymous)
+callCallback2 @ chunk-WERSD76P.js?v=dc756905:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=dc756905:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=dc756905:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=dc756905:3736
+executeDispatch @ chunk-WERSD76P.js?v=dc756905:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=dc756905:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=dc756905:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=dc756905:7051
+(anonymous) @ chunk-WERSD76P.js?v=dc756905:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=dc756905:18913
+batchedUpdates @ chunk-WERSD76P.js?v=dc756905:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=dc756905:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=dc756905:5478
+dispatchEvent @ chunk-WERSD76P.js?v=dc756905:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=dc756905:5449Understand this error
+auth-page.tsx:94 Warning: validateDOMNesting(...): <div> cannot appear as a descendant of <p>.
+    at div
+    at Badge (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/ui/badge.tsx:35:18)
+    at p
+    at div
+    at div
+    at header
+    at Header (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Header.tsx:34:20)
+    at div
+    at div
+    at Layout (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/components/Layout.tsx:21:34)
+    at Switch (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=dc756905:379:17)
+    at Router (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/src/App.tsx?v=zodlnYWNAaR-y-qipI9BQ:39:48)
+    at Provider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=dc756905:38:15)
+    at TooltipProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=dc756905:62:5)
+    at QueryClientProvider (https://95134f80-c664-4477-be7f-e42a1e5a0834-00-9hd0o23uuaog.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=dc756905:2805:3)
+    at App
+printWarning @ chunk-WERSD76P.js?v=dc756905:521
+error @ chunk-WERSD76P.js?v=dc756905:505
+validateDOMNesting @ chunk-WERSD76P.js?v=dc756905:8256
+createInstance @ chunk-WERSD76P.js?v=dc756905:8328
+completeWork @ chunk-WERSD76P.js?v=dc756905:16290
+completeUnitOfWork @ chunk-WERSD76P.js?v=dc756905:19224
+performUnitOfWork @ chunk-WERSD76P.js?v=dc756905:19206
+workLoopSync @ chunk-WERSD76P.js?v=dc756905:19137
+renderRootSync @ chunk-WERSD76P.js?v=dc756905:19116
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=dc756905:18874
+flushSyncCallbacks @ chunk-WERSD76P.js?v=dc756905:9119
+(anonymous) @ chunk-WERSD76P.js?v=dc756905:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=dc756905:555
+flush @ @tanstack_react-query.js?v=dc756905:569
+batch @ @tanstack_react-query.js?v=dc756905:587
+dispatch_fn @ @tanstack_react-query.js?v=dc756905:996
+setData @ @tanstack_react-query.js?v=dc756905:696
+onSuccess @ @tanstack_react-query.js?v=dc756905:897
+resolve @ @tanstack_react-query.js?v=dc756905:456
+Promise.then
+run @ @tanstack_react-query.js?v=dc756905:498
+start @ @tanstack_react-query.js?v=dc756905:536
+fetch @ @tanstack_react-query.js?v=dc756905:926
+(anonymous) @ @tanstack_react-query.js?v=dc756905:1726
+(anonymous) @ @tanstack_react-query.js?v=dc756905:1725
+batch @ @tanstack_react-query.js?v=dc756905:583
+refetchQueries @ @tanstack_react-query.js?v=dc756905:1724
+(anonymous) @ @tanstack_react-query.js?v=dc756905:1716
+batch @ @tanstack_react-query.js?v=dc756905:583
+invalidateQueries @ @tanstack_react-query.js?v=dc756905:1705
+onSuccess @ auth-page.tsx:94
+execute @ @tanstack_react-query.js?v=dc756905:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=dc756905:2630
+(anonymous) @ @tanstack_react-query.js?v=dc756905:3295
+onLogin @ auth-page.tsx:145
+(anonymous) @ chunk-CXJMC5RA.js?v=dc756905:1465
+await in (anonymous)
+callCallback2 @ chunk-WERSD76P.js?v=dc756905:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=dc756905:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=dc756905:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=dc756905:3736
+executeDispatch @ chunk-WERSD76P.js?v=dc756905:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=dc756905:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=dc756905:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=dc756905:7051
+(anonymous) @ chunk-WERSD76P.js?v=dc756905:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=dc756905:18913
+batchedUpdates @ chunk-WERSD76P.js?v=dc756905:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=dc756905:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=dc756905:5478
+dispatchEvent @ chunk-WERSD76P.js?v=dc756905:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=dc756905:5449Understand this error
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []
+Documents.tsx:35 Documents length: 0
+Documents.tsx:34 Documents data: []length: 0[[Prototype]]: Array(0)
+Documents.tsx:35 Documents length: 0
