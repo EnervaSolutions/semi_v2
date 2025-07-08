@@ -47,6 +47,7 @@ import RecognitionPage from "@/pages/RecognitionPage";
 import TermsOfUse from "@/pages/TermsOfUse";
 import Accessibility from "@/pages/Accessibility";
 import Layout from "@/components/Layout";
+import AcceptInvite from './pages/accept-invite';
 
 // Component to handle admin redirect
 function AdminRedirect() {
@@ -83,6 +84,7 @@ function Router() {
         <Route path="/contractor-dashboard" component={ContractorDashboard} />
         <Route path="/terms-of-use" component={TermsOfUse} />
         <Route path="/accessibility" component={Accessibility} />
+        <Route path="/accept-invite/:token" component={AcceptInvite} />
         <Route path="*" component={NotFound} />
       </Switch>
     );

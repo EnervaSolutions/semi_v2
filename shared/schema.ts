@@ -167,6 +167,9 @@ export const facilities = pgTable("facilities", {
   processPumps: boolean("process_pumps").default(false),
   processSteamSystem: boolean("process_steam_system").default(false),
   processOtherSystems: boolean("process_other_systems").default(false),
+  processCombinedHeatPower: boolean("process_combined_heat_power").default(false),
+  processFansBlowers: boolean("process_fans_blowers").default(false),
+  processMaterialHandling: boolean("process_material_handling").default(false),
   
   // Facility Process and Systems (stored as JSON array for backward compatibility)
   processAndSystems: text("process_and_systems").array(),

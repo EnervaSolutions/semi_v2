@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import archiver from "archiver";
+import { v4 as uuidv4 } from 'uuid';
 
 // Configure multer for file uploads with proper file path handling
 const multerStorage = multer.diskStorage({
@@ -365,7 +366,11 @@ export function registerRoutes(app: Express) {
       res.json(result);
     } catch (error) {
       console.error("Error creating company:", error);
-      res.status(500).json({ message: error.message || "Failed to create company" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to create company" });
+      }
     }
   });
 
@@ -455,7 +460,11 @@ export function registerRoutes(app: Express) {
       res.json(result);
     } catch (error) {
       console.error("Error creating user:", error);
-      res.status(500).json({ message: error.message || "Failed to create user" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to create user" });
+      }
     }
   });
 
@@ -477,7 +486,11 @@ export function registerRoutes(app: Express) {
       res.json(result);
     } catch (error) {
       console.error("Error updating user:", error);
-      res.status(500).json({ message: error.message || "Failed to update user" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to update user" });
+      }
     }
   });
 
@@ -494,7 +507,11 @@ export function registerRoutes(app: Express) {
       res.json({ message: "User deleted successfully" });
     } catch (error) {
       console.error("Error deleting user:", error);
-      res.status(500).json({ message: error.message || "Failed to delete user" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to delete user" });
+      }
     }
   });
 
@@ -513,7 +530,11 @@ export function registerRoutes(app: Express) {
       res.json({ message: `${userIds.length} users deleted successfully` });
     } catch (error) {
       console.error("Error bulk deleting users:", error);
-      res.status(500).json({ message: error.message || "Failed to delete users" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to delete users" });
+      }
     }
   });
 
@@ -540,7 +561,11 @@ export function registerRoutes(app: Express) {
       res.json({ message: "Password reset successfully" });
     } catch (error) {
       console.error("Error resetting password:", error);
-      res.status(500).json({ message: error.message || "Failed to reset password" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to reset password" });
+      }
     }
   });
 
@@ -565,7 +590,11 @@ export function registerRoutes(app: Express) {
       res.json({ message: "Application deleted successfully" });
     } catch (error) {
       console.error("Error deleting application:", error);
-      res.status(500).json({ message: error.message || "Failed to delete application" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to delete application" });
+      }
     }
   });
 
@@ -582,7 +611,11 @@ export function registerRoutes(app: Express) {
       res.json(result);
     } catch (error) {
       console.error("Error updating company:", error);
-      res.status(500).json({ message: error.message || "Failed to update company" });
+      if (error instanceof Error) {
+        res.status(500).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to update company" });
+      }
     }
   });
 
@@ -1012,20 +1045,27 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "User must be associated with a company" });
       }
 
-      console.log('Creating facility with data:', req.body);
-      
+      // Generate facility code if not provided
+      let code = req.body.code;
+      if (!code) {
+        const facilities = await dbStorage.getFacilitiesByCompany(user.companyId);
+        const nextNum = (facilities?.length || 0) + 1;
+        code = String(nextNum).padStart(3, '0'); // '001', '002', ...
+      }
+      // Truncate code to 3 chars (for VARCHAR(3))
+      code = code.slice(0, 3);
       // Prepare facility data with company association
       const facilityData = {
         ...req.body,
+        code,
         companyId: user.companyId,
         createdBy: user.id,
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+      console.log('[FACILITY CREATE DEBUG] facilityData:', facilityData);
       const facility = await dbStorage.createFacility(facilityData);
       console.log('Facility created successfully:', facility);
-      
       res.json(facility);
     } catch (error) {
       console.error("Error creating facility:", error);
@@ -1149,22 +1189,28 @@ export function registerRoutes(app: Express) {
       if (user.role !== 'system_admin') {
         return res.status(403).json({ message: "Access denied" });
       }
-
       const companyId = parseInt(req.params.companyId);
-      console.log('Admin creating facility for company:', companyId, 'with data:', req.body);
-      
+      // Generate facility code if not provided
+      let code = req.body.code;
+      if (!code) {
+        const facilities = await dbStorage.getFacilitiesByCompany(companyId);
+        const nextNum = (facilities?.length || 0) + 1;
+        code = String(nextNum).padStart(3, '0'); // '001', '002', ...
+      }
+      // Truncate code to 3 chars (for VARCHAR(3))
+      code = code.slice(0, 3);
       // Prepare facility data with company association
       const facilityData = {
         ...req.body,
+        code,
         companyId: companyId,
         createdBy: user.id,
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+      console.log('[FACILITY CREATE DEBUG] facilityData:', facilityData);
       const facility = await dbStorage.createFacility(facilityData);
       console.log('Admin facility created successfully:', facility);
-      
       res.json(facility);
     } catch (error) {
       console.error("Error creating facility (admin):", error);
@@ -3394,6 +3440,149 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error("Error updating contractor services:", error);
       res.status(500).json({ message: "Failed to update contractor services" });
+    }
+  });
+
+  // Add after authentication endpoints, before admin endpoints:
+  app.get('/api/team', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+      // Get all users for this company
+      const teamMembers = await dbStorage.getTeamMembersByCompany(user.companyId);
+      res.json(teamMembers);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+      res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
+  // Add after GET /api/team endpoint:
+  app.post('/api/team/invite', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { email, firstName, lastName, message, permissionLevel, companyId, invitedByUserId } = req.body;
+
+      if (!email || !firstName || !lastName || !permissionLevel) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Only company_admin or team_member with manager permission can invite
+      if (
+        user.role !== 'company_admin' &&
+        !(user.role === 'team_member' && user.permissionLevel === 'manager')
+      ) {
+        return res.status(403).json({ message: "Insufficient permissions to invite team members" });
+      }
+
+      // Check if user already exists
+      const existingUser = await dbStorage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+
+      // Create invitation
+      await dbStorage.createTeamInvitation({
+        email,
+        firstName,
+        lastName,
+        permissionLevel,
+        role: 'team_member',
+        companyId: companyId || user.companyId,
+        invitedByUserId: invitedByUserId || user.id,
+        message,
+      });
+
+      // After await dbStorage.createTeamInvitation({ ... }) in POST /api/team/invite:
+      const invitationRecord = await dbStorage.getTeamInvitationByEmail(email, companyId || user.companyId);
+      if (invitationRecord && invitationRecord.invitationToken) {
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+        const acceptUrl = `${baseUrl}/accept-invite/${invitationRecord.invitationToken}`;
+        const { sendTeamInvitationEmail } = await import('./sendgrid');
+        await sendTeamInvitationEmail({
+          to: email,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
+              <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h2 style="color: #2563eb;">You're Invited to Join SEMI Program!</h2>
+                <p>Hi <strong>${firstName}</strong>,</p>
+                <p>${user.firstName || 'A manager'} has invited you to join their company in the SEMI Program Portal.</p>
+                <p>Click the button below to accept your invitation and set your password:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${acceptUrl}" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px;">Accept Invitation</a>
+                </div>
+                <p>If you did not expect this invitation, you can ignore this email.</p>
+              </div>
+            </div>
+          `
+        });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error inviting team member:", error);
+      res.status(500).json({ message: "Failed to invite team member" });
+    }
+  });
+
+  // Add after POST /api/team/invite endpoint:
+  app.post('/api/team/accept-invitation/:token', async (req: any, res: Response) => {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+      console.log('[INVITE_ACCEPT_DEBUG] Token:', token);
+      if (!password || password.length < 8) {
+        console.log('[INVITE_ACCEPT_DEBUG] Password too short');
+        return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+      }
+      // Find invitation
+      const invitation = await dbStorage.getTeamInvitation(token);
+      console.log('[INVITE_ACCEPT_DEBUG] Invitation:', invitation);
+      if (!invitation || invitation.status !== 'pending') {
+        console.log('[INVITE_ACCEPT_DEBUG] Invalid or expired invitation');
+        return res.status(400).json({ message: 'Invalid or expired invitation.' });
+      }
+      // Check if user already exists
+      const existingUser = await dbStorage.getUserByEmail(invitation.email);
+      console.log('[INVITE_ACCEPT_DEBUG] Existing user:', existingUser);
+      if (existingUser) {
+        console.log('[INVITE_ACCEPT_DEBUG] User with this email already exists');
+        return res.status(400).json({ message: 'User with this email already exists.' });
+      }
+      // Hash password before creating user
+      const { hashPassword } = await import('./auth');
+      const hashedPassword = await hashPassword(password);
+      // Create user
+      try {
+        await dbStorage.createUser({
+          id: uuidv4(),
+          email: invitation.email,
+          firstName: invitation.firstName,
+          lastName: invitation.lastName,
+          password: hashedPassword, // Store hashed password
+          role: invitation.role || 'team_member',
+          permissionLevel: invitation.permissionLevel,
+          companyId: invitation.companyId,
+          isActive: true,
+          isEmailVerified: true,
+        });
+      } catch (createUserError) {
+        console.error('[INVITE_ACCEPT_DEBUG] Error creating user:', createUserError);
+        throw createUserError;
+      }
+      // Mark invitation as accepted
+      try {
+        await dbStorage.updateTeamInvitation(invitation.id, { status: 'accepted' });
+      } catch (updateInviteError) {
+        console.error('[INVITE_ACCEPT_DEBUG] Error updating invitation:', updateInviteError);
+        throw updateInviteError;
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('[INVITE_ACCEPT_DEBUG] Error accepting team invitation:', error, error?.stack);
+      res.status(500).json({ message: error?.message || JSON.stringify(error), code: 'INVITE_ACCEPT_DEBUG' });
     }
   });
 

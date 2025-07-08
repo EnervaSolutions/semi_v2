@@ -87,6 +87,8 @@ const facilitySchema = z.object({
   processPumps: z.boolean().default(false),
   processSteamSystem: z.boolean().default(false),
   processOtherSystems: z.boolean().default(false),
+  processFansBlowers: z.boolean().default(false),
+  processMaterialHandling: z.boolean().default(false),
 });
 
 type AdminFacilityFormData = z.infer<typeof facilitySchema>;
@@ -190,6 +192,8 @@ export default function AdminEnhancedFacilityForm({ onSuccess, onCancel, editing
       processPumps: editingFacility?.processPumps || false,
       processSteamSystem: editingFacility?.processSteamSystem || false,
       processOtherSystems: editingFacility?.processOtherSystems || false,
+      processFansBlowers: editingFacility?.processFansBlowers || false,
+      processMaterialHandling: editingFacility?.processMaterialHandling || false,
     }
   });
 
@@ -280,6 +284,8 @@ export default function AdminEnhancedFacilityForm({ onSuccess, onCancel, editing
         processPumps: editingFacility.processPumps || false,
         processSteamSystem: editingFacility.processSteamSystem || false,
         processOtherSystems: editingFacility.processOtherSystems || false,
+        processFansBlowers: editingFacility.processFansBlowers || false,
+        processMaterialHandling: editingFacility.processMaterialHandling || false,
       };
 
       console.log('[ADMIN FORM RESET] Prepared form data:', {
@@ -565,6 +571,8 @@ export default function AdminEnhancedFacilityForm({ onSuccess, onCancel, editing
         processPumps: formValues.processPumps,
         processSteamSystem: formValues.processSteamSystem,
         processOtherSystems: formValues.processOtherSystems,
+        processFansBlowers: formValues.processFansBlowers,
+        processMaterialHandling: formValues.processMaterialHandling,
         
         // Process and Systems (legacy array field for backward compatibility)
         processAndSystems: processAndSystems,
@@ -697,7 +705,9 @@ export default function AdminEnhancedFacilityForm({ onSuccess, onCancel, editing
     { key: "processProcessHeating", label: "Process Heating" },
     { key: "processPumps", label: "Pumps" },
     { key: "processSteamSystem", label: "Steam System" },
-    { key: "processOtherSystems", label: "Other Systems" }
+    { key: "processOtherSystems", label: "Other Systems" },
+    { key: "processFansBlowers", label: "Fans and Blowers" },
+    { key: "processMaterialHandling", label: "Material Handling" },
   ];
 
   return (

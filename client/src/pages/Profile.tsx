@@ -85,8 +85,6 @@ export default function Profile() {
     },
   });
 
-
-
   const handleProfileEdit = () => {
     setProfileData({
       firstName: user?.firstName || "",
@@ -174,6 +172,23 @@ export default function Profile() {
       default: return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Helper to construct address from fields
+  function getCompanyAddress(company: any) {
+    if (company?.address && company.address.trim()) return company.address;
+    const parts = [company?.streetAddress, company?.city, company?.province, company?.country, company?.postalCode]
+      .map((x: string) => (x && x.trim()) ? x.trim() : null)
+      .filter(Boolean);
+    return parts.length > 0 ? parts.join(', ') : '';
+  }
+
+  function getCompanyPhone(company: any) {
+    return company?.phone && company.phone.trim() ? company.phone : 'Not Provided';
+  }
+
+  function getCompanyWebsite(company: any) {
+    return company?.website && company.website.trim() ? company.website : 'Not Provided';
+  }
 
   if (isLoading) {
     return (
@@ -418,18 +433,18 @@ export default function Profile() {
                       </div>
                       <div className="space-y-2">
                         <Label>Phone Number</Label>
-                        <Input value={company?.phone || "Not provided"} readOnly />
+                        <Input value={getCompanyPhone(company)} readOnly />
                       </div>
                     </div>
                     
                     <div className="space-y-2">
                       <Label>Address</Label>
-                      <Input value={company?.address || "Not provided"} readOnly />
+                      <Input value={getCompanyAddress(company) || "Not Provided"} readOnly />
                     </div>
                     
                     <div className="space-y-2">
                       <Label>Website</Label>
-                      <Input value={company?.website || "Not provided"} readOnly />
+                      <Input value={getCompanyWebsite(company)} readOnly />
                     </div>
                   </div>
                 )}
@@ -437,8 +452,6 @@ export default function Profile() {
             </Card>
           )}
         </TabsContent>
-
-
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-4">

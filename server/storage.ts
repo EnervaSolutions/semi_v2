@@ -72,6 +72,38 @@ import { eq, and, desc, sql, inArray, or, isNull, isNotNull, like, exists, ne, c
 import { nanoid } from "nanoid";
 import { hashPassword } from './auth';
 
+// Add at the top of the file or near the facility methods:
+const PROCESS_SYSTEMS_MAP = [
+  { key: 'processCombinedHeatPower', label: 'Combined Heat and Power (CHP)' },
+  { key: 'processCompressedAir', label: 'Compressed Air Systems' },
+  { key: 'processControlSystem', label: 'Control Systems' },
+  { key: 'processElectrochemical', label: 'Electrochemical Processes' },
+  { key: 'processFacilityNonProcess', label: 'Facility Non-Process' },
+  { key: 'processFacilitySubmetering', label: 'Facility Submetering' },
+  { key: 'processHVAC', label: 'HVAC' },
+  { key: 'processIndustrialGases', label: 'Industrial Gases' },
+  { key: 'processLighting', label: 'Lighting' },
+  { key: 'processMotors', label: 'Motors' },
+  { key: 'processOther', label: 'Other' },
+  { key: 'processPumpingFans', label: 'Pumping/Fans' },
+  { key: 'processRefrigeration', label: 'Refrigeration' },
+  { key: 'processWasteHeatRecovery', label: 'Waste Heat Recovery' },
+  { key: 'processMaterialProcessing', label: 'Material Processing' },
+  { key: 'processProcessCooling', label: 'Process Cooling' },
+  { key: 'processProcessHeating', label: 'Process Heating' },
+  { key: 'processPumps', label: 'Pumps' },
+  { key: 'processSteamSystem', label: 'Steam System' },
+  { key: 'processOtherSystems', label: 'Other Systems' },
+  { key: 'processFansBlowers', label: 'Fans and Blowers' },
+  { key: 'processMaterialHandling', label: 'Material Handling' },
+];
+
+function buildProcessAndSystemsSummary(facility: any): string[] {
+  return PROCESS_SYSTEMS_MAP
+    .filter(({ key }) => facility[key])
+    .map(({ label }) => label);
+}
+
 export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
@@ -359,7 +391,9 @@ export class DatabaseStorage implements IStorage {
 
   // Facility operations
   async createFacility(facility: InsertFacility): Promise<Facility> {
-    const [newFacility] = await db.insert(facilities).values(facility).returning();
+    // Build processAndSystems summary from booleans
+    const processAndSystems = buildProcessAndSystemsSummary(facility);
+    const [newFacility] = await db.insert(facilities).values({ ...facility, processAndSystems }).returning();
     return newFacility;
   }
 
@@ -430,6 +464,14 @@ export class DatabaseStorage implements IStorage {
         processPumps: facilities.processPumps,
         processSteamSystem: facilities.processSteamSystem,
         processOtherSystems: facilities.processOtherSystems,
+
+        // Additional Individual Process/Systems Checkboxes (added for completeness)
+        // processCombinedHeatPower: (facilities as any).processCombinedHeatPower ?? (facilities as any).process_combined_heat_power,
+        // processFansBlowers: (facilities as any).processFansBlowers ?? (facilities as any).process_fans_blowers,
+        // processMaterialHandling: (facilities as any).processMaterialHandling ?? (facilities as any).process_material_handling,
+        processCombinedHeatPower: facilities.processCombinedHeatPower,
+        processFansBlowers: facilities.processFansBlowers,
+        processMaterialHandling: facilities.processMaterialHandling,
         
         // Process and Systems Array
         processAndSystems: facilities.processAndSystems,
@@ -525,6 +567,13 @@ export class DatabaseStorage implements IStorage {
         processSteamSystem: facilities.processSteamSystem,
         processOtherSystems: facilities.processOtherSystems,
         processAndSystems: facilities.processAndSystems,
+        // Additional Individual Process/Systems Checkboxes (added for completeness)
+        // processCombinedHeatPower: (facilities as any).processCombinedHeatPower ?? (facilities as any).process_combined_heat_power,
+        // processFansBlowers: (facilities as any).processFansBlowers ?? (facilities as any).process_fans_blowers,
+        // processMaterialHandling: (facilities as any).processMaterialHandling ?? (facilities as any).process_material_handling,
+        processCombinedHeatPower: facilities.processCombinedHeatPower,
+        processFansBlowers: facilities.processFansBlowers,
+        processMaterialHandling: facilities.processMaterialHandling,
         
         isActive: facilities.isActive,
         created_at: facilities.createdAt,
@@ -541,9 +590,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFacility(id: number, updates: Partial<InsertFacility>): Promise<Facility> {
+    // Build processAndSystems summary from booleans
+    const processAndSystems = buildProcessAndSystemsSummary(updates);
     const [facility] = await db
       .update(facilities)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({ ...updates, processAndSystems })
       .where(eq(facilities.id, id))
       .returning();
     return facility;

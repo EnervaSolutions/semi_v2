@@ -46,8 +46,9 @@ export default function TeamManagement() {
   const [showPermissionLevelDialog, setShowPermissionLevelDialog] = useState(false);
   const [showTransferAdminDialog, setShowTransferAdminDialog] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [invitePermissionLevel, setInvitePermissionLevel] = useState('viewer');
 
-  const { data: teamMembers = [], isLoading: isLoadingTeam } = useQuery({
+  const { data: teamMembers = [], isLoading: isLoadingTeam } = useQuery<any[]>({
     queryKey: ['/api/team'],
   });
 
@@ -154,7 +155,10 @@ export default function TeamManagement() {
       email,
       firstName,
       lastName,
-      message
+      message,
+      permissionLevel: invitePermissionLevel,
+      companyId: user?.companyId,
+      invitedByUserId: user?.id
     });
   };
 
@@ -208,6 +212,8 @@ export default function TeamManagement() {
     teamMembers: teamMembers.map((m: any) => ({ id: m.id, role: m.role, isActive: m.isActive, email: m.email }))
   });
 
+  const filteredTeamMembers = teamMembers.filter((member: any) => member.id !== user?.id);
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -257,6 +263,17 @@ export default function TeamManagement() {
                     placeholder="Add a personal message to the invitation..."
                     rows={3}
                   />
+                </div>
+                <div>
+                  <Label htmlFor="permissionLevel">Permission Level</Label>
+                  <Select value={invitePermissionLevel} onValueChange={(v) => setInvitePermissionLevel(typeof v === 'string' ? v : 'viewer')}>
+                    <SelectTrigger><SelectValue placeholder="Select permission level" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                      <SelectItem value="editor">Editor</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setShowInviteDialog(false)}>
@@ -368,7 +385,7 @@ export default function TeamManagement() {
             </div>
           ) : teamMembers.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {teamMembers.map((member: any) => (
+              {filteredTeamMembers.map((member: any) => (
                 <div key={member.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">

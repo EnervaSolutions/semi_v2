@@ -88,6 +88,8 @@ const facilitySchema = z.object({
   processPumps: z.boolean().default(false),
   processSteamSystem: z.boolean().default(false),
   processOtherSystems: z.boolean().default(false),
+  processFansBlowers: z.boolean().default(false),
+  processMaterialHandling: z.boolean().default(false),
   
   // Additional Information
   description: z.string().optional(),
@@ -175,6 +177,8 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
       processPumps: editingFacility.processPumps || false,
       processSteamSystem: editingFacility.processSteamSystem || false,
       processOtherSystems: editingFacility.processOtherSystems || false,
+      processFansBlowers: editingFacility.processFansBlowers || false,
+      processMaterialHandling: editingFacility.processMaterialHandling || false,
       description: editingFacility.description || "",
     } : {
       name: "",
@@ -221,6 +225,8 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
       processPumps: false,
       processSteamSystem: false,
       processOtherSystems: false,
+      processFansBlowers: false,
+      processMaterialHandling: false,
       description: "",
     },
   });
@@ -480,6 +486,8 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         processPumps: Boolean(formValues.processPumps),
         processSteamSystem: Boolean(formValues.processSteamSystem),
         processOtherSystems: Boolean(formValues.processOtherSystems),
+        processFansBlowers: Boolean(formValues.processFansBlowers),
+        processMaterialHandling: Boolean(formValues.processMaterialHandling),
         
         // Process and Systems (legacy array field for backward compatibility)
         processAndSystems: processAndSystems,
