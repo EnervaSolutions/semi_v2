@@ -255,17 +255,15 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
   // Helper to display assigned contractors
   const getContractorsDisplay = (application: Application) => {
     const contractors = application.assignedContractors;
-    
     if (!contractors || contractors.length === 0) {
       return <span className="text-gray-400 text-sm">None assigned</span>;
     }
-    
-    // Show all contractor names - handle different data formats
-    const contractorNames = contractors.map(c => {
-      // Try different property names based on backend data structure
-      return c.companyName || c.name || c.userFirstName + ' ' + c.userLastName || 'Unknown Contractor';
-    }).filter(name => name && name.trim());
-    
+    // Show all contractor names - handle both string and object formats
+    const contractorNames = contractors.map(c =>
+      typeof c === 'string'
+        ? c
+        : (c.companyName || c.name || (c.userFirstName && c.userLastName ? c.userFirstName + ' ' + c.userLastName : 'Unknown Contractor'))
+    ).filter(name => name && name.trim());
     return (
       <div className="text-sm text-gray-700">
         {contractorNames.length > 0 ? contractorNames.join(', ') : 'Assigned (Name unavailable)'}

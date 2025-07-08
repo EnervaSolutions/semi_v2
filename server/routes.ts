@@ -3599,6 +3599,35 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Dashboard stats endpoint for company users
+  app.get('/api/dashboard/stats', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+      // Get all applications for this company
+      const applications = await dbStorage.getApplicationsByCompany(user.companyId);
+      // Get all team members for this company
+      const teamMembers = await dbStorage.getTeamMembersByCompany(user.companyId);
+      // Calculate stats
+      const totalApplications = applications.length;
+      const approvedApplications = applications.filter((app: any) => app.status === 'approved').length;
+      const pendingReviewApplications = applications.filter((app: any) => app.status === 'pending_review').length;
+      const draftApplications = applications.filter((app: any) => app.status === 'draft').length;
+      res.json({
+        totalApplications,
+        approvedApplications,
+        pendingReviewApplications,
+        draftApplications,
+        teamMembers: teamMembers.length
+      });
+    } catch (error: any) {
+      console.error("Error fetching dashboard stats:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+    }
+  });
+
   return server;
 }
 

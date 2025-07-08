@@ -1124,15 +1124,33 @@ export class DatabaseStorage implements IStorage {
       });
     }
     
+    // Get all application IDs
+    const appIds = appsWithDetails.map(app => app.id);
+    // Get assigned contractor company names for each application
+    const contractorAssignments = appIds.length > 0 ? await db
+      .select({
+        applicationId: companyApplicationAssignments.applicationId,
+        contractorCompanyId: companyApplicationAssignments.contractorCompanyId,
+        contractorName: companies.name,
+      })
+      .from(companyApplicationAssignments)
+      .innerJoin(companies, eq(companyApplicationAssignments.contractorCompanyId, companies.id))
+      .where(inArray(companyApplicationAssignments.applicationId, appIds)) : [];
+    // Build a map of applicationId -> array of contractor names
+    const contractorMap = new Map<number, string[]>();
+    contractorAssignments.forEach(a => {
+      if (!contractorMap.has(a.applicationId)) {
+        contractorMap.set(a.applicationId, []);
+      }
+      contractorMap.get(a.applicationId)!.push(a.contractorName);
+    });
     // Get submission data for each application to determine detailed status
     const appsWithSubmissions = await Promise.all(
       appsWithDetails.map(async (app) => {
         const submissions = await this.getApplicationSubmissions(app.id);
         const hasPreActivity = submissions.some(s => s.phase === 'pre_activity');
         const hasPostActivity = submissions.some(s => s.phase === 'post_activity');
-        
         let detailedStatus = 'Draft';
-        
         // Determine workflow status based on submissions and application status
         if (hasPostActivity) {
           detailedStatus = 'PostActivity Submitted';
@@ -1156,7 +1174,6 @@ export class DatabaseStorage implements IStorage {
               return template[0]?.name || 'Activity';
             })
           );
-          
           const templateNames = submissionData.join(', ');
           if (templateNames.includes('TEst')) {
             detailedStatus = app.status === 'submitted' ? 'TEst Submitted' : 'TEst Started';
@@ -1164,19 +1181,10 @@ export class DatabaseStorage implements IStorage {
             detailedStatus = app.status === 'submitted' ? 'PreActivity Submitted' : 'PreActivity Started';
           }
         }
-        
-        console.log(`DEBUG BACKEND - App ${app.id} (${app.applicationId}):`, {
-          submittedAt: app.submittedAt,
-          reviewedAt: app.reviewedAt,
-          reviewNotes: app.reviewNotes,
-          companyWebsite: app.companyWebsite,
-          facilityHasEmis: app.facilityHasEmis,
-          facilityHasEnergyManager: app.facilityHasEnergyManager
-        });
-        
         return {
           ...app,
           detailedStatus,
+          assignedContractors: contractorMap.get(app.id) || [],
           // Keep both formats for compatibility
           companyName: app.companyName,
           companyShortName: app.companyShortName,
@@ -1216,7 +1224,6 @@ export class DatabaseStorage implements IStorage {
         };
       })
     );
-    
     return appsWithSubmissions;
   }
 
@@ -3627,53 +3634,19 @@ export class DatabaseStorage implements IStorage {
   async getContractorApplications(companyId: number): Promise<any[]> {
     try {
       console.log(`[STORAGE] getContractorApplications called for company ${companyId}`);
-      
-      // Get all users from this contractor company
-      const contractorUsers = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.companyId, companyId));
+      // Get all applications currently assigned to this contractor company
+      const assignments = await db
+        .select({
+          applicationId: companyApplicationAssignments.applicationId,
+        })
+        .from(companyApplicationAssignments)
+        .where(eq(companyApplicationAssignments.contractorCompanyId, companyId));
 
-      console.log(`[STORAGE] Found ${contractorUsers.length} users in company ${companyId}:`, contractorUsers.map(u => u.id));
-
-      if (contractorUsers.length === 0) {
-        console.log('[STORAGE] No users found in contractor company, returning empty array');
+      const appIds = assignments.map(a => a.applicationId);
+      if (appIds.length === 0) {
         return [];
       }
-
-      const userIds = contractorUsers.map(u => u.id);
-      console.log(`[STORAGE] Looking for applications ever assigned to contractor company`);
-
-      // Get all applications that have EVER been assigned to this contractor company
-      // Use the permanent historical tracking table
-      console.log(`[STORAGE] Querying historical assignments for company ${companyId}`);
-      const historicalResult = await db.execute(sql`
-        SELECT application_id FROM contractor_company_assignment_history 
-        WHERE contractor_company_id = ${companyId}
-      `);
-      
-      console.log(`[STORAGE] Historical result:`, JSON.stringify(historicalResult, null, 2));
-      
-      // Parse the PostgreSQL result properly - it has a rows property
-      let applicationIds: { applicationId: number }[] = [];
-      if (historicalResult && historicalResult.rows && Array.isArray(historicalResult.rows)) {
-        applicationIds = historicalResult.rows.map((row: any) => ({
-          applicationId: row.application_id
-        }));
-        console.log(`[STORAGE] Successfully parsed ${applicationIds.length} application IDs from historical result`);
-      } else {
-        console.log(`[STORAGE] Unable to parse historical result - no rows property found`);
-      }
-      console.log(`[STORAGE] Found ${applicationIds.length} unique applications ever assigned to contractor company`);
-
-      if (applicationIds.length === 0) {
-        console.log('[STORAGE] No applications ever assigned to contractor company');
-        return [];
-      }
-
-      const appIds = applicationIds.map(a => a.applicationId);
-
-      // Get application details for all these applications
+      // Get application details for these applications
       const applicationsQuery = await db
         .select({
           appId: applications.id,
@@ -3699,92 +3672,42 @@ export class DatabaseStorage implements IStorage {
         .innerJoin(companies, eq(applications.companyId, companies.id))
         .where(inArray(applications.id, appIds));
 
-      console.log(`[STORAGE] Retrieved details for ${applicationsQuery.length} applications`);
-
-      // Get current team member assignments for these applications (may be empty)
-      const assignments = await db
+      // For each application, get assigned contractor company names
+      const contractorAssignments = await db
         .select({
-          assignmentId: applicationAssignments.id,
-          applicationId: applicationAssignments.applicationId,
-          userId: applicationAssignments.userId,
-          assignedBy: applicationAssignments.assignedBy,
-          assignedDate: applicationAssignments.createdAt,
-          permissions: applicationAssignments.permissions,
-          // Assigned user details
-          assignedUserFirstName: users.firstName,
-          assignedUserLastName: users.lastName,
-          assignedUserEmail: users.email,
+          applicationId: companyApplicationAssignments.applicationId,
+          contractorCompanyId: companyApplicationAssignments.contractorCompanyId,
+          contractorName: companies.name,
         })
-        .from(applicationAssignments)
-        .innerJoin(users, eq(applicationAssignments.userId, users.id))
-        .where(and(
-          inArray(applicationAssignments.applicationId, appIds),
-          inArray(applicationAssignments.userId, userIds)
-        ));
+        .from(companyApplicationAssignments)
+        .innerJoin(companies, eq(companyApplicationAssignments.contractorCompanyId, companies.id))
+        .where(inArray(companyApplicationAssignments.applicationId, appIds));
 
-      console.log(`[STORAGE] Found ${assignments.length} current team member assignments`);
-
-      // Build application map with all assigned applications
-      const applicationMap = new Map();
-      
-      // First, add all applications (even those without current assignments)
-      applicationsQuery.forEach(app => {
-        applicationMap.set(app.appId, {
-          id: app.appId,
-          applicationId: app.appApplicationId,
-          title: app.appTitle,
-          description: app.appDescription,
-          status: app.appStatus,
-          activityType: app.appActivityType,
-          facilityName: app.facilityName,
-          facilityCode: app.facilityCode,
-          companyName: app.companyName,
-          companyShortName: app.companyShortName,
-          assignedDate: null, // Will be set from assignments if any exist
-          assignedBy: null,
-          permissions: ['view', 'edit'], // Account owners have automatic view/edit permissions
-          createdAt: app.appCreatedAt,
-          updatedAt: app.appUpdatedAt,
-          assignedToUsers: [],
-          assignedToUser: null // Legacy support
-        });
-      });
-
-      // Then, add current team member assignment details
-      assignments.forEach(assignment => {
-        const app = applicationMap.get(assignment.applicationId);
-        if (app) {
-          const user = {
-            id: assignment.userId,
-            firstName: assignment.assignedUserFirstName,
-            lastName: assignment.assignedUserLastName,
-            email: assignment.assignedUserEmail,
-            permissions: assignment.permissions
-          };
-          
-          app.assignedToUsers.push(user);
-          
-          // Set assignment metadata from first assignment
-          if (!app.assignedDate) {
-            app.assignedDate = assignment.assignedDate;
-            app.assignedBy = assignment.assignedBy;
-          }
-          
-          // Set legacy single user support (first user)
-          if (!app.assignedToUser) {
-            app.assignedToUser = {
-              id: assignment.userId,
-              firstName: assignment.assignedUserFirstName,
-              lastName: assignment.assignedUserLastName,
-              email: assignment.assignedUserEmail,
-            };
-          }
+      // Build a map of applicationId -> array of contractor names
+      const contractorMap = new Map<number, string[]>();
+      contractorAssignments.forEach(a => {
+        if (!contractorMap.has(a.applicationId)) {
+          contractorMap.set(a.applicationId, []);
         }
+        contractorMap.get(a.applicationId)!.push(a.contractorName);
       });
 
-      const formattedApplications = Array.from(applicationMap.values());
-
-      console.log(`[STORAGE] Formatted applications:`, formattedApplications);
+      // Add assignedContractors to each application
+      const formattedApplications = applicationsQuery.map(app => ({
+        id: app.appId,
+        applicationId: app.appApplicationId,
+        title: app.appTitle,
+        description: app.appDescription,
+        status: app.appStatus,
+        activityType: app.appActivityType,
+        facilityName: app.facilityName,
+        facilityCode: app.facilityCode,
+        companyName: app.companyName,
+        companyShortName: app.companyShortName,
+        createdAt: app.appCreatedAt,
+        updatedAt: app.appUpdatedAt,
+        assignedContractors: contractorMap.get(app.appId) || [],
+      }));
       return formattedApplications;
     } catch (error) {
       console.error('Error in getContractorApplications:', error);

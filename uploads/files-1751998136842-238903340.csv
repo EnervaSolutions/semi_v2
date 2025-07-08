@@ -1,0 +1,411 @@
+id,facility_name,naic_code,facility_category,facility_type,unit_number,street_number,street_name,city,country,province,postal_code,address,sector,company_id,facility_id_general_status,facility_id_submission_status,updated_at,company_name,account_owner_email
+205,Hybrid Water Desalination System,221310,221,221310,,262125,Balzac Blvd. Balzac,Balzac,Canada,Alberta,T4B2T3,NULL,22,422,2,0,28:31.1,Arrowhead Energy Inc,clayton.heck@arrowheadabandonments.com
+424,NewAdam,111120,111,111120,,2,222,Calgary,Canada,Alberta,A1A1A1,NULL,11,578,2,0,43:40.2,Adam Inc,adam@yopmail.com
+147,Cnoon International - SAGD,211141,211,211141, , LLK CPF – 07-31-085-06 W4M ,Long Lake Oil sand site - Highway 881,Anzac,Canada,Alberta,T0P1J0,NULL,21,346,3,2,34:51.4,CNOOC International,raj.bambhania@intl.cnoocltd.com
+34,Maple Leaf Consumer Foods,311615,311,311615,,2619,91 Ave,Edmonton,Canada,Alberta,T6P1S3,NULL,31,46,3,2,09:13.2,Maple Leaf Foods,colin.haveroen@mapleleaf.com
+4,Test facility,339930,339,339930,1234,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,31,55,2,0,03:23.4,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+66,North Service Centre,336110,336,336110,,11140,120 Street,Edmonton,Canada,Alberta,T5G2X8,NULL,31,99,2,2,25:24.2,Alberta Motor Association,carly.weiss@ama.ab.ca
+105,Quattro Ventures,111999,111,111999,,SW35-10-11W4,Hwy 3,Bow Island,Canada,Alberta,T0K0G0,NULL,11,319,2,2,55:50.8,Quattro Venutres,chris@quattrofarms.com
+160,Water Injection Well,211110,211,211110,,0,02-04-027-13 W4M,Sunnynook,Canada,Alberta,A1A1A1,NULL,21,254,2,2,58:28.2,Success Resources Ltd.,aocchialini@successresources.ca
+54,Sofina - Calgary,311615,311,311615,,6202,106 Avenue SE,Calgary,Canada,Alberta,T2C4Z8,NULL,31,30,3,2,52:44.7,Sofina Foods,jbayliss@sofinafoods.com
+70,123,112930,112,112930,112,123,123,Calgary,Canada,Alberta,T2P3N4,NULL,11,212,2,2,42:24.6,VL Energy Ltd,adam.abou-dehn@vlenergy.ca
+292,Water Treatment Plant,221310,221,221310,,"58°27'37.6""N","116°15'32.6""W",Rocky Lane,Canada,Alberta,A1A1A1,NULL,22,505,3,2,30:36.1,Beaver First Nation,Gari-lynn.Chalifoux@beaverfirstnation.ab.ca
+295,a,111130,111,111130,,a,a,a,Canada,Alberta,t4T4T4,NULL,11,509,2,0,33:36.8,JustGhost,andrei30@yopmail.com
+305,PBG Leduc Manufacturing,339999,339,339999,102,4101, 65A Avenue,Leduc,Canada,Alberta,T9E0Z4,NULL,31,513,2,0,09:33.1,PBG BioPharma Inc,allan@pbgbiopharma.com
+327,bloodhound trucking services inc,484233,484,484233,42,42 martinvalley crt ne,martinvalley crt ne,calgary,Canada,Alberta,T3J4L9,NULL,48,526,1,0,06:09.3,bloodhound trucking & services inc.,bloodhoundtruckingservices@gmail.com
+425,City of Red Deer Waste Water Treatment Plant,562210,562,562210,,7890, 40 Avenue,Red Deer,Canada,Alberta,T4N3T3,NULL,56,565,2,0,50:05.1,City of Red Deer,eve.dolan@reddeer.ca
+68,Main,213119,213,213119,120,1220,28th St NE,Calgary,Canada,Alberta,T2A6A2,NULL,21,64,3,2,36:32.1,Litus,nedal.marei@litus.ca
+133,Gold Bar WWTP UV Disinfection Building,221320,221,221320,,10977,50 Street NW,Edmonton,Canada,Alberta,T6A2E9,NULL,22,352,3,2,30:22.9,EPCOR Water Services Inc,qzhang@epcor.com
+96,Kings Energy,332113,332,332113,,277,Burnt Park Dr,Red Deer,Canada,Alberta,t4s0k7,NULL,31,50,1,0,51:10.7,Peak Energy Solutions,joshforbes@peakenergysolutions.ca
+103,ded,236220,236,236220,de,55,434,toronto,Canada,Alberta,a1a1a1,NULL,23,55,1,0,05:57.6,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+104,TestCompany3,236210,236,236210,5,555,tor,yot,Canada,Alberta,a1a1a1,NULL,23,55,2,0,05:32.6,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+99,Millar Western Forest Products Ltd. Whitecourt Pulp Division,322111,322,322111,,50,Mill Road,Whitecourt,Canada,Alberta,T7S1N9,NULL,31,176,2,0,17:42.1,Millar Western Forest Products Ltd. ,mmorton@millarwestern.com
+145,ANC Power Plant,221112,221,221112,,Postal Bag 9000,Whitecourt,Whitecourt,Canada,Alberta,T7S1P9,NULL,22,164,2,0,28:45.0,Alberta Newsprint Company,poornac@albertanewsprint.com
+125,ATCO Alberta Hub,221210,221,221210,,15-27-054-14W5M,15-27-054-14W5M,Edson,Canada,Alberta,A1A1A1,NULL,22,307,3,2,14:09.0,ATCO EnPower,mei.huang@atco.com
+150,Maple Leaf Hatchery,112340,112,112340,,4710,39 Ave,Wetaskiwin,Canada,Alberta,T9A3G2,NULL,11,332,2,0,39:03.7,Maple Leaf Hatchery,mike.lenhart@mapleleaf.com
+298,Cargill Canola Crush Camrose,311225,311,311225,,46450,Range road 200,Camrose,Canada,Alberta,T4V2M9,NULL,31,507,3,2,52:32.6,Cargill Limited,meesum_kazmi@cargill.com
+318,Empl created + Empl Started,562990,562,562990,,312,Hello,Calgary,Canada,Alberta,T3M3P1,NULL,56,522,3,2,35:45.2,Uber,andrei60@yopmail.com
+319,Empl created + Owner started + Empl Submited,114210,114,114210,,333,aaa,sadasd,Canada,Alberta,t3m3m3,NULL,11,522,3,2,35:47.1,Uber,andrei60@yopmail.com
+230,Testdfsd,111419,111,111419,,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,11,70,3,2,01:20.1,Test green company1,NULL
+320,Owner created + owner started + owner submitted,237310,237,237310,,213,aa,sdasd,Canada,Alberta,t4t4t4,NULL,23,522,3,2,35:48.8,Uber,andrei60@yopmail.com
+127,1463902 Ab Ltd,213118,213,213118,,2705,64 St,Drayton Valley,Canada,Alberta,T7A1S1,NULL,21,349,3,2,55:51.6,Ariant Holdings Ltd.,smacpherson@ariant.ca
+426,reearth,562210,562,562210,,49432,RR 244,Leduc County,Canada,Alberta,T9E8A8,NULL,56,581,2,0,21:19.6,Reearth Corp,don.rodrigue@reearth.ca
+153,Gordondale East Gas  Plant,213118,213,213118,11-26-79-09- W6M,55.880148,-119.296966,Peace Arch,Canada,Alberta,A1A1A1,NULL,21,367,3,2,32:50.7,NorthRiver midstream,abdel.hagar@nrm.ca
+156,KAKWAS 7-09-062-08W6 ,211110,211,211110,3700,250,6 Ave SW,Calgary,Canada,Alberta,T2P3H7,NULL,21,243,3,2,35:49.8,Tourmaline Oil Corp,krista.town@tourmalineoil.com
+8,rerorero,562910,562,562910,,asd,sad,das,Canada,Alberta,a1a1a1,NULL,56,70,1,2,30:37.8,Test green company1,NULL
+9,Test Facility,324122,324,324122,1234,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,31,55,2,2,16:07.2,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+10,rero2,322220,322,322220,,sad,das,asd,Canada,Alberta,a1a1a1,NULL,31,70,1,2,30:35.5,Test green company1,NULL
+11,Test facility,322211,322,322211,1234,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,31,55,2,2,36:04.7,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+12,rero3,561990,561,561990,,asd,daa,asd,Canada,Alberta,a1a1a1,NULL,56,70,1,2,36:07.0,Test green company1,NULL
+138,University Of Calgary Central Heating Plant,221112,221,221112,UOC01,2500,University Drive NW,Calgary,Canada,Alberta,T2N1N4,NULL,22,366,3,2,27:25.7,University Of Calgary,earl.badger@ucalgary.ca
+321,Owner created + owner start + emp subm ,237120,237,237120,,213,Asd,Casd,Canada,Alberta,t4t4t4,NULL,23,522,3,2,35:50.3,Uber,andrei60@yopmail.com
+280,Canfor Fox Creek,321111,321,321111,,19040,Highway 43,Fox Creek,Canada,Alberta,T0H1P0,NULL,31,175,2,0,19:21.8,Canadian Forest Products Ltd.,Kevin.McIntyre@canfor.com
+242,Tourmaline Horse 16-17-058-26W5,211110,211,211110,3700,250 6 Ave SW,6 Ave SW,Calgary,Canada,Alberta,T2P3H7,NULL,21,243,3,2,58:25.5,Tourmaline Oil Corp,krista.town@tourmalineoil.com
+233,WhatisThis,111421,111,111421,,1,3234,Calgary,Canada,Alberta,G5H6J7,NULL,11,445,2,0,47:09.0,MeetingDemo,NULL
+322,sad,561710,561,561710,,213,123,asd,Canada,Alberta,t4t4t4,NULL,56,522,3,2,35:52.1,Uber,andrei60@yopmail.com
+14,Facility 5,339930,339,339930,123,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,31,55,2,2,40:45.4,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+55,Sofina - Edmonton South,311614,311,311614,,9620,56 Avenue NW,Edmonton,Canada,Alberta,T6E0B3,NULL,31,30,3,2,54:49.7,Sofina Foods,jbayliss@sofinafoods.com
+56,Sofina - Edmonton North,311615,311,311615,,7727,127 Avenue NW,Edmonton,Canada,Alberta,T5C1R9,NULL,31,30,3,2,19:15.4,Sofina Foods,jbayliss@sofinafoods.com
+62,LWR Main Office,238160,238,238160,100,3645,48 Ave,Calgary,Canada,Alberta,T2B3N8,NULL,23,44,3,2,19:50.3,2048383 Alberta LTD,rcornfor@ualberta.ca
+69,Main,213119,213,213119,120,1220,28th St NE,Calgary,Canada,Alberta,T2A6A2,NULL,21,64,3,2,49:22.8,Litus,nedal.marei@litus.ca
+5,GreenFacility,237990,237,237990,,12,StreetName,CityName,Canada,Alberta,a1a1a1,NULL,23,70,2,0,45:16.3,Test green company1,NULL
+6,TestTemplates,237120,237,237120,,123,Strn,Cat,Canada,Alberta,a1a1a1,NULL,23,70,1,0,45:14.1,Test green company1,NULL
+7,testdwnld,561410,561,561410,,asd,dsa,das,Canada,Alberta,a1a1a1,NULL,56,70,1,0,48:44.1,Test green company1,NULL
+13,rero4,236220,236,236220,,ad,asd,dsa,Canada,Alberta,a1a1a1,NULL,23,70,3,2,40:38.5,Test green company1,NULL
+427,Airport Pump House,221310,221,221310,39,59509,RGE RD 260,Clyde,Canada,Alberta,T0G0P0,NULL,22,462,2,0,26:43.2,Westlock County,pjean@westlockcounty.com
+40,Davey Textile Solutions,313220,313,313220,,10505,169 Street NW,Edmonton,Canada,Alberta,T5P4Y7,NULL,31,87,3,2,14:47.4,Davey Textile Solutions,ldegenstein@daveytextiles.com
+51,Kaybob 05-33 Gathering Station,211110,211,211110,,05-33-063-20W5,N/A,Municipal District of Greenview,Canada,Alberta,T0H3Z0,NULL,21,108,3,2,43:34.2,Veren,tcourte@vrn.com
+106,Red Deer,311515,311,311515,,5410,Gaetz Ave,Red Deer,Canada,Alberta,T4N4B5,NULL,31,109,3,2,05:48.5,Saputo Dairy Products Canada,karim.saadi@saputo.com
+107,Edmonton,311511,311,311511,16110,116,Ave NW,Edmonton,Canada,Alberta,T5M3V4,NULL,31,109,3,2,09:41.3,Saputo Dairy Products Canada,karim.saadi@saputo.com
+78,Southland Trailers,336212,336,336212,1405,41,Street North,Lethbridge,Canada,Alberta,T1H6G3,NULL,31,110,1,0,18:28.6,Southland Trailer Corp,leesa.degraaf@southlandtrailers.com
+95,Gordondale Sour Gas Plant,211110,211,211110,,16-31-078-11W6,"55.808644, -119.684447",Bonanza,Canada,Alberta,A1A1A1,NULL,21,111,3,2,20:06.9,Birchcliff Energy Ltd.,dmorrison@birchcliffenergy.com
+15,CSV Karr Gas Plant,211110,211,211110,,8.5,N Imperial Road,Greenview County,Canada,Alberta,T0G2C0,NULL,21,119,3,2,56:09.5,CSV Midstream Solutions Corp,brett.wightman@csvmidstream.com
+50,HB Summerland Farming CO LTD,112210,112,112210,1,BOX 1328,BOX1328,Claresholm,Canada,Alberta,T0L0T0,NULL,11,134,3,2,16:40.6,DBBS Technology,denering@dbbs.technology
+2,BioComposites Group Inc.,339999,3399,339999,,3250,50 Street,Drayton Valley,Canada,Alberta,T7A 0C6,NULL,33,148,2,0,03:49.2,BioComposites Group Inc.,dmadlung@biocompositesgroup.com
+25,Facility 8,237210,237,237210,1234,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,23,148,1,0,11:26.1,BioComposites Group Inc.,dmadlung@biocompositesgroup.com
+110,Norquest Industries Inc.,333130,333,333130,,3911,74 Ave NW,Edmonton,Canada,Alberta,T6B2Z7,NULL,31,161,3,2,30:11.1,Norquest Industries Inc.,paula.vanderzyde@norquestindustries.com
+32,Optima Manufacturing,333130,333,333130,,2480,Pegasus Road,Calgary,Canada,Alberta,T2E8G8,NULL,31,163,3,2,23:53.7,Optima Manufacturing,mahertzer@optimamfg.com
+141,Fourth Creek Gas Plant,211110,211,211110,15-11-82-09W6M,"56.100851, -119.285974","56.100851, -119.285974",Peace Arch,Canada,Alberta,A1A1A1,NULL,21,367,3,2,09:12.6,NorthRiver midstream,abdel.hagar@nrm.ca
+281,Canfor Whitecourt,321111,321,321111,,5004,52 Street,Whitecourt,Canada,Alberta,T7S1N2,NULL,31,175,2,0,18:58.5,Canadian Forest Products Ltd.,Kevin.McIntyre@canfor.com
+252,Test Facility 1,114210,114,114210,2,2,Test St,Calgary,Canada,Alberta,A1A1A1,NULL,11,471,2,0,46:14.7,TestCompany81,NULL
+312,Terrestrial X,332710,332,332710,6244,50th,Street,Edmonton,Canada,Alberta,T6B2N7,NULL,31,516,2,0,52:01.0,Terrestrial X Inc.,grant@terrestrialx.com
+323,sssmmmmm,561310,561,561310,,222,aaa,asd,Canada,Alberta,t4t4t4,NULL,56,522,3,2,36:03.8,Uber,andrei60@yopmail.com
+23,Alberta Newsprint Company,322122,322,322122,,Postal Bag 9000,Whitecourt,Whitecourt,Canada,Alberta,T7S1P9,NULL,31,164,3,2,51:47.1,Alberta Newsprint Company,poornac@albertanewsprint.com
+100,Millar Western Forest Products Ltd. Slave Lake Pulp Division,322111,322,322111,,43016,East Mitsue Road,Lesser Slave River ,Canada,Alberta,T0G2A0,NULL,31,176,2,0,30:48.4,Millar Western Forest Products Ltd. ,mmorton@millarwestern.com
+42,TriAcc Office,211110,211,211110,,123,abc St.,Calgary,Canada,Alberta,T2P3R5,NULL,21,191,2,0,17:45.7,TriAcc Group Inc.,peter.bryson@triacc.ca
+67,Bornite FENN Big Valley 15-22-035-20,211110,211,211110,0,15-22-035-20W4,0,Calgary,Canada,Alberta,A1A1A1,NULL,21,191,3,2,17:57.0,TriAcc Group Inc.,peter.bryson@triacc.ca
+117,ABBT3220023,211110,211,211110,Gift Lake 06-34-78-11W5,55.801345,-115.621673,Knappen,Canada,Alberta,T0G1B0,NULL,21,191,2,0,58:51.5,TriAcc Group Inc.,peter.bryson@triacc.ca
+31,Wild Rose Brewery,312120,312,312120,15,5505,"72 Ave, South East",Calgary,Canada,Alberta,T2C3C4,NULL,31,196,3,2,36:30.5,Sleeman Breweries Ltd.,chris.dougherty@sleemanbreweries.ca
+26,Test,211110,211,211110,,315,Slate Ave,Stony plain,Canada,Alberta,T7Z0J2,NULL,21,205,2,0,49:14.5,Select Electrical Enterprises LTD,justint@selectelectricalent.com
+3,Harmattan Gas Processing Complex,211130,2111,211130,31462,Range Road 52,Range Road 52,Sundre,Canada,Alberta,t0m1x0,NULL,21,211,2,0,22:56.8,Avatar Ventures - Nexa,tylertarnoczi@outlook.com
+17,TestCompany1,111411,111,111411,5,55,Test Street,Toronto,Canada,Alberta,A1A1A1,NULL,11,211,3,2,53:38.1,Avatar Ventures - Nexa,tylertarnoczi@outlook.com
+52,abc,211141,211,211141,,144 4 Ave SW,144 4 Ave SW,Calgary,Canada,Alberta,T2P3N4,NULL,21,212,3,2,12:35.2,VL Energy Ltd,adam.abou-dehn@vlenergy.ca
+53,abc,211141,211,211141,,"112 4 Ave SW, Calgary, AB",144 4 Ave SW,Calgary,Canada,Alberta,T2P3N3,NULL,21,212,2,0,20:25.1,VL Energy Ltd,adam.abou-dehn@vlenergy.ca
+16,Water Pure & Simple - Westlock,312110,312,312110,,9612,100 Street,Westlock,Canada,Alberta,T7P2L2,NULL,31,215,2,0,58:19.7,Water Pure & Simple,john@h2opureandsimple.com
+49,AB Mauri Calgary Plant,311990,311,311990,2201,15,Street,Calgary,Canada,Alberta,T2G3M3,NULL,31,219,3,2,46:25.7,AB Mauri (Canada) Limited,darrenclark@abmauri.com
+28,RME Red Deer,115110,115,115110,,66,Belich Crescent,Red Deer,Canada,Alberta,T4S2K5,NULL,11,230,2,0,43:34.2,Rocky Mountain Equipment LP,facilities@rockymtn.com
+30,RME Edmonton,115110,115,115110,,17720,105 Ave,Edmonton,Canada,Alberta,T5S1G4,NULL,11,230,2,0,53:26.7,Rocky Mountain Equipment LP,facilities@rockymtn.com
+20,NANTON PROCESSING,115110,115,115110,,2211, 19 Ave,NANTON,Canada,Alberta,T0L1R0,NULL,11,231,2,0,13:07.0,TASLAR TRADING CORP,h.taslar@gmail.com
+1,BioComposites Group Inc.,339999,3399,339999,,3250,50 Street,Drayton Valley,Canada,Alberta,T7A0C6,NULL,33,119,2,0,55:03.0,CSV Midstream Solutions Corp,brett.wightman@csvmidstream.com
+428,Long Island Lake - Water Treatment,221310,221,221310,39,63332,RGE RD 260,Dapp,Canada,Alberta,T0G0S0,NULL,22,462,2,0,53:13.7,Westlock County,pjean@westlockcounty.com
+35,Pro-Pipe Service and Sales Ltd,339999,339,339999,1507,7,St,Nisku,Canada,Alberta,T9E8A8,NULL,31,235,1,0,57:51.9,Pro-Pipe Service and Sales Ltd.,jocelyn@propipecanada.com
+22,TestCompany1,327910,327,327910,4,55,320,Toronto,Canada,Alberta,M4Y1C9,NULL,31,236,1,0,35:42.7,TC53,NULL
+24,TestCompany4,322220,322,322220,5,5,5,toronto,Canada,Alberta,A1A1A1,NULL,31,236,2,0,03:18.6,TC53,NULL
+27,Home Team Facility,313240,313,313240,,8880,Horton Street SW,Calgary,Canada,Alberta,T2V2W3,NULL,31,237,2,0,17:03.7,Test Malka,malka.labell@enerva.ca
+29,Findley 9-24-57-6W6,211110,211,211110,3100,308,4th Ave SW,Calgary,Canada,Alberta,T2P0H7,NULL,21,241,2,0,55:21.9,Pieridae Energy,kern.shepherd@pieridaeenergy.com
+33,Jumping Pound Gas Plant 13-13-25-5W5,211110,211,211110,3100,308,4th Ave SW,Calgary,Canada,Alberta,T2P0H7,NULL,21,241,2,0,42:17.4,Pieridae Energy,kern.shepherd@pieridaeenergy.com
+38,TOURMALINE EXSHAW 03-10-077-07W6,211110,211,211110,3700,205,6th Avenue SW,Calgary,Canada,Alberta,T2P3H7,NULL,21,243,3,2,48:24.5,Tourmaline Oil Corp,krista.town@tourmalineoil.com
+43,Tourmaline WILLGREEN 10-34-040-06W5,211110,211,211110,3700,250,6 Ave SW,Calgary,Canada,Alberta,T2P3H7,NULL,21,243,3,2,22:05.3,Tourmaline Oil Corp,krista.town@tourmalineoil.com
+157,11-16-055-24W5,211110,211,211110,3700,250,6 Ave SW,Calgary,Canada,Alberta,T2P3H7,NULL,21,243,3,2,29:52.3,Tourmaline Oil Corp,krista.town@tourmalineoil.com
+158,Wapiti 13-15-067-08W6,211110,211,211110,3700,250,6 Ave SW,Calgary,Canada,Alberta,T2P3H7,NULL,21,243,3,2,12:50.5,Tourmaline Oil Corp,krista.town@tourmalineoil.com
+39,ARK Greenhouse on Sprung Campus,115110,115,115110,,80039,Maple Leaf Rd.,Aldersyde,Canada,Alberta,T0L0A0,NULL,11,246,2,0,19:00.1,Agro Resilience Kit,danc@arkltd.net
+36,HITEC FUEL SYSTEMS INC,484229,484,484229,,15340,114 ave,Edmonton,Canada,Alberta,T5M2Z2,NULL,48,248,2,0,07:27.6,HITEC FUEL SYSTEMS INC,HITECFUEL@GMAIL.COM
+41,Dcore Project Solutions,238170,238,238170,,6404,30 Street SE,Calgary,Canada,Alberta,T2C1V6,NULL,23,252,2,0,22:28.2,E-2 Solutions,info@e-2solutions.com
+46,Success Berry Gas Plant,211110,211,211110,,0,01-02-027-14 W4M,Sunnynook,Canada,Alberta,A1A1A1,NULL,21,254,3,2,41:41.1,Success Resources Ltd.,aocchialini@successresources.ca
+45,TestOldMailOutlook,111330,111,111330,,123,asd,asd,Canada,Alberta,a1a1a1,NULL,11,256,3,2,52:54.7,OldOutlook,testappqwerty1@outlook.com
+47,Ald West 06-02 Battery,211110,211,211110,,06-02-016-15W4,"50.315528, -111.966332",Brooks,Canada,Alberta,A1A1A1,NULL,21,257,3,2,34:05.9,Torxen,garrettcopp@torxen.net
+84,Makepeace Gas Plant,211110,211,211110,,12-33-022-18W4,"50.915880, -112.448471",Brooks,Canada,Alberta,T1R0A7,NULL,21,257,3,2,50:26.4,Torxen,garrettcopp@torxen.net
+58,Sakai Spice,311990,311,311990,,4201,2nd Ave N,Lethbridge,Canada,Alberta,T1H0C8,NULL,31,261,2,0,03:29.3,SAKAI SPICE (CANADA) CORPORATION,dave@sakaispice.com
+59,Alberta Pipe Support &  Fabrication Inc.,332319,332,332319,,4403,84 Ave NW,Edmonton,Canada,Alberta,T6B2S6,NULL,31,263,2,0,56:00.3,Alberta Pipe Suppots & Fabrication Inc.,allanj@apsfabricationinc.com
+60,TARA CENTRE,115110,115,115110,,55051,TOWNSHIP RD 710,COUNTY OF GRANDE PRAIRIE,Canada,Alberta,T8W5A7,NULL,11,265,2,0,30:17.7,GRANDE PRAIRIE REGIONAL AGRICULTURAL AND EXHIBITION SOCIETY,kim@evergreenpark.ca
+108,West Dried Meat Lake Regional Landfill,562110,562,562110,,SW 14-44-21,SW 14-44-21,Ferintosh,Canada,Alberta,T0B3L0,NULL,56,267,1,0,20:24.8,Newo Global Energy,maroof@newo.energy
+64,Kick Ass Caramels Inc.,311340,311,311340,,5002,50 street,Stony Plain,Canada,Alberta,T7Z1T2,NULL,31,270,2,0,44:52.7,Kick Ass Caramels Inc,chat@kickasscaramels.com
+71,Spolumbo's Fine Foods,311999,311,311999,,1308,9 Ave SE,Calgary,Canada,Alberta,T2G0T3,NULL,31,276,3,2,25:30.9,Spoletini/Palumbo Inc.,rtickner@spolumbos.com
+72,Elite Waste Disposal Inc. Clairmont ,562990,562,562990,,9402,81st Ave,Clairmont,Canada,Alberta,T8X0M2,NULL,56,278,3,2,07:51.9,Elite Waste Disposal Inc.,rich@elitevac.ca
+79,Miki Test account plz don't delete,112920,112,112920,,111,Japan street,Calgary,Canada,Alberta,A1A1B1,NULL,11,280,2,0,21:12.9,Mal,semi@eralberta.ca
+74,214 Place ,561110,561,561110,,10130 99 Street,180,Grande Prairie,Canada,Alberta,T8V2V4,NULL,56,283,1,0,13:58.3,Park Property Management Group Ltd.,admin@parkpmg.ca
+75,Above and Beyond Compression Inc,211110,211,211110,,2305-84 Ave,2305-84 Ave,Edmonton,Canada,Alberta,T6P1K1,NULL,21,285,3,2,29:50.2,Above and Beyond Compression Inc,rmiller@abcomp.ca
+76,Grant Metal Products Shop,333519,333,333519,291210,291210,Wagon Wheel Road Rocky View,Calgary,Canada,Alberta,T4A0E2,NULL,31,286,3,2,38:43.1,Grant Metal Products Ltd.,sphilipiew@grantmetal.com
+80,Harhil Farm Ltd,112310,112,112310,,SW13-41-25-W4,SW13-41-25-W4,Clive,Canada,Alberta,A1A1A1,NULL,11,291,2,0,46:12.2,Harhil Farm Ltd.,cmvanfarm@gmail.com
+81,RHK Hydraulics Main Building,332710,332,332710,,13111, 159 Street NW,Edmonton,Canada,Alberta,T5V1H6,NULL,31,292,2,0,01:11.3,RHK Hydraulic Cylinder Services,lockeyrhynold@rhkhydraulics.com
+82,Epic Stables 1,111999,111,111999,,257001,112 St W,Foothills,Canada,Alberta,T1S0W1,NULL,11,293,1,0,00:33.0,Epic Stables,Stanislav.lopata@gmail.com
+86,Solvet,339999,339,339999,,7226,107 Ave SE,Calgary,Canada,Alberta,T2C5N6,NULL,31,294,1,0,31:25.5,Solvet,Steve.frederick@avetlabs.com
+83,Hog Barn,112210,112,112210,,SE 04-05-21-W4,SE 04-05-21-W4,Magrath,Canada,Alberta,A1A1A1,NULL,11,295,2,0,29:16.0,Hutterville Equipment Co. Ltd.,mgr@hutterville.com
+87,Poultry Operation,112310,112,112310,SE 04-05-21-W4,BOX 70,SE 04-05-21-W4,MAGRATH,Canada,Alberta,T0K1J0,NULL,11,295,1,0,18:04.0,Hutterville Equipment Co. Ltd.,mgr@hutterville.com
+88,Poultry Operation,112310,112,112310,70,SE 04-05-21-W4,box 70,MAGRATH,Canada,Alberta,T0K1J0,NULL,11,295,2,0,26:23.6,Hutterville Equipment Co. Ltd.,mgr@hutterville.com
+85,Wabash Mfg. Inc.,336211,336,336211,,"Lot 7, 8, 9, Block 2, Plan 7720694",9312 - 110A Street,Westlock,Canada,Alberta,T7P2M4,NULL,31,296,2,0,19:40.2,Wabash Mfg. Inc.,julie@wabash.ca
+37,Demir Engineering,332999,332,332999,,7324,36 Street NW,Edmonton,Canada,Alberta,T6B3E8,NULL,31,249,3,2,27:36.5,Demir Engineering Ltd.,anita@demirengineering.com
+61,Rostel Industries,332999,332,332999,,9699,Shepard Rd,Calgary,Canada,Alberta,T2C4K5,NULL,31,266,3,2,50:42.4,Precision Drilling Corporation,gwijewardana@precisiondrilling.com
+429,c1,112210,112,112210,,12,asd,asd,Canada,Alberta,t3t3t3,NULL,11,536,3,2,28:01.7,Bruh,andrei81@yopmail.com
+89,Greatwest Kenworth Clairmont,488990,488,488990,,7202,98 ST,Clairmont,Canada,Alberta,t8x5b1,NULL,48,298,3,2,25:51.7,Greatwest Kenworth,kats@greatwestkenworth.com
+91,WIKA Instruments Ltd.,333248,333,333248,,3103,Parsons Road,Edmonton,Canada,Alberta,T6N1C8,NULL,31,301,3,2,27:06.3,WIKA Instruments Ltd.,katie.kaiser@wika.com
+92,OEM Remanufacturing,333619,333,333619,,156 St NW,13315,Edmonton,Canada,Alberta,T5V1V2,NULL,31,302,2,0,51:04.1,Finning Canada,thomas.swaczyna@finning.com
+93,Head Office,238210,238,238210,,13415,149 Street,Edmonton,Canada,Alberta,T5L2T3,NULL,23,303,2,0,53:20.9,Altapro Electric Ltd.,mathewrea@altapro.ca
+94,WFM Claresholm Chicken Processing Facility,311615,311,311615,,4264,3 St E,Claresholm,Canada,Alberta,T0L0T0,NULL,31,309,3,2,59:10.2,Western Fine Meats Inc,accounting@westernfinemeats.ca
+97,Rayner Ranch Institute,111940,111,111940,338042,304th ,West,Millarville,Canada,Alberta,T0L1K0,NULL,11,310,2,0,56:10.4,Rayner Ranch Institute,mark@raynerinstitute.com
+98,Packers Plus Energy Services MX Manufacturing ,324190,324,324190,5707,72A ,Avenue,Edmonton ,Canada,Alberta,T6B2J1,NULL,31,312,3,2,36:40.5,Packers Plus Energy Services,neal.edillon@packersplus.com
+102,Potato Washer,111211,111,111211,,SE18-10-16-W4,SE18-10-16-W4,Taber,Canada,Alberta,A1A1A1,NULL,11,316,2,0,53:16.3,Nakamura Farms (2022) Ltd,paige.nkfarms@gmail.com
+112,5Mile Farms ,112310,112,112310,1,52.73834,112.6625,Edberg,Canada,Alberta,T0B1J0,NULL,11,329,3,2,23:18.1,"5Mile Farms Inc,",prairiecleanorganic@gmail.com
+140,Trades Guild,321999,321,321999,,4405A,"75 Ave SE, Calgary, AB",Calgary,Canada,Alberta,T2C2K8,NULL,31,330,3,2,31:42.5,Trades Guild,chase@tradesguild.ca
+136,Home Growers,111412,111,111412,30,37041,River Road,Red Deer County,Canada,Alberta,T4G0M9,NULL,11,360,2,0,03:17.3,Alberta Canabiz Ltd.,clare@homegrowers.ca
+73,Vyefield - South Processing Building,311824,311,311824,,111,370 Ave W,Foothills,Canada,Alberta,T0L0A0,NULL,31,282,2,0,50:37.2,Vyefield Enterprises Ltd.,tim@vyefield.ca
+111,Calgary Manufacturing,312110,312,312110,,3851,23rd St,Calgary,Canada,Alberta,T2E6T2,NULL,31,326,3,2,18:32.5,Panevo Energy Limited,elaage@cokecanada.com
+113,Barn,112110,112,112110,,21067,Hwy 688,ST ISIDORE,Canada,Alberta,T0H3B0,NULL,11,331,2,0,28:06.4,Lavoie Ventures,mason@lavoieventures.ca
+114,"Knappen 4-5-1-11 W4M, ABBT0134164",211110,211,211110,04-05-001-11W4M,48.999165,-111.450332,Knappen,Canada,Alberta,T0K1M0,NULL,21,333,3,2,01:02.6,Tower Ridge Enterprises Corp.,john.polnick@towerridge.ca
+115,Knappen 4-11-1-11 W4M ABBT0120874,211110,211,211110,Knappen 4-11-1-11 W4M ,49.015605,-111.383669,Knappen,Canada,Alberta,T0K1M0,NULL,21,333,3,2,54:06.0,Tower Ridge Enterprises Corp.,john.polnick@towerridge.ca
+134,"GHG INC. GIFT 6-34-78-11, ABBT3220023 ",211110,211,211110,06-34-078-11W5,55.801345,-115.621673,Gift Lake Metis Settlement,Canada,Alberta,T0G1B0,NULL,21,333,3,2,04:07.0,Tower Ridge Enterprises Corp.,john.polnick@towerridge.ca
+162,"GHG INC. GIFT 6-34-78-11, ABBT3220023 ",211110,211,211110,06-34-078-11W5,55.801345,-115.621673,Gift Lake Metis Settlement,Canada,Alberta,T0G1B0,NULL,21,333,3,2,53:00.9,Tower Ridge Enterprises Corp.,john.polnick@towerridge.ca
+164,Knappen 4-11-1-11 W4M ABBT0120874,211110,211,211110,Knappen 4-11-1-11 W4M ,49.015605,-111.383669,Knappen,Canada,Alberta,T0K1M0,NULL,21,333,3,2,56:18.6,Tower Ridge Enterprises Corp.,john.polnick@towerridge.ca
+165,"Knappen 4-5-1-11 W4M, ABBT0134164",211110,211,211110,04-05-001-11W4M,48.999165,-111.450332,Knappen,Canada,Alberta,T0K1M0,NULL,21,333,3,2,03:14.5,Tower Ridge Enterprises Corp.,john.polnick@towerridge.ca
+116,Edvan Custom Metal Processing Ltd,332999,332,332999,,1407,8th,Nisku,Canada,Alberta,T9E7M5,NULL,31,334,2,0,44:56.5,Edvan Custom Metal Processing Ltd,jloates@collinssteel.com
+118,Northgood 1,111993,111,111993,C,7610,5 ST SE,Calgary,Canada,Alberta,T2H2L9,NULL,11,335,2,0,57:18.7,Northgood Farms,info@northgoodfarms.com
+124,Revival Development,236110,236,236110,,1222,Allowance Ave SE,Medicine Hat,Canada,Alberta,T1A3H1,NULL,23,336,2,0,40:43.0,12Twenty2 Ltd,info@12twenty2.ca
+119,ETHEL 04-26 CONNECTOR,211110,211,211110,,04-26-067-08W5,"54.822794,-115.116931",Swan Hills,Canada,Alberta,A1A1A1,NULL,21,337,3,2,54:46.9,Aspenleaf Energy,eric.fischer@aspenleafenergy.com
+216,"Gleichen 13-26-021-23W4, AB BT 0114748",211110,211,211110,,50.817965,-113.095088,Gleichen,Canada,Alberta,T0J1N0,NULL,21,338,3,2,28:36.9,Rising Tide Energy Ltd.,paul.beatty@risingtideenergy.ca
+120,West Dried Meat Lake Regional Landfill,562210,562,562210,,Secondary Hwy 609,21184,Camrose County,Canada,Alberta,A1A1A1,NULL,56,341,3,2,02:17.3,Camrose County,dking@county.camrose.ab.ca
+151,Pouce Coupe Gas Plant,211110,211,211110,5-23-80-13 W6M,55.948674,-119.93129,Peace Arch,Canada,Alberta,A1A1A1,NULL,21,367,3,2,09:57.7,NorthRiver midstream,abdel.hagar@nrm.ca
+101,Steelhaus Technologies Inc.,333130,333,333130,Bay 145,79,Freeport Cres NE,Calgary,Canada,Alberta,T3J2L2,NULL,31,313,1,0,38:03.0,Steelhaus Technologies Inc.,nfatma@steelhausinc.com
+314,Balzers Canada ,238990,238,238990,,235051,Wrangler Drive,Rockyview,Canada,Alberta,T1K0K3,NULL,23,517,1,0,34:32.6,BCI Canada,jillc@bci-ab.ca
+121,Onespot Camprounds ,112391,112,112391,,2822,Wintergreen Road,West Bragg Creek,Canada,Alberta,T0L0K0,NULL,11,342,2,0,15:49.9,CyberCloud-AI,josephine@cybercloud-ai.com
+122,Tribal Chiefs Ventures Inc._Edmonton Office,561320,561,561320,,17533,106 Ave,Edmonton,Canada,Alberta,T5S1E7,NULL,56,344,2,0,24:16.7,Tribal Chiefs Ventures Inc.,sojha@tcvi.ca
+123,Tribal Chiefs Ventures Inc._St. Paul Office,561320,561,561320,,47 Street,4901,St Paul,Canada,Alberta,T0A3A3,NULL,56,344,2,0,31:48.3,Tribal Chiefs Ventures Inc.,sojha@tcvi.ca
+126,Barrhead Transit Mix Ltd,339999,339,339999,Box 4523,6119,48 street,Barrhead,Canada,Alberta,T7N1A4,NULL,31,345,3,2,19:25.2,Barrhead Transit Mix Ltd,colette@barrheadtransitmix.ca
+128,02-28-038-07 (07-33 DH) Wellsite,211110,211,211110,,02-28-038-07W5,02-28-038-07W5,Rocky Mountain House,Canada,Alberta,A1A1A1,NULL,21,347,3,2,14:48.1,Whitecap Resources,kyle.fauville@wcap.ca
+148,12-28-38-07 Pad (102/04-21 & 102/06-21 DH),211110,211,211110,,12-28-038-07W5,12-28-038-07W5,Rocky Mountain House,Canada,Alberta,A1A1A1,NULL,21,347,3,2,15:02.0,Whitecap Resources,kyle.fauville@wcap.ca
+149,16-18-034-04 SF (16-19 DH),211110,211,211110,,16-18-034-04W5,16-18-034-04W5,Caroline,Canada,Alberta,A1A1A1,NULL,21,347,3,2,56:24.7,Whitecap Resources,kyle.fauville@wcap.ca
+129,Permolex Ltd.,311211,311,311211,,8010,Edgar Industrial Crescent,Red deer,Canada,Alberta,T4P3R3,NULL,31,350,3,2,44:55.5,Permolex Ltd,jvarghese@permolex.com
+130,5 Mile Farms,112310,112,112310,,"52°44'18""N","112°39'45""W",Meeting Creek,Canada,Alberta,A1A1A1,NULL,11,351,2,0,17:05.1,Yuha Electric and Contracting Ltd.,yuha_electric@outlook.com
+131,Gold Bar Wastewater Treatment Plant,221320,221,221320,,10977,50 Street NW,Edmonton,Canada,Alberta,T6A2E9,NULL,22,352,1,0,16:08.8,EPCOR Water Services Inc,qzhang@epcor.com
+146,Dairy Barn,112120,112,112120,,NE-09-42-27-W4,NE-31-42-27-W4,Ponoka,Canada,Alberta,A1A1A1,NULL,11,357,3,2,01:45.0,Stamm Dairy Ltd,Stammdairyltd@gmail.com
+135,Mullen Group Head Office,484110,484,484110,121A,31,Southridge Drive ,okotoks,Canada,Alberta,T1S2N3,NULL,48,358,1,0,18:32.2,Mullen Group Ltd.,lhellyer@mullen-group.com
+139,Stoney Trail Aggregate Resource ( STAR) Pit ,212323,212,212323,,12411,85th Street NW,Calgary,Canada,Alberta,T3R1J3,NULL,21,359,3,2,30:41.7,Lafarge Canada Inc,krista.meneghetti@lafarge.com
+143,BTG Sylvan Lake GP 14-32,211110,211,211110,,14-32-037-03W5,52.22930N -114.39628E,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,31:43.0,BTG Energy Corporation,dawn.dack@btgenergy.com
+144,12-29-038-03W5,211110,211,211110,,12-29-038-03W5,102/11-29-038-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,34:43.7,BTG Energy Corporation,dawn.dack@btgenergy.com
+159,03-16-038-03W5,211110,211,211110,,"52.262308, -114.372793",102/07-16-038-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,41:04.9,BTG Energy Corporation,dawn.dack@btgenergy.com
+167,11-16-038-03W5,211110,211,211110,,"52.270799, -114.372146",102/15-16-038-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,38:01.4,BTG Energy Corporation,dawn.dack@btgenergy.com
+170,14-07-038-04W5,211110,211,211110,,"52.257305, -114.565049",100/14-07-038-04W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,38:59.4,BTG Energy Corporation,dawn.dack@btgenergy.com
+171,06-33-038-03W5,211110,211,211110,,"52.311191, -114.373133",102/06-33-038-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,40:49.4,BTG Energy Corporation,dawn.dack@btgenergy.com
+172,01-16-038-03W5,211110,211,211110,,"52.262493, -114.361375",103/16-09-038-03W5/03,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,42:57.7,BTG Energy Corporation,dawn.dack@btgenergy.com
+173,14-14-037-03W5,211110,211,211110,,"52.184729, -114.328834",100/14-14-037-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,39:50.5,BTG Energy Corporation,dawn.dack@btgenergy.com
+174,02-16-038-03W5,211110,211,211110,,"52.262771,  -114.367655",100/02-16-038-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,41:31.8,BTG Energy Corporation,dawn.dack@btgenergy.com
+190,07-16-038-03W5,211110,211,211110,,"52.266318, -114.367314",104-06-16-038-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,43:54.4,BTG Energy Corporation,dawn.dack@btgenergy.com
+191,01-32-038-03W5,211110,211,211110,,"52.304954, -114.383638",100/08-32-038-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,03:26.9,BTG Energy Corporation,dawn.dack@btgenergy.com
+192,04-22-038-03W5,211110,211,211110,,"52.276750, -114.356324",100/04-22-038-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,56:36.6,BTG Energy Corporation,dawn.dack@btgenergy.com
+193,13-14-037-03W5,211110,211,211110,,"52.186847, -114.332291",100/13-14-037-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,58:10.2,BTG Energy Corporation,dawn.dack@btgenergy.com
+194,12-25-037-04W5,211110,211,211110,,"52.211798, -114.451480",100/12-25-037-04W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,58:51.6,BTG Energy Corporation,dawn.dack@btgenergy.com
+195,07-14-037-03W5,211110,211,211110,,"52.178969, -114.322145",100/03-14-037-03W5/02,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,55:57.4,BTG Energy Corporation,dawn.dack@btgenergy.com
+196,13-23-037-03W5,211110,211,211110,,"52.201490, -114.332272",100/14-23-037-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,57:22.0,BTG Energy Corporation,dawn.dack@btgenergy.com
+197,12-16-038-03W5,211110,211,211110,,"52.269975, -114.379423",100/12-16-038-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,59:29.6,BTG Energy Corporation,dawn.dack@btgenergy.com
+226,09-09-038-03W5,211110,211,211110,,"52.254577,  -114.362466",100/09-09-038-03W5/00,Eckville,Canada,Alberta,T0M0X0,NULL,21,361,3,2,40:35.8,BTG Energy Corporation,dawn.dack@btgenergy.com
+137,Ws Farms Ltd,112120,112,112120,,Sw17-59-04 w5th,Sw17-59-04 w5th,Barrhead,Canada,Alberta,A1A1A1,NULL,11,362,2,0,24:22.1,Ws Farms Ltd,ws_farms@hotmail.com
+152,GordondaleWest Gas Plant,211110,211,211110,,11-24-79-11 W6M,11-24-79-11 W6M,Peace Arch,Canada,Alberta,A1A1A1,NULL,21,367,2,0,18:08.1,NorthRiver midstream,abdel.hagar@nrm.ca
+154,CS19 Kelt 14-23,213118,213,213118,,14-23-079-10W6,14-23-079-10W6,Peace Arch,Canada,Alberta,A1A1A1,NULL,21,367,2,0,04:28.5,NorthRiver midstream,abdel.hagar@nrm.ca
+142,TORC CARROT CK 01-28-052-13W5 MWB,211110,211,211110,,01-28-052-23W5,"53.5129,-115.8479",Yellowhead County,Canada,Alberta,A1A1A1,NULL,21,368,3,2,28:57.2,HWN Energy Ltd,cgray@hwnenergy.com
+155,Great Plains ,484122,484,484122,,5600,76 AVE SE,Calgary,Canada,Alberta,T2C4N4,NULL,48,375,2,0,35:38.2,Lineage,mnamazi@onelineage.com
+169,Hartland Colony,111999,111,111999,,52.62 -113.095278,R.R. 1,Bashaw,Canada,Alberta,T0B0H0,NULL,11,376,2,0,20:53.9,Hartland Colony,electric@hartlandcolony.ca
+161,Edmasters,237310,237,237310,,1799082,Box961 ,Crossfield,Canada,Alberta,T0M0S0,NULL,23,380,2,0,55:54.8,Edmasters,info@edmasters.ca
+163,YYC  - DHL Express,481110,481,481110,,153,Aero Way NE,Calgary,Canada,Alberta,T2E6K2,NULL,48,381,2,0,08:39.8,DHL Express,simon.akiki@dhl.com
+166,Edmonton Home Office,115210,115,115210,,4919,Malmo Rd NW,Edmonton,Canada,Alberta,T6H4L9,NULL,11,382,2,0,41:37.5,Ouellette Ag Engineering Inc.,chris@ouelletteageng.com
+175,Great Lake Power Plant,221112,221,221112,,283002,HWY 21,Knee Hill,Canada,Alberta,T0M0L0,NULL,22,386,1,0,31:36.6,Great Lake Power,nina_bai@greatlakepower.com
+176,​​Peace River Silica Sand Operation​ ,212323,212,212323, NW28 & SW33,TWP 84,Rge. 21,Peace River,Canada,Alberta,T8S1S1,NULL,21,387,2,0,35:22.6,Source Energy Services,cgunn@sourceenergyservices.com
+177,eCycle Airdrie ,562920,562,562920,108,34,highland parkway NE,Airdrie,Canada,Alberta,t4a0r1,NULL,56,388,3,2,06:48.3,eCycle Solutions,ahughes@ecyclesolutions.com
+178,Jennys Delectbales shop 2,484121,484,484121,,29th street NE,3815,Calgary,Canada,Alberta,T1Y6B5,NULL,48,392,2,0,47:03.5,Jennys Delectables inc,jenniferkohut@jennysdelectables.com
+168,Calgary MDF,321999,321,321999,,50,ST,Calgary,Canada,Alberta,T2C3W1,NULL,31,383,3,2,07:02.7,Metrie,dave.danesh@metrie.com
+180,Rocky Carselend 09-21,324110,324,324110,1,09-21-22-25W4,09-21-22-25 W4,Calgary,Canada,Alberta,T3R0P3,NULL,31,401,2,0,29:13.2,Rocky Mountain Clean Fuels Inc.,b.lee@rmcfi.com
+181,Sand Castle Society -Daycare,561330,561,561330,,84 st,8202,Grande Prairie ,Canada,Alberta,T8X0L6,NULL,56,404,3,2,19:28.3,Sand Castle Society,thesandcastledaycare@gmail.com
+187,Kapawe'no First Nation Water Treatment Plant,221310,221,221310,,Lot 4,Grouard,Grouard,Canada,Alberta,T0G1C0,NULL,22,411,3,2,03:52.3,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+206,O'Chiese First Nation Water Treatment Plant,221310,221,221310,,"52.791084, -115.335030","52.791084, -115.335030",Alhambra,Canada,Alberta,A1A1A1,NULL,22,411,3,2,42:01.6,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+207,O'Chiese First Nation- Band Administration Office,561110,561,561110,,"52.731421, -115.309234","52.731421, -115.309234",OChiese,Canada,Alberta,T4T0A3,NULL,56,411,3,2,10:32.1,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+208,O'Chiese First Nation- Public Works Building,561210,561,561210,,"52.733002, -115.310062","52.733002, -115.310062",Alhambra,Canada,Alberta,A1A1A1,NULL,56,411,3,2,11:41.2,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+213,Esquao Building (The Intitute for the Advancement of Aboriginal Women),561310,561,561310,,10220,156 Street NW,Edmonton,Canada,Alberta,T5P2R1,NULL,56,411,3,2,49:30.1,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+220,Beaver First Nation- Water Treatment Plant,221310,221,221310,,"58.460620, -116.259082","58.460620, -116.259082",Boyer,Canada,Alberta,A1A1A1,NULL,22,411,3,2,32:57.6,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+221,Beaver First Nation- Carpentry Shop,238299,238,238299,,30 Boyer River,Crescent,Boyer,Canada,Alberta,T0H1N0,NULL,23,411,3,2,32:36.6,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+222,Beaver First Nation- Administration Office,561110,561,561110,,"58.456350, -116.274564","58.456350, -116.274564",Boyer,Canada,Alberta,T0H1N0,NULL,56,411,3,2,35:58.0,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+223,Kapawe'no First Nation- Water Treatment Plant,221310,221,221310,,"55.484592, -115.393916","55.484592, -115.393916",Grouard,Canada,Alberta,T0G1K0,NULL,22,411,3,2,42:45.1,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+224,Kapawe'no First Nation- Public Works Building,488990,488,488990,,"55.548814, -116.148614","55.548814, -116.148614",Grouard,Canada,Alberta,T0G1C0,NULL,48,411,3,2,40:27.2,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+188,Matt Silver Trucking Ltd,484110,484,484110,61126,RR435,MD of Bonnyville,Bonnyville,Canada,Alberta,T9N0H2,NULL,48,412,3,2,26:53.9,Matt Silver Trucking Ltd,mattsilvertrucking@gmail.com
+199,Heifer Barn,112120,112,112120,,NW-18-41-25-W4,NW-18-41-25-W4,Lacombe,Canada,Alberta,A1A1A1,NULL,11,418,2,0,02:43.6,Five Star Cattle Co ltd,fivestardairy@gmail.com
+200,Dairy Barn,112120,112,112120,,Se-18-41-25-W4,Se-18-41-25-W4,Lacombe,Canada,Alberta,T4L1W9,NULL,11,418,2,0,09:01.1,Five Star Cattle Co ltd,fivestardairy@gmail.com
+203,SECURE Fox Creek FST,562210,562,562210,PO Box 329,n/a,n/a,Fox Creek,Canada,Alberta,T0H1P0,NULL,56,421,1,0,04:31.4,SECURE Waste Infrastructure Corp,anandez@secure-energy.com
+204,SECURE Fox Creek FST,562210,562,562210,PO Box 329,n/a,n/a,Fox Creek,Canada,Alberta,T0H1P0,NULL,56,421,1,0,03:58.5,SECURE Waste Infrastructure Corp,anandez@secure-energy.com
+90,HQ,561990,561,561990,,105,12 AVE SE,Calgary,Canada,Alberta,T2G1A1,NULL,56,299,2,0,54:16.0,Ayming,abanerjee@ayming.ca
+325,asdas,113210,113,113210,,123,asd,asd,Canada,Alberta,t3t3t3,NULL,11,70,2,0,57:19.5,Test green company1,NULL
+209,St. Albert Place,561110,561,561110,,5,St. Anne Street,St Albert,Canada,Alberta,T8N3Z9,NULL,56,430,2,0,47:04.3,City of St. Albert,gtweedy@stalbert.ca
+214,Town Hall,561110,561,561110,,1,Columbia Ave W,Devon,Canada,Alberta,T9G1A1,NULL,56,433,3,2,45:35.9,Town of Devon,tsantucci@devon.ca
+215,Esso Building,561110,561,561110,,2000, Miquelon Ave,Devon,Canada,Alberta,T9G2H4,NULL,56,433,3,2,05:01.9,Town of Devon,tsantucci@devon.ca
+219,Rocky Mountain Show Jumping Ltd.,115210,115,115210,64031,226 Ave W.,226 Ave W,Foothills,Canada,Alberta,T1S2Y9,NULL,11,436,1,0,18:29.2,Rocky Mountain Show Jumping Ltd.,john@rmsj.ca
+217,Epic Roofing and Exteriors Calgary,238160,238,238160,2435,22,Street NE,Calgary,Canada,Alberta,T2E8K8,NULL,23,437,2,0,59:04.7,Epic Roofing and Exteriors,travis@epicroofing.ca
+212,X,561110,561,561110,,x,x,x,Canada,Alberta,A1A1A1,NULL,56,411,2,2,12:50.0,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+210,Aseniwuche Winewak Nation of Canada- ADC Shop,332999,332,332999,,9600,104 Avenue,Grande Cache,Canada,Alberta,T0E0A6,NULL,31,411,3,2,08:29.6,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+211,Aseniwuche Winewak Nation of Canada- AEC Shop,561210,561,561210,,10007,99 St,Grande Cache,Canada,Alberta,T0E0Y0,NULL,56,411,3,2,10:54.9,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+430,c2,114113,114,114113,,123,asdasd,wqeqwe,Canada,Alberta,t3t3t3,NULL,11,536,3,2,25:28.9,Bruh,andrei81@yopmail.com
+189,Battle River Facility,324190,324,324190,,52.44982,-112.1629,NA,Canada,Alberta,A1A1A1,NULL,31,414,3,2,12:17.3,Ashcor,Mona.Siwak@atco.com
+225,Cardston Agridome,112920,112,112920,,880,West Bypass,Cardston,Canada,Alberta,T0K0K0,NULL,11,442,3,2,42:56.0,Cardston Ag Society,cardstonag@gmail.com
+228,Natural Elk Ranch,112991,112,112991,,SE34-28-25W4,SE34-28-25W4,Beiseker,Canada,Alberta,T0M0G0,NULL,11,444,3,2,11:47.5,Natural Elk Ranch,wayneb1@telus.net
+218,Airside,481110,481,481110,6759,60,Ave,Nisku,Canada,Alberta,T9E0V3,NULL,48,431,3,2,55:36.0,York Realty,ali@yorkrealty.ca
+227,Steelbrace Construction & Mgmt.,236210,236,236210,2017,274,274 Ave East,County of Foothills,Canada,Alberta,T0L1T0,NULL,23,443,3,2,29:49.2,Steelbrace Construction & Mgmt. Inc,steelbrace13@gmail.com
+109,Sofina - Edmonton North Hatchery,112340,112,112340,,7503,127 Ave NW,Edmonton,Canada,Alberta,T5C1R9,NULL,11,30,2,0,24:34.8,Sofina Foods,jbayliss@sofinafoods.com
+334,TestFacility10062025,562990,562,562990,,1,Street,Alberta,Canada,Alberta,x1x1x1,NULL,56,22,1,0,34:18.5,KosKompany,NULL
+291,2-18-52-12W5 Carrot Creek,211110,211,211110,,2-18-52-12,W5,Edson,Canada,Alberta,A1A1A1,NULL,21,506,2,0,30:35.3,North Fork Resources,trevor@northforkresources.com
+273,TestUploadFiles2,561710,561,561710,,1,str,cas,Canada,Alberta,X1X1X1,NULL,56,70,3,2,31:08.9,Test green company1,NULL
+235,Carbon Gas Storage,221210,221,221210,,SE-17-029-22W4M,SE-17-029-22W4M,Carbon,Canada,Alberta,A1A1A1,NULL,22,307,2,0,26:17.1,ATCO EnPower,mei.huang@atco.com
+304,Elmworth Generating Station,221112,221,221112,,701044,Range Road 114,Elmworth,Canada,Alberta,T0H1J0,NULL,22,512,3,2,29:13.6,Northstone Power Corp.,clinton@northstonepower.com
+315,City of Medicine Hat Compost Facility,562210,562,562210,13002,52A,Range Road,Cypress County,Canada,Alberta,T1C1S6,NULL,56,518,2,0,53:52.8,CITY OF MEDICINE HAT,shabri@medicinehat.ca
+333,Metro Machine Works,332710,332,332710,,4416,64th Ave SE,Calgary,Canada,Alberta,T2C2B3,NULL,31,529,3,2,14:34.7,Metro Machine Works,tim@metromachineworks.ca
+330,Wildcat Hills 04-08-027-05W5M Well Site,211110,211,211110,"51°16'40""N 114°40'16""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,24:56.4,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+331,Wildcat Hills 05-24-027-06W5M Well Site,211110,211,211110,"51°19'07""N 114°43'29""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,25:58.7,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+332,Foremost Equipment LP,333120,333,333120,,5221 - 46th Street,46,Stettler,Canada,Alberta,T0C2L0,NULL,31,528,2,0,37:54.2,Foremost Equipment LP,Joe.huraj@foremost.ca
+431,c3,237210,237,237210,,123,asd,asd,Canada,Alberta,t3t3t3,NULL,23,536,2,0,32:03.9,Bruh,andrei81@yopmail.com
+311,Wildcat Hills Unit Gas Field,211110,211,211110,,06-16-026-05w5,Range Rd 54,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,08:36.9,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+329,Wildcat Hills 01-03-028-06W5M Well Site,211110,211,211110,"51°21'35""N 114°45'08""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,23:52.8,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+324,.mmm,322122,322,322122,,99,mm,mm,Canada,Alberta,t4t4t4,NULL,31,522,3,2,42:00.5,Uber,andrei60@yopmail.com
+432,c4,113110,113,113110,,12,asd,asd,Canada,Alberta,t3t3t3,NULL,11,536,3,2,56:17.8,Bruh,andrei81@yopmail.com
+336,asd,114210,114,114210,,1233,asdasd,asdasd,Canada,Alberta,g4g4g4,NULL,11,522,2,0,28:37.1,Uber,andrei60@yopmail.com
+338,Memememe,237210,237,237210,,123,asd,asd,Canada,Alberta,t4t4t4,NULL,23,522,2,0,11:25.9,Uber,andrei60@yopmail.com
+339,Leduc ECO Station,562110,562,562110,,6102,46 Street,Leduc,Canada,Alberta,T9E6T8,NULL,56,524,3,2,36:47.4,City of Leduc,jharding@leduc.ca
+328,Rival Trade Brewing Brew House,312120,312,312120,,3,Gateway Drive,Alhambra,Canada,Alberta,T4T1P3,NULL,31,527,2,0,40:18.2,Rival Trade Brewing Company Inc.,nolan@rivaltradebrewing.com
+342,233 dddd,111940,111,111940,,32,333,Calgonton,Canada,Alberta,A1A1A1,NULL,11,533,2,0,21:37.0,Coke Studios,NULL
+343,3344,237210,237,237210,,33,324,Helper,Canada,Alberta,G5G5G5,NULL,23,533,2,0,44:25.2,Coke Studios,NULL
+344,Camlin Energy,562920,562,562920,,23,123,Caglary,Canada,Alberta,A1A1A1,NULL,56,533,2,0,56:34.5,Coke Studios,NULL
+347,Waste Water Treatment Plant,221320,221,221320,,102A,Bow Valley Trail,Canmore,Canada,Alberta,T1W3B7,NULL,22,534,2,0,23:29.0,Town of Canmore,ian.sinclair@canmore.ca
+340,Test facility,562990,562,562990,,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,56,70,2,0,54:50.7,Test green company1,NULL
+341,Test creation application,111421,111,111421,,22,22,Wroclaw,Canada,Alberta,A1A1A1,NULL,11,70,2,0,55:15.8,Test green company1,NULL
+243,Wastewater Treatment Plant,221320,221,221320,,1100,River Drive,Devon,Canada,Alberta,T9G1A1,NULL,22,433,3,2,24:40.2,Town of Devon,tsantucci@devon.ca
+335,rew,111120,111,111120,,32,3223,Calgary,Canada,Alberta,A1A1A1,NULL,11,499,2,0,20:06.8,Doctors Inc,NULL
+433,c4,238320,238,238320,,asd,123,asd,Canada,Alberta,t3t3t3,NULL,23,536,2,0,21:36.8,Bruh,andrei81@yopmail.com
+356,Wildcat Hills 16-23-027-06W5M Well Site,211110,211,211110,"51°19'42""N 114°43'45""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,10:35.7,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+361,Wildcat Hills 10-06-027-05W5M Well Site,211110,211,211110,"51°16'52""N 114°41'24""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,22:22.0,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+260,Trafford Farms ,111411,111,111411,4,4515,Highway 582,Didsbury,Canada,Alberta,T0M0W0,NULL,11,435,1,0,15:46.2,Trafford Farms,marina@traffordfarms.com
+302,Cnoon International - Kinosis ( K1A ),211141,211,211141, K1A – 02-35-084-07 W4M ,  K1A – 02-35-084-07 W4M ,11 Km south of Anzac on highway 881,Anzac,Canada,Alberta,T0P1J0,NULL,21,346,3,2,09:36.1,CNOOC International,raj.bambhania@intl.cnoocltd.com
+358,sad,111940,111,111940,,123,asd,asd,Canada,Alberta,t4t4t4,NULL,11,536,3,2,24:53.2,Bruh,andrei81@yopmail.com
+262,E&A Tire Recycling,562110,562,562110,264,264,Elm st,Fort mcmurray ,Canada,Alberta,T9k0k2,NULL,56,438,1,0,08:59.8,E&A recycle & renew,eddiebalsom9@hotmail.com
+359,s,562990,562,562990,,123,ASD,ASD,Canada,Alberta,r3r3r3,NULL,56,536,3,2,24:54.9,Bruh,andrei81@yopmail.com
+317,Maple Leaf Foods Hatchery Wetaskiwin,112340,112,112340,,4710,39 Avenue,Wetaskiwin,Canada,Alberta,T9A3G2,NULL,11,46,2,0,41:18.8,Maple Leaf Foods,colin.haveroen@mapleleaf.com
+258,Test Numba 2,114210,114,114210,,12,Tester St,Calgary,Canada,Alberta,G7G7G7,NULL,11,55,2,0,2025-05-01 16:13,SEMI ADMIN,harsanjit.bhullar@enerva.ca
+229,FreshFacilityAd,111421,111,111421,,1,Contractors Street,Calgary,Canada,Alberta,X1X1X1,NULL,11,70,1,0,44:40.9,Test green company1,NULL
+249,Test Facility,112310,112,112310,,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,11,70,3,2,01:33.8,Test green company1,NULL
+231,Facility 3,111120,111,111120,1234,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,11,119,1,0,40:22.1,CSV Midstream Solutions Corp,brett.wightman@csvmidstream.com
+238,CSV Simonette Gas Plant,211110,211,211110,,LSD: 13-11-062–27W5,LSD: 13-11-062–27W5,Greenview County,Canada,Alberta,T0H3M0,NULL,21,119,3,2,27:40.1,CSV Midstream Solutions Corp,brett.wightman@csvmidstream.com
+239,CSV Valhalla Gas Plant,211110,211,211110,,LSD: 13-21-76-09-W6M,"55°36'17""N 119°20'20""W",Saddle Hills County,Canada,Alberta,A1A1A1,NULL,21,119,3,2,29:04.4,CSV Midstream Solutions Corp,brett.wightman@csvmidstream.com
+301,E&A Tire Recycling ,562920,562,562920,12,12,pine grove,Athabasca,Canada,Alberta,T9S2A4,NULL,56,438,2,0,11:47.5,E&A recycle & renew,eddiebalsom9@hotmail.com
+250,Paneeni,111310,111,111310,,32,Panini St,Calgary,Canada,Alberta,G9G0G0,NULL,11,445,2,0,50:00.1,MeetingDemo,NULL
+234,West Grow Farms - Nisku,111219,111,111219, ,1202,8A Street,Nisku,Canada,Alberta,T9E7R5,NULL,11,446,2,0,23:35.2,West Grow Farms Inc.,jphilpott@westgrowfarms.com
+240,Region II Bonnyville Office,561110,561,561110,5102,51,5102 51 st,Bonnyville,Canada,Alberta,T9N2H1,NULL,56,448,3,2,03:14.8,Otipemisiwak Métis Government of the Métis Nation within Alberta,mpupo@metis.org
+241,10611 Kingsway Facility,561110,561,561110,10611,106,10611 Kingsway Avenue,Edmonton,Canada,Alberta,T5G3C8,NULL,56,448,2,0,08:30.4,Otipemisiwak Métis Government of the Métis Nation within Alberta,mpupo@metis.org
+296,Metis Nation of Alberta Youth Centre,561110,561,561110,,11821,123 Street,Edmonton,Canada,Alberta,T5L0G7,NULL,56,448,3,2,39:57.5,Otipemisiwak Métis Government of the Métis Nation within Alberta,mpupo@metis.org
+297,Delia Grey Provincial Office,561110,561,561110,,11738,Kingsway NW,Edmonton,Canada,Alberta,T5G0X5,NULL,56,448,3,2,51:20.7,Otipemisiwak Métis Government of the Métis Nation within Alberta,mpupo@metis.org
+360,sad,111994,111,111994,,12,sad,sad,Canada,Alberta,r3r3r3,NULL,11,536,3,2,24:56.3,Bruh,andrei81@yopmail.com
+362,City of Grande Prairie Service Centre,561110,561,561110,,9505,112 Street,Grande Prairie,Canada,Alberta,T8V6H8,NULL,56,539,3,2,49:10.7,City of Grande Prairie,incominggrants@cityofgp.com
+363,Black Velvet Distillery,312140,312,312140,,2925,9th Ave North,Lethbridge,Canada,Alberta,T1H5E3,NULL,31,540,2,0,26:18.4,Heaven Hill Brands,rerickson@heavenhill.com
+345,Wildcat Hills 06-05-027-05W5M Well Site,211110,211,211110,"51°17'40""N 114°40'18""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,26:48.8,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+346,Wildcat Hills 06-29-026-05W5M Well Site,211110,211,211110,"51°14'51""N 114°40'06""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,28:10.1,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+348,Wildcat Hills 06-32-026-05W5M Well Site,211110,211,211110,"51°15'44""N 114°40'12""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,29:39.5,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+349,Wildcat Hills 06-35-027-06W5M Well Site,211110,211,211110,"51°20'55""N 114°44'36""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,30:32.5,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+350,Wildcat Hills 07-26-027-06W5M Well Site,211110,211,211110,"51°20'05""N 114°44'12""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,31:19.6,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+351,Wildcat Hills 10-06-027-05W5M Well Site,211110,211,211110,"51°16'53""N 114°41'24""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,13:12.5,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+352,Wildcat Hills 10-20-026-05W5M Well Site,211110,211,211110,"51°14'19""N 114°39'36""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,32:26.7,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+353,Wildcat Hills 11-03-028-06W5M Well Site,211110,211,211110,"51°22'00""N 114°45'48""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,33:25.9,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+354,Wildcat Hills 11-13-027-06W5M Well Site,211110,211,211110,"51°18'31""N 114°43'01""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,34:19.8,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+355,Wildcat Hills 15-12-027-06W5M Well Site,211110,211,211110,"51°17'56""N 114°42'44""W",Rural Location - No Fixed Address,Rural Location - No Fixed Address,Rocky View County,Canada,Alberta,T0L0W0,NULL,21,168,3,2,35:08.8,Canlin Energy Inc.,brent.dumenko@canlinenergy.com
+246,Haul- All Equipment Ltd,333990,333,333990,4115,18,Ave N,Lethbridge,Canada,Alberta,T1H5G1,NULL,31,174,1,0,45:07.4,GI,clee@greenintegrations.ca
+283,Spruceland,321111,321,321111,,103803,283 Street,Acheson,Canada,Alberta,T7X6A7,NULL,31,175,2,0,33:56.6,Canadian Forest Products Ltd.,Kevin.McIntyre@canfor.com
+284,Canfor Grande Prairie,321111,321,321111,,8701,108 Street,Grande Prairie,Canada,Alberta,T8V4C5,NULL,31,175,2,0,46:05.1,Canadian Forest Products Ltd.,Kevin.McIntyre@canfor.com
+288,Barrhead Transit Mix,327310,327,327310,,4702,62 ave,Barrhead,Canada,Alberta,T7N1A3,NULL,31,345,3,2,19:51.2,Barrhead Transit Mix Ltd,colette@barrheadtransitmix.ca
+326,Cnooc International Upgrader,211141,211,211141, , 3-31-085-06 W4M ,Long Lake site on Highway 881,Anzac,Canada,Alberta,T0P1J0,NULL,21,346,3,2,11:52.3,CNOOC International,raj.bambhania@intl.cnoocltd.com
+236,15-20-38-25W4,211110,211,211110,,15-20-038-25W4,15-20-038-25W4,Joffre,Canada,Alberta,A1A1A1,NULL,21,347,2,0,22:30.5,Whitecap Resources,kyle.fauville@wcap.ca
+271,Swan Hills Treatment Centre,562210,562,562210,,10000,Chrystina Lake Road,Swan Hills,Canada,Alberta,T0G2C0,NULL,56,364,2,0,31:11.1,Modern Niagara Building Services - Calgary,i@modernniagara.com
+261,Gordondale East Gas Plant,211110,211,211110,11-26-79-09- W6M,55.880148,-119.296966,Peach Arch,Canada,Alberta,A1A1A1,NULL,21,367,2,0,36:29.5,NorthRiver midstream,abdel.hagar@nrm.ca
+313,Edmonton MFG,321999,321,321999,,14810,131 Ave NW,Edmonton,Canada,Alberta,T5L4Y3,NULL,31,383,2,0,17:42.1,Metrie,dave.danesh@metrie.com
+259,Strachan,213118,213,213118,,ss,ss,ss,Canada,Alberta,T2P3n4,NULL,21,402,1,0,04:27.8,Keyera,surbhi_bhargava@keyera.com
+266,Strachan,213118,213,213118,,1,ssss,Calgary,Canada,Alberta,T2P0N3,NULL,21,402,1,0,10:30.8,Keyera,surbhi_bhargava@keyera.com
+232,Bigstone Cree Nation- Public Works Building,561210,561,561210,,3,Hoole Creek by Pass Road,Wabasca Desmarais,Canada,Alberta,T0G2B0,NULL,56,411,3,2,25:11.3,Simplify Energy Consultants Ltd.,adam@simplifyenergy.ca
+267,Strachan,213118,213,213118,,2000,2000,Rocky Mountain House,Canada,Alberta,T4T1B5,NULL,21,402,2,0,15:58.3,Keyera,surbhi_bhargava@keyera.com
+237,Northeast Pigeon Lake Wastewater Commission,221320,221,221320,,243019A,Highway 13,Wetaskiwin,Canada,Alberta,T9A2G5,NULL,22,452,3,2,11:29.7,County of Wetaskiwin No. 10,nfinseth@county10.ca
+268,Ice River Springs - Calgary,312110,312,312110,,7120,Barlow Trail SE,Calgary,Canada,Alberta,T2C2E1,NULL,31,480,3,2,03:36.5,Ice River Sustainable Solutions,aelhourani@iceriversprings.com
+293,DIRTT Primer,321999,321,321999,,5620,68 Ave SE,Calgary,Canada,Alberta,T2C4N8,NULL,31,457,3,2,29:23.6,DIRTT Environmental Solutions,JLake@dirtt.com
+294,DIRTT Casework,321919,321,321919,,7303,30 St SE,Calgary,Canada,Alberta,T2C1N6,NULL,31,457,3,2,34:22.4,DIRTT Environmental Solutions,JLake@dirtt.com
+299,DIRTT Woodshop,321999,321,321999,,7504,30 St SE,Calgary,Canada,Alberta,T2C1M8,NULL,31,457,3,2,14:45.3,DIRTT Environmental Solutions,JLake@dirtt.com
+300,DIRTT Metal and Timber Shop,332311,332,332311,,6335,57 St SE,Calgary,Canada,Alberta,T2C5K9,NULL,31,457,3,2,17:57.3,DIRTT Environmental Solutions,JLake@dirtt.com
+244,Legacy Kitchens,238990,238,238990,,2980,Sunridge Way NE,Calgary,Canada,Alberta,T1Y7H9,NULL,23,459,3,2,02:02.7,Legacy Kitchen Design Group,sbuller@legacykitchens.com
+245,Grain Bin Brewing Company,311999,311,311999,,10014,102 st,Grande Prairie,Canada,Alberta,T8V2V6,NULL,31,461,1,0,58:20.6,Grain Bin Brewing Company,info@grainbinbeer.com
+248,Office,238390,238,238390,5,5105,76a st cl,Red Deer,Canada,Alberta,T4P3M2,NULL,23,464,2,0,32:57.3,Woodmaster Cabinets,matt@woodmaster.ca
+256,test facility 2,236210,236,236210,2,2,Test,Calgary,Canada,Alberta,A2A1A1,NULL,23,471,2,0,46:06.8,TestCompany81,NULL
+253,Bob,112420,112,112420,,22,Devon,Calg,Canada,Alberta,T3M3P1,NULL,11,473,1,0,25:33.5,Saa,NULL
+254,Bob,114114,114,114114,,22,Devon,Calgar,Canada,Alberta,T3W3a2,NULL,11,473,2,0,10:13.4,Saa,NULL
+255,Falkbuilt HQ,339999,339,339999,2,4100,106 Ave SE,Calgary,Canada,Alberta,T2C5B6,NULL,31,474,2,0,11:57.1,Falkbuilt Ltd.,darby.lush@falkbuilt.com
+257,Haul-All,332999,332,332999,,4115,18,Lethbridge,Canada,Alberta,T1H5G1,NULL,31,475,3,2,46:22.1,Haul-All Equipment Ltd.,dave@haulall.com
+263,Larry Desmueles,561110,561,561110,,11923,121A Street,Edmonton,Canada,Alberta,T5L0A2,NULL,56,478,3,2,51:15.6,Metis Capital Housing,roshan.boorada@metishousing.ca
+264,Frito-Lay Taber,311919,311,311919,,5904,52 Ave,Taber,Canada,Alberta,T1G1W9,NULL,31,479,3,2,08:22.5,PepsiCo Foods Canada,duncan.waldie@pepsico.com
+265,Frito-Lay Lethbridge,311919,311,311919,,2200,31 St N,Lethbridge,Canada,Alberta,T1H5K8,NULL,31,479,3,2,10:17.3,PepsiCo Foods Canada,duncan.waldie@pepsico.com
+269,Rivers Edge Camping Association,111940,111,111940,,5;5;29;36;W ,5; 5; 29; 36; NE,Cremona,Canada,Alberta,A1A1A1,NULL,11,481,3,2,41:47.4,Rivers Edge Camping Association,andrew@riversedgecamp.org
+270,Rivers Edge Camping Association,111940,111,111940,,5;5;29;36;W ,5; 5; 29; 36; NE,Cremona,Canada,Alberta,A1A1A1,NULL,11,481,2,0,38:27.3,Rivers Edge Camping Association,andrew@riversedgecamp.org
+272,BrokenFacility,324190,324,324190,,234,Theeran St,Calgary,Canada,Alberta,G7G7G7,NULL,31,485,2,0,46:14.7,Stacey Inc,NULL
+274,Institute For The Advancement Of Aboriginal Women,561310,561,561310,102,10220,156 St NW,Edmonton,Canada,Alberta,T5P2R1,NULL,56,491,3,2,53:20.9,Institute for the Advancement of Aboriginal Women (IAAW),rachelle@iaaw.ca
+276,23,111120,111,111120,,23,32323,Calgary,Canada,Alberta,A1A1A1,NULL,11,493,2,0,47:23.4,Queens Inc,NULL
+277,Test,213118,213,213118,,234,234234,Calgary,Canada,Alberta,A1A1A1,NULL,21,493,2,0,48:50.2,Queens Inc,NULL
+286,asas,311920,311,311920,,22,111,calg,Canada,Alberta,T3M3P3,NULL,31,494,3,2,14:57.5,bob,andrei25@yopmail.com
+287,Sweet Grass Contracting,311119,311,311119,303040,260, Rge Rd ,Linden,Canada,Alberta,T0M1J0,NULL,31,495,3,2,55:23.9,Sweet Grass Contracting Ltd.,carsonr@sweetgrassltd.com
+282,Testr,238390,238,238390,,3,333,Calgary,Canada,Alberta,A1A1A1,NULL,23,499,2,0,32:04.3,Doctors Inc,NULL
+357,vbnv,237310,237,237310,,44,345,Dewrty,Canada,Alberta,A1A1A1,NULL,23,499,2,0,52:58.4,Doctors Inc,NULL
+285,Athabasca Regional Multiplex,561990,561,561990,,2,University Drive,Athabasca,Canada,Alberta,T9S0A3,NULL,56,501,2,0,55:55.7,Athabasca Regional Multiplex Society,multiplexmanager@athabasca.ca
+303,15-3-83-15w5,211110,211,211110,2800 Centennial Place,520,3rd Avenue SW,Calgary,Canada,Alberta,T2P0R2,NULL,21,503,2,0,36:28.0,Baytex Energy Ltd.,susan.dennett@baytexenergy.com
+278,Alberta Plywood,321212,321,321212,,9923,65 Avenue NW,Edmonton,Canada,Alberta,T6E0L1,NULL,31,455,3,2,17:06.0,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+247,Public Works Shop,488490,488,488490,,59422,HWY 44,Westlock,Canada,Alberta,T7P2P4,NULL,48,462,2,0,39:52.6,Westlock County,pjean@westlockcounty.com
+306,16-3-83-15w5,211110,211,211110,2800 Centennial Place,520,3rd Avenue SW,Calgary,Canada,Alberta,T2P0R2,NULL,21,503,2,0,39:08.6,Baytex Energy Ltd.,susan.dennett@baytexenergy.com
+307,2-11-83-15w5,211110,211,211110,2800 Centennial Place,520,3rd Avenue SW,Calgary,Canada,Alberta,T2P0R2,NULL,21,503,2,0,42:11.7,Baytex Energy Ltd.,susan.dennett@baytexenergy.com
+308,16-31-81-14w5,211110,211,211110,2800 Centennial Place,520,3rd Avenue SW,Calgary,Canada,Alberta,T2P0R2,NULL,21,503,2,0,44:47.4,Baytex Energy Ltd.,susan.dennett@baytexenergy.com
+309,3-11-83-15w5,211110,211,211110,2800 Centennial Place,520,3rd Avenue SW,Calgary,Canada,Alberta,T2P0R2,NULL,21,503,2,0,47:25.3,Baytex Energy Ltd.,susan.dennett@baytexenergy.com
+310,2-10-83-15w5,211110,211,211110,2800 Centennial Place,520,3rd Avenue SW,Calgary,Canada,Alberta,T2P0R2,NULL,21,503,2,0,52:39.0,Baytex Energy Ltd.,susan.dennett@baytexenergy.com
+289,Administration Office,561110,561,561110,,"58°27'22.6""N , ","116°16'28.4""W",Rocky Lane,Canada,Alberta,A1A1A1,NULL,56,505,2,0,26:28.8,Beaver First Nation,Gari-lynn.Chalifoux@beaverfirstnation.ab.ca
+290,Carpentry Shop,238390,238,238390,,11,Dominics Road,Child Lake,Canada,Alberta,T0H2H0,NULL,23,505,3,2,26:10.7,Beaver First Nation,Gari-lynn.Chalifoux@beaverfirstnation.ab.ca
+364,FacilityTest13062025,111120,111,111120,,1,str,cas,Canada,Alberta,x1x1x1,NULL,11,22,1,0,40:20.3,KosKompany,NULL
+365,Chamber of secrets,237120,237,237120,,2,22,I can put any city,Canada,Alberta,A1A1A1,NULL,23,541,2,0,10:44.5,Hogwarts Inc,NULL
+366,Askaban,114113,114,114113,,21,22,Does not matter,Canada,Alberta,A1A1A1,NULL,11,541,2,0,46:29.9,Hogwarts Inc,NULL
+375,Core Pumphouse,221310,221,221310,,"52.705240, -115.275160","52.705240, -115.275160",Alhambra,Canada,Alberta,A1A1A1,NULL,22,545,3,2,25:46.4,O'Chiese First Nation,tyson.h@ocfn.ca
+367,New test,322212,322,322212,,22,2313,Calgary,Canada,Alberta,A1A1A1,NULL,31,541,3,2,28:23.9,Hogwarts Inc,NULL
+376,Public Works Building #1,561210,561,561210,,"52.704790, -115.279956","52.704790, -115.279956",Alhambra,Canada,Alberta,A1A1A1,NULL,56,545,3,2,37:45.5,O'Chiese First Nation,tyson.h@ocfn.ca
+368,sdaasd,111411,111,111411,,123,asd,asd,Canada,Alberta,t4t4t4,NULL,11,536,3,2,38:01.7,Bruh,andrei81@yopmail.com
+370,ase,211142,211,211142,,12,sad,asd,Canada,Alberta,r3r3r3,NULL,21,536,3,2,22:58.2,Bruh,andrei81@yopmail.com
+371,123,237210,237,237210,,12,aasd,asd,Canada,Alberta,r3r3r3,NULL,23,536,3,2,23:00.2,Bruh,andrei81@yopmail.com
+377,Public Works Building #2,561210,561,561210,,"52.732959, -115.309990","52.732959, -115.309990",Alhambra,Canada,Alberta,A1A1A1,NULL,56,545,3,2,39:47.2,O'Chiese First Nation,tyson.h@ocfn.ca
+372,2222,111421,111,111421,,123,123,aa,Canada,Alberta,r3r3r3,NULL,11,536,3,2,23:01.9,Bruh,andrei81@yopmail.com
+382,Oraizen Automotive,332710,332,332710,,53.49762280973794 - 6025 ,113.49710696031207 - 104 St NW,Edmonton,Canada,Alberta,T6H2K6,NULL,31,550,2,0,48:10.9,Oraizen Automotive,oraizenautomotive@gmail.com
+373,Test facility,112391,112,112391,,123,Maple Street,Calgary,Canada,Alberta,A1A1A1,NULL,11,70,2,0,54:27.1,Test green company1,NULL
+63,Waskatenau Plant,562110,562,562110,,5045,50 street,Waskatenau,Canada,Alberta,T0A3P0,NULL,56,269,2,0,57:22.7,Akanksha Industries Ltd.,markhantelmann@gmail.com
+378,Community Centre Pumphouse,221310,221,221310,,"52.704539, -115.282981","52.704539, -115.282981",Alhambra,Canada,Alberta,T4T0A3,NULL,22,545,3,2,42:45.9,O'Chiese First Nation,tyson.h@ocfn.ca
+374,Water Treatment Plant,221310,221,221310,,"52.791079, -115.335022","52.791079, -115.335022",Alhambra,Canada,Alberta,A1A1A1,NULL,22,545,3,2,19:19.1,O'Chiese First Nation,tyson.h@ocfn.ca
+386,Reunion Terrasse Lift Station,221320,221,221320,,1873,Reunion Terrace NW,Airdrie,Canada,Alberta,T4B3P9,NULL,22,538,2,0,09:07.4,City of Airdrie,joad.clement@airdrie.ca
+379,Truckstop Pumphouse,221310,221,221310,,"52.852983, -115.498884","52.852983, -115.498884",Alhambra,Canada,Alberta,A1A1A1,NULL,22,545,3,2,45:42.0,O'Chiese First Nation,tyson.h@ocfn.ca
+381,Seal 09-15-084-14 W5M,211110,211,211110,9705,100,Street,Peace River,Canada,Alberta,T8S1J7,NULL,21,549,2,0,52:57.3,Obsidian Energy,shane.kidd@obsidianenergy.com
+383,Demo,562920,562,562920,,3,321,Qwerty,Canada,Alberta,A1A1A1,NULL,56,552,2,0,37:01.2,Demo Inc,NULL
+275,Rimbey,213118,213,213118,,AB-771,AB-771,Ponoka County,Canada,Alberta,T0C0M0,NULL,21,402,2,0,32:20.1,Keyera,surbhi_bhargava@keyera.com
+385,Public Works Building,561210,561,561210,,"55.956010, -113.773254","55.956010, -113.773254",Wabasca Desmarais,Canada,Alberta,T0H2B0,NULL,56,554,3,2,20:34.8,Bigstone Cree Nation,chris.beauregard@bigstone.ca
+384,Water Treatment Plant,221310,221,221310,,"56.142307, -113.859714","56.142307, -113.859714",Wabasca ,Canada,Alberta,T0G2K0,NULL,22,554,3,2,15:15.5,Bigstone Cree Nation,chris.beauregard@bigstone.ca
+279,Ranger Board,321216,321,321216,,Highway 658,1km north of Blue Ridge,Blue Ridge,Canada,Alberta,T0E0B0,NULL,31,455,3,2,45:09.0,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+369,1,111421,111,111421,,12,sad,sa,Canada,Alberta,r3r3r3,NULL,11,536,3,2,22:56.2,Bruh,andrei81@yopmail.com
+418,Rostel Industries Main Building,332999,332,332999,,9699,Shepard Rd,Calgary,Canada,Alberta,T2C4K5,NULL,31,266,3,2,53:40.0,Precision Drilling Corporation,gwijewardana@precisiondrilling.com
+420,Grizzly Pallets – Calgary Yard,321920,321,321920,98,15,Technology Way SE,Calgary,Canada,Alberta,T3S0B8,NULL,31,573,2,0,55:03.1,GrizzlyPallets,Grizzlypallets@gmail.com
+387,Blue Ridge Lumber,321111,321,321111,,595007,HWY 658,Blue Ridge,Canada,Alberta,T0E0B0,NULL,31,455,3,2,59:26.0,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+388,Slave Lake Veneer,321211,321,321211,,#642,Mitsue Industrial Park West,Slave Lake,Canada,Alberta,T0G2A0,NULL,31,455,3,2,00:51.9,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+389,Wesco Calgary,236220,236,236220,,11195,"42 St. Southeast, Bay #10",Calgary,Canada,Alberta,T2C0J9,NULL,23,562,1,0,04:13.1,Wesco Distribution Inc.,samantha.heard@wescodist.com
+390,Manning Forest Products,321111,321,321111,,AB-691,North of Manning,Manning,Canada,Alberta,T0H2M0,NULL,31,455,3,2,28:21.1,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+394,Hinton Wood Products,321111,321,321111,,99,West River Road,Hinton,Canada,Alberta,T7V1Y7,NULL,31,455,3,2,50:35.9,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+391,West Fraser LVL,321211,321,321211,,AB-752,Secondary Highway 752,Rocky Mountain House,Canada,Alberta,T4T1B3,NULL,31,455,3,2,11:19.7,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+392,Edson Forest Products,321111,321,321111,,53115,Highway 47,Edson,Canada,Alberta,T7E1V2,NULL,31,455,3,2,58:04.8,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+400,Test ,212210,212,212210,,123,fake street,Calgary,Canada,Alberta,T2J0G3,NULL,21,566,2,0,33:36.5,Testing 123,NULL
+393,High Prairie Forest Products,321111,321,321111,,5115,53 Street,High Prairie,Canada,Alberta,T0G1E0,NULL,31,455,3,2,59:08.3,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+395,Sundre Forest Products,321111,321,321111,,5541,Highway 584,Sundre,Canada,Alberta,T0M1X0,NULL,31,455,3,2,09:56.1,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+396,Cochrane Sawmill,321111,321,321111,,305,Griffin RD W,Cochrane,Canada,Alberta,T4C2C4,NULL,31,455,3,2,35:09.2,West Fraser Mills Ltd,udhejeet.sidhu@westfraser.com
+401,Test Facility,237990,237,237990,,123,Test,Calgary,Canada,Alberta,A1A1A1,NULL,23,568,2,0,48:03.2,SEMI Company Test,NULL
+398,a1,211110,211,211110,,33,Tes,Calgary,Canada,Alberta,T3T3T3,NULL,21,536,3,2,27:09.7,Bruh,andrei81@yopmail.com
+406,Jarvie Pump House,221310,221,221310,,5002,50 Avenue,Jarvie,Canada,Alberta,T0G0B0,NULL,22,462,2,0,11:29.3,Westlock County,pjean@westlockcounty.com
+402,Doef's Greenhouses Ltd.,111419,111,111419,,41117,Hwy 792,Lacombe,Canada,Alberta,T4L2N3,NULL,11,569,3,2,38:59.8,Doef's Greenhouses Ltd.,eric@doefsgreenhouses.com
+409,Vimy Pump House,221310,221,221310,,4927,52 Avenue,Vimy,Canada,Alberta,T0G0J0,NULL,22,462,2,0,23:49.2,Westlock County,pjean@westlockcounty.com
+404,Dapp Pump House,221310,221,221310,,5010,50 Street,Dapp,Canada,Alberta,T0G0S0,NULL,22,462,2,0,25:28.3,Westlock County,pjean@westlockcounty.com
+405,Fawcett Pump House,221310,221,221310,,4902,49 Avenue,Fawcett,Canada,Alberta,T0G0Y0,NULL,22,462,2,0,09:55.3,Westlock County,pjean@westlockcounty.com
+407,Pibroch Pump House,221310,221,221310,,4707,50 Street,Pibroch,Canada,Alberta,T0G2L0,NULL,22,462,2,0,12:47.5,Westlock County,pjean@westlockcounty.com
+408,Pickardville Pump House,221310,221,221310,B,5005,49 Avenue,Pickardville,Canada,Alberta,T0G0B2,NULL,22,462,2,0,14:39.8,Westlock County,pjean@westlockcounty.com
+399,a2,114210,114,114210,,66,kkk,uuu,Canada,Alberta,t4t4t4,NULL,11,536,2,0,25:12.6,Bruh,andrei81@yopmail.com
+410,Busby Lift Station,221320,221,221320,,574?? ,RGE RD 271,Busby,Canada,Alberta,T0G0H0,NULL,22,462,2,0,26:09.0,Westlock County,pjean@westlockcounty.com
+411,Dapp Lift Station,221320,221,221320,,5010,50 Street,Dapp,Canada,Alberta,T0G0S0,NULL,22,462,2,0,27:22.2,Westlock County,pjean@westlockcounty.com
+412,Vimy Lift Station,221320,221,221320,,4900,48 Avenue ,Vimy,Canada,Alberta,T0G0J0,NULL,22,462,2,0,28:27.9,Westlock County,pjean@westlockcounty.com
+413,Airport Terminal,481215,481,481215,40,59509,RGE RD 260,Clyde,Canada,Alberta,T0G0P0,NULL,48,462,2,0,37:25.0,Westlock County,pjean@westlockcounty.com
+414,Ag Services,115110,115,115110,102C,59422,HWY 44,Westlock County,Canada,Alberta,T7P2P4,NULL,11,462,2,0,43:47.6,Westlock County,pjean@westlockcounty.com
+415,Rostel Industries Building C,332999,332,332999,,9699,Shepard Rd,Calgary,Canada,Alberta,T2C4K5,NULL,31,266,2,0,05:05.3,Precision Drilling Corporation,gwijewardana@precisiondrilling.com
+403,Busby Pump House,221310,221,221310,,4915,49 street,Busby,Canada,Alberta,T0G0H0,NULL,22,462,2,0,26:02.6,Westlock County,pjean@westlockcounty.com
+417,Rostel Industries Building B,332999,332,332999,,9699,Shepard Rd,Calgary,Canada,Alberta,T2C4K5,NULL,31,266,3,2,52:53.8,Precision Drilling Corporation,gwijewardana@precisiondrilling.com
+416,Rostel Industries Building C,332999,332,332999,,9699,Shepard Rd,Calgary,Canada,Alberta,T2C4K5,NULL,31,266,3,2,52:04.1,Precision Drilling Corporation,gwijewardana@precisiondrilling.com
+421,Blue Ridge Lumber,321111,321,321111,,595007,HWY 658,Blue Ridge,Canada,Alberta,T0E0B0,NULL,31,574,1,0,28:43.7,Blue Ridge Lumber,Ryan.Sneddon@westfraser.com
+422,Alexander Tubular,326122,326,326122,,3052,84 Avenue,Edmonton,Canada,Alberta,T6P1K3,NULL,31,576,2,0,14:21.5,Alexander Tubular,tonyq@alexandertubular.ca
+380,Lethbridge Water Treatment Plant,221310,221,221310,,19,Botterill Bottom Road South,Lethbridge,Canada,Alberta,T1J3Z2,NULL,22,547,3,2,46:52.8,City of Lethbridge,talmann.frostad@lethbridge.ca
+423,Carry Steel ,332319,332,332319,5815,75 ST ,NW,Edmonton,Canada,Alberta,T6E0T3,NULL,31,577,2,0,18:31.4,C.W. Carry Ltd (o/a Carry Steel),blake.hamilton@carrysteel.com
