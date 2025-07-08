@@ -1716,6 +1716,12 @@ export function registerRoutes(app: Express) {
         tempPassword: tempPassword
       });
 
+      // Create contractor details for the new user
+      await dbStorage.createContractorDetails({
+        userId: newUser.id,
+        // Add any default or empty fields as needed
+      });
+
       console.log('[ROUTE] Successfully created user account:', newUser.id);
 
       res.json({ 
@@ -3556,7 +3562,7 @@ export function registerRoutes(app: Express) {
       const hashedPassword = await hashPassword(password);
       // Create user
       try {
-        await dbStorage.createUser({
+        const newUser = await dbStorage.createUser({
           id: uuidv4(),
           email: invitation.email,
           firstName: invitation.firstName,
@@ -3568,6 +3574,13 @@ export function registerRoutes(app: Express) {
           isActive: true,
           isEmailVerified: true,
         });
+        // If contractor main user, create contractor details
+        if (newUser.role === 'contractor_individual' || newUser.role === 'contractor_account_owner') {
+          await dbStorage.createContractorDetails({
+            userId: newUser.id,
+            // Add any default or empty fields as needed
+          });
+        }
       } catch (createUserError) {
         console.error('[INVITE_ACCEPT_DEBUG] Error creating user:', createUserError);
         throw createUserError;
