@@ -3694,18 +3694,18 @@ export class DatabaseStorage implements IStorage {
 
       // Add assignedContractors to each application
       const formattedApplications = applicationsQuery.map(app => ({
-        id: app.appId,
-        applicationId: app.appApplicationId,
-        title: app.appTitle,
-        description: app.appDescription,
-        status: app.appStatus,
-        activityType: app.appActivityType,
-        facilityName: app.facilityName,
-        facilityCode: app.facilityCode,
-        companyName: app.companyName,
-        companyShortName: app.companyShortName,
-        createdAt: app.appCreatedAt,
-        updatedAt: app.appUpdatedAt,
+          id: app.appId,
+          applicationId: app.appApplicationId,
+          title: app.appTitle,
+          description: app.appDescription,
+          status: app.appStatus,
+          activityType: app.appActivityType,
+          facilityName: app.facilityName,
+          facilityCode: app.facilityCode,
+          companyName: app.companyName,
+          companyShortName: app.companyShortName,
+          createdAt: app.appCreatedAt,
+          updatedAt: app.appUpdatedAt,
         assignedContractors: contractorMap.get(app.appId) || [],
       }));
       return formattedApplications;

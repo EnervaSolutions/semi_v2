@@ -3504,8 +3504,9 @@ export function registerRoutes(app: Express) {
       // After await dbStorage.createTeamInvitation({ ... }) in POST /api/team/invite:
       const invitationRecord = await dbStorage.getTeamInvitationByEmail(email, companyId || user.companyId);
       if (invitationRecord && invitationRecord.invitationToken) {
-        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
-        const acceptUrl = `${baseUrl}/accept-invite/${invitationRecord.invitationToken}`;
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const acceptUrl = `${protocol}://${host}/accept-invite/${invitationRecord.invitationToken}`;
         const { sendTeamInvitationEmail } = await import('./sendgrid');
         await sendTeamInvitationEmail({
           to: email,

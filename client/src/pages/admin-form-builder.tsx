@@ -51,10 +51,12 @@ interface FormTemplate {
   name: string;
   description: string;
   activityType: string;
+  phase?: string;
   order: number;
   fields: FormField[];
   form_fields?: FormField[]; // For compatibility with database structure
   isActive: boolean;
+  fieldCount?: number;
 }
 
 const FIELD_TYPES = [
@@ -84,13 +86,15 @@ export default function AdminFormBuilder() {
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ['/api/admin/form-templates'],
     enabled: user?.role === 'system_admin',
-    select: (data) => data.map((template: any) => ({
-      ...template,
-      // Parse formFields JSON and add as both fields and form_fields for compatibility
-      fields: template.formFields ? JSON.parse(template.formFields) : [],
-      form_fields: template.formFields ? JSON.parse(template.formFields) : [],
-      fieldCount: template.formFields ? JSON.parse(template.formFields).length : 0,
-    })),
+    select: (data: any[]) => data.map((template: any) => {
+      const parsedFields = template.formFields ? JSON.parse(template.formFields) : [];
+      return {
+        ...template,
+        fields: parsedFields,
+        form_fields: parsedFields, // for compatibility, but always use fields
+        fieldCount: parsedFields.length,
+      };
+    }),
   });
 
 
@@ -100,9 +104,8 @@ export default function AdminFormBuilder() {
     mutationFn: async (template: FormTemplate) => {
       const url = template.id ? `/api/admin/form-templates/${template.id}` : '/api/admin/form-templates';
       const method = template.id ? 'PATCH' : 'POST';
-      
-      // Get current fields and prepare clean data for API
-      const currentFields = template.form_fields || template.fields || [];
+      // Always use fields as the source of truth
+      const currentFields = template.fields || [];
       const cleanTemplate = {
         name: template.name,
         description: template.description,
@@ -112,15 +115,12 @@ export default function AdminFormBuilder() {
         isActive: template.isActive,
         formFields: JSON.stringify(currentFields),
       };
-      
       console.log('[FORM BUILDER] Saving template:', cleanTemplate);
-      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cleanTemplate),
       });
-      
       if (!response.ok) {
         const errorData = await response.text();
         console.error('[FORM BUILDER] Save failed:', errorData);
@@ -187,8 +187,7 @@ export default function AdminFormBuilder() {
 
   const addField = (type: string) => {
     if (!selectedTemplate) return;
-    
-    const currentFields = selectedTemplate.form_fields || selectedTemplate.fields || [];
+    const currentFields = selectedTemplate.fields || [];
     const newField: FormField = {
       id: `field_${Date.now()}`,
       type: type as any,
@@ -199,62 +198,53 @@ export default function AdminFormBuilder() {
       ...(type === 'select' && { options: ['Option 1', 'Option 2'] }),
       ...(type === 'radio' && { options: ['Option 1', 'Option 2'] }),
     };
-    
     const updatedFields = [...currentFields, newField];
-    
     setSelectedTemplate({
       ...selectedTemplate,
       fields: updatedFields,
-      form_fields: updatedFields, // Ensure both arrays are synchronized
+      form_fields: updatedFields, // for compatibility
     });
   };
 
   const updateField = (fieldId: string, updates: Partial<FormField>) => {
     if (!selectedTemplate) return;
-    
-    const currentFields = selectedTemplate.form_fields || selectedTemplate.fields || [];
+    const currentFields = selectedTemplate.fields || [];
     const updatedFields = currentFields.map(field =>
       field.id === fieldId ? { ...field, ...updates } : field
     );
-    
     setSelectedTemplate({
       ...selectedTemplate,
-      form_fields: updatedFields,
-      fields: updatedFields, // Keep both for compatibility
+      fields: updatedFields,
+      form_fields: updatedFields, // for compatibility
     });
   };
 
   const removeField = (fieldId: string) => {
     if (!selectedTemplate) return;
-    
-    const currentFields = selectedTemplate.form_fields || selectedTemplate.fields || [];
+    const currentFields = selectedTemplate.fields || [];
     const filteredFields = currentFields.filter(field => field.id !== fieldId);
-    
     setSelectedTemplate({
       ...selectedTemplate,
-      form_fields: filteredFields,
-      fields: filteredFields, // Keep both for compatibility
+      fields: filteredFields,
+      form_fields: filteredFields, // for compatibility
     });
   };
 
   const onDragEnd = (result: any) => {
     if (!result.destination || !selectedTemplate) return;
-    
-    const currentFields = selectedTemplate.form_fields || selectedTemplate.fields || [];
+    const currentFields = selectedTemplate.fields || [];
     const items = Array.from(currentFields);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-    
     // Update order values
     const updatedFields = items.map((field, index) => ({
       ...field,
       order: index,
     }));
-    
     setSelectedTemplate({
       ...selectedTemplate,
-      form_fields: updatedFields,
       fields: updatedFields,
+      form_fields: updatedFields, // for compatibility
     });
   };
 
@@ -263,20 +253,15 @@ export default function AdminFormBuilder() {
       toast({ title: "Error", description: "Please provide a template name", variant: "destructive" });
       return;
     }
-    
-    // Get current fields from either form_fields or fields array
-    const currentFields = selectedTemplate.form_fields || selectedTemplate.fields || [];
-    
-    // Prepare the data with proper formFields JSON string for database
+    // Always use fields as the source of truth
+    const currentFields = selectedTemplate.fields || [];
+    // Remove computed frontend fields to prevent database errors, but always provide fields as an array for type safety
+    const { fields: _fields, form_fields: _form_fields, fieldCount: _fieldCount, ...rest } = selectedTemplate;
     const templateData = {
-      ...selectedTemplate,
+      ...rest,
+      fields: currentFields, // always provide fields as an array
       formFields: JSON.stringify(currentFields),
-      // Remove computed frontend fields to prevent database errors
-      fields: undefined,
-      form_fields: undefined,
-      fieldCount: undefined,
     };
-    
     console.log('Saving template with data:', templateData);
     saveTemplateMutation.mutate(templateData);
   };
@@ -439,7 +424,7 @@ export default function AdminFormBuilder() {
                       <Droppable droppableId="form-fields">
                         {(provided) => (
                           <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-                            {(selectedTemplate.form_fields || selectedTemplate.fields || []).map((field, index) => (
+                            {(selectedTemplate.fields || []).map((field, index) => (
                               <Draggable key={field.id} draggableId={field.id} index={index}>
                                 {(provided) => (
                                   <div
@@ -471,7 +456,7 @@ export default function AdminFormBuilder() {
                             ))}
                             {provided.placeholder}
                             
-                            {(selectedTemplate.form_fields || selectedTemplate.fields || []).length === 0 && (
+                            {(selectedTemplate.fields || []).length === 0 && (
                               <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                                 <p className="text-gray-500">Drag field types here to start building your form</p>
                               </div>
