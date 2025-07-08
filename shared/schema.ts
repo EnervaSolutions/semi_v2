@@ -10,6 +10,7 @@ import {
   boolean,
   pgEnum,
   unique,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -485,6 +486,17 @@ export const ghostApplicationIds = pgTable("ghost_application_ids", {
   originalTitle: varchar("original_title", { length: 255 }),
   deletedAt: timestamp("deleted_at").defaultNow().notNull(),
 });
+
+// Contractor company assignment history (for tracking contractor assignments to applications)
+export const contractorCompanyAssignmentHistory = pgTable("contractor_company_assignment_history", {
+  applicationId: integer("application_id").notNull(),
+  contractorCompanyId: integer("contractor_company_id").notNull(),
+  assignedBy: varchar("assigned_by", { length: 255 }).notNull(),
+  assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+  // Composite primary key
+}, (table) => ({
+  pk: primaryKey({ columns: [table.applicationId, table.contractorCompanyId] })
+}));
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
