@@ -1785,48 +1785,59 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFacilityActivitySetting(facilityId: number, activityType: string, isEnabled: boolean): Promise<any> {
-    // Try to update existing record first
-    const existing = await db
-      .select()
-      .from(facilityActivitySettings)
-      .where(
-        and(
-          eq(facilityActivitySettings.facilityId, facilityId),
-          eq(facilityActivitySettings.activityType, activityType as any)
-        )
-      )
-      .limit(1);
-
-    if (existing.length > 0) {
-      // Update existing record
-      const [updated] = await db
-        .update(facilityActivitySettings)
-        .set({
-          isEnabled,
-          updatedAt: new Date()
-        })
+    try {
+      console.log('[STORAGE] Updating facility activity setting:', { facilityId, activityType, isEnabled });
+      
+      // Try to update existing record first
+      const existing = await db
+        .select()
+        .from(facilityActivitySettings)
         .where(
           and(
             eq(facilityActivitySettings.facilityId, facilityId),
             eq(facilityActivitySettings.activityType, activityType as any)
           )
         )
-        .returning();
-      return updated;
-    } else {
-      // Create new record
-      const [created] = await db
-        .insert(facilityActivitySettings)
-        .values({
-          facilityId,
-          activityType: activityType as any,
-          isEnabled,
-          enabledBy: 'system_admin', // This should be the actual admin user ID
-          enabledAt: new Date(),
-          updatedAt: new Date()
-        })
-        .returning();
-      return created;
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Update existing record
+        const [updated] = await db
+          .update(facilityActivitySettings)
+          .set({
+            isEnabled,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(facilityActivitySettings.facilityId, facilityId),
+              eq(facilityActivitySettings.activityType, activityType as any)
+            )
+          )
+          .returning();
+        
+        console.log('[STORAGE] Updated existing facility activity setting:', updated);
+        return updated;
+      } else {
+        // Create new record
+        const [created] = await db
+          .insert(facilityActivitySettings)
+          .values({
+            facilityId,
+            activityType: activityType as any,
+            isEnabled,
+            enabledBy: 'system_admin', // This should be the actual admin user ID
+            enabledAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning();
+        
+        console.log('[STORAGE] Created new facility activity setting:', created);
+        return created;
+      }
+    } catch (error) {
+      console.error('[STORAGE] Error updating facility activity setting:', error);
+      throw error;
     }
   }
 

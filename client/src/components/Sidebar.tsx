@@ -215,6 +215,11 @@ export default function Sidebar() {
     if (isViewer && (item.name === 'Facilities' || item.name === 'Add Facility' || item.name === 'Create Application' || item.name === 'Start Application')) return false;
     // Special logic for Team Management tab
     if (item.name === "Team Management") {
+      // For contractors, only show team management for account owners and managers
+      if (isContractor) {
+        return user.role === "contractor_individual" || user.role === "contractor_account_owner" || user.role === "contractor_manager";
+      }
+      // For regular users, show if they are company admin or can invite users
       return user.role === "company_admin" || user.role === "system_admin" || canInviteUsers(user);
     }
     return true;

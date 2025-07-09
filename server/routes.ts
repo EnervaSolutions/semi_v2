@@ -1784,7 +1784,14 @@ export function registerRoutes(app: Express) {
       });
     } catch (error) {
       console.error("Error inviting contractor team member:", error);
-      res.status(500).json({ message: "Failed to invite contractor team member" });
+      
+      // Handle specific database errors for better user feedback
+      if (error.code === '23505' || error.message.includes('duplicate key')) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+      
+      // Generic error response
+      res.status(500).json({ message: error.message || "Failed to invite contractor team member" });
     }
   });
 

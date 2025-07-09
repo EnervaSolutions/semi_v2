@@ -303,11 +303,18 @@ export default function ContractorDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">Account Owner</p>
+                <p className="text-sm text-gray-600">
+                  {user?.role === "contractor_individual" || user?.role === "contractor_account_owner" ? "Account Owner" :
+                   user?.role === "contractor_manager" ? "Manager" : "Team Member"}
+                </p>
                 <p className="font-medium">{user?.firstName} {user?.lastName}</p>
                 <div className="flex items-center gap-1 mt-1">
                   <Shield className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm text-blue-600 capitalize">{user?.role?.replace("_", " ")}</span>
+                  <span className="text-sm text-blue-600 capitalize">
+                    {user?.role === "contractor_individual" || user?.role === "contractor_account_owner" ? "Account Owner" :
+                     user?.role === "contractor_manager" ? "Manager" : 
+                     user?.role === "contractor_team_member" ? "Team Member" : user?.role?.replace("_", " ")}
+                  </span>
                 </div>
               </div>
             </div>
