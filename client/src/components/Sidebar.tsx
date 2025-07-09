@@ -106,7 +106,7 @@ export default function Sidebar() {
       name: "Team Management",
       href: "/team",
       icon: "Users",
-      roles: ["contractor_individual", "contractor_account_owner", "contractor_manager", "team_member"] // allow team_member for contractor companies
+      roles: ["contractor_individual", "contractor_account_owner", "contractor_manager", "contractor_team_member"] // allow contractor_team_member for contractor companies
     },
     {
       name: "Support",
@@ -220,7 +220,7 @@ export default function Sidebar() {
         return user.role === "contractor_individual" || 
                user.role === "contractor_account_owner" || 
                user.role === "contractor_manager" ||
-               (user.role === "team_member" && user.permissionLevel === "manager");
+               (user.role === "contractor_team_member" && user.permissionLevel === "manager");
       }
       // For regular users, show if they are company admin or can invite users
       return user.role === "company_admin" || user.role === "system_admin" || canInviteUsers(user);

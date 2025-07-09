@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Users, UserPlus, Mail, Shield, Eye, Edit, Settings, Copy, Check, Trash2, Crown, AlertTriangle } from "lucide-react";
+import { Users, UserPlus, Mail, Shield, Eye, Edit, Settings, Copy, Check, Trash2, Crown, AlertTriangle, Clock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ContractorUser {
@@ -47,6 +48,7 @@ interface PendingInvitation {
 export default function ContractorTeam() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("team-members");
   const [isInvitingMember, setIsInvitingMember] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
   const [generatedCredentials, setGeneratedCredentials] = useState<{username: string, password: string} | null>(null);
@@ -70,13 +72,13 @@ export default function ContractorTeam() {
   // Fetch team members
   const { data: teamMembers = [], isLoading: teamLoading } = useQuery<ContractorUser[]>({
     queryKey: ["/api/contractor/team-members"],
-    enabled: !!user?.id && (user?.role === "contractor_individual" || user?.role === "contractor_account_owner"),
+    enabled: !!user?.id && (user?.role === "contractor_individual" || user?.role === "contractor_account_owner" || (user?.role === "contractor_team_member" && user?.permissionLevel === "manager")),
   });
 
   // Fetch pending invitations
   const { data: pendingInvitations = [], isLoading: invitationsLoading } = useQuery<PendingInvitation[]>({
     queryKey: ["/api/contractor/team-invitations"],
-    enabled: !!user?.id && (user?.role === "contractor_individual" || user?.role === "contractor_account_owner"),
+    enabled: !!user?.id && (user?.role === "contractor_individual" || user?.role === "contractor_account_owner" || (user?.role === "contractor_team_member" && user?.permissionLevel === "manager")),
   });
 
   // Invite team member mutation
@@ -147,10 +149,10 @@ export default function ContractorTeam() {
   // Enhanced permission logic
   const isOwner = user?.role === "contractor_individual" || user?.role === "contractor_account_owner";
   const isManager = user?.permissionLevel === "manager" || isOwner;
-  const canInviteMembers = isOwner || isManager;
+  const isContractorTeamMemberWithManager = user?.role === "contractor_team_member" && user?.permissionLevel === "manager";
+  const canInviteMembers = isOwner || isManager || isContractorTeamMemberWithManager;
   const canManagePermissions = isOwner;
-  const canAcceptInvitations = isManager;
-  const canDeleteMembers = isOwner || isManager;
+  const canDeleteMembers = isOwner || isManager || isContractorTeamMemberWithManager;
 
   // Add mutations for team management - moved before conditional rendering
   const updatePermissionsMutation = useMutation({
@@ -212,28 +214,7 @@ export default function ContractorTeam() {
     },
   });
 
-  const acceptInvitationMutation = useMutation({
-    mutationFn: async (token: string) => {
-      const response = await apiRequest(`/api/contractor/accept-invitation/${token}`, 'POST');
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/contractor/team-invitations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/contractor/team-members"] });
-      toast({ title: "Invitation accepted successfully" });
-    },
-    onError: (error: any) => {
-      toast({ 
-        title: "Failed to accept invitation", 
-        description: error.message || "An error occurred",
-        variant: "destructive" 
-      });
-    },
-  });
 
-  const handleAcceptInvitation = (token: string) => {
-    acceptInvitationMutation.mutate(token);
-  };
 
   if (teamLoading) {
     return (
@@ -250,7 +231,7 @@ export default function ContractorTeam() {
     );
   }
 
-  if (!canInviteMembers && !canAcceptInvitations) {
+  if (!canInviteMembers) {
     return (
       <div className="p-6">
         <Card>
@@ -357,206 +338,230 @@ export default function ContractorTeam() {
         </div>
       </div>
 
-      <div className="grid gap-6">
-        {/* Team Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="flex items-center justify-between p-6">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Members</p>
-                <p className="text-2xl font-bold">{teamMembers.length}</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-600" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center justify-between p-6">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Members</p>
-                <p className="text-2xl font-bold">
-                  {teamMembers.filter(member => member.isActive).length}
-                </p>
-              </div>
-              <Shield className="h-8 w-8 text-green-600" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center justify-between p-6">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Managers</p>
-                <p className="text-2xl font-bold">
-                  {teamMembers.filter(member => member.permissionLevel === "manager").length}
-                </p>
-              </div>
-              <Settings className="h-8 w-8 text-purple-600" />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Team Members List */}
+      {/* Team Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Team Members</CardTitle>
-            <CardDescription>
-              Current members of your contracting company
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {teamMembers.length > 0 ? (
-              <div className="space-y-4">
-                {teamMembers.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-700">
-                          {member.firstName?.[0]}{member.lastName?.[0]}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="font-medium">
-                          {member.firstName} {member.lastName}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center gap-2">
-                          <Mail className="h-3 w-3" />
-                          {member.email}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getRoleColor(member.role)}>
-                        {member.role === "contractor_account_owner" || member.role === "contractor_individual" ? "Account Owner" : 
-                         member.role === "contractor_manager" ? "Manager" : "Team Member"}
-                      </Badge>
-                      {member.role !== "contractor_account_owner" && member.role !== "contractor_individual" && (
-                        <Badge variant="outline" className={getPermissionColor(member.permissionLevel)}>
-                          <div className="flex items-center gap-1">
-                            {getPermissionIcon(member.permissionLevel)}
-                            {(member.permissionLevel || 'viewer').charAt(0).toUpperCase() + (member.permissionLevel || 'viewer').slice(1)}
-                          </div>
-                        </Badge>
-                      )}
-                      {member.isActive ? (
-                        <Badge className="bg-green-100 text-green-800">Active</Badge>
-                      ) : (
-                        <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>
-                      )}
-                      
-                      {/* Action buttons for team management */}
-                      {member.id !== user?.id && (
-                        <div className="flex items-center gap-1 ml-2">
-                          {canManagePermissions && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingUser(member);
-                                setShowEditPermissions(true);
-                              }}
-                              className="h-8 px-2"
-                            >
-                              <Settings className="h-3 w-3" />
-                            </Button>
-                          )}
-                          {isOwner && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedTransferUser(member);
-                                setShowOwnershipTransfer(true);
-                              }}
-                              className="h-8 px-2"
-                            >
-                              <Crown className="h-3 w-3" />
-                            </Button>
-                          )}
-                          {canDeleteMembers && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => deleteUserMutation.mutate({ userId: member.id })}
-                              className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Team Members</h3>
-                <p className="text-gray-500 mb-4">
-                  Start building your team by inviting contractors to join your company.
-                </p>
-                <Button onClick={() => setIsInvitingMember(true)} className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4" />
-                  Invite First Team Member
-                </Button>
-              </div>
-            )}
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Members</p>
+              <p className="text-2xl font-bold">{teamMembers.length}</p>
+            </div>
+            <Users className="h-8 w-8 text-blue-600" />
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Active Members</p>
+              <p className="text-2xl font-bold">
+                {teamMembers.filter(member => member.isActive).length}
+              </p>
+            </div>
+            <Shield className="h-8 w-8 text-green-600" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Managers</p>
+              <p className="text-2xl font-bold">
+                {teamMembers.filter(member => member.permissionLevel === "manager").length}
+              </p>
+            </div>
+            <Settings className="h-8 w-8 text-purple-600" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Pending Invites</p>
+              <p className="text-2xl font-bold">
+                {pendingInvitations.filter(inv => inv.status === 'pending').length}
+              </p>
+            </div>
+            <Clock className="h-8 w-8 text-orange-600" />
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Pending Invitations */}
-        {pendingInvitations.filter(inv => inv.status === 'pending').length > 0 && (
+      {/* Tabbed Interface */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="team-members" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Team Members ({teamMembers.length})
+          </TabsTrigger>
+          <TabsTrigger value="pending-invitations" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Pending Invitations ({pendingInvitations.filter(inv => inv.status === 'pending').length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="team-members" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>
+                Current members of your contracting company
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {teamMembers.length > 0 ? (
+                <div className="space-y-4">
+                  {teamMembers.map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-sm font-medium text-gray-700">
+                            {member.firstName?.[0]}{member.lastName?.[0]}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="font-medium">
+                            {member.firstName} {member.lastName}
+                          </div>
+                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                            <Mail className="h-3 w-3" />
+                            {member.email}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getRoleColor(member.role)}>
+                          {member.role === "contractor_account_owner" || member.role === "contractor_individual" ? "Account Owner" : 
+                           member.role === "contractor_manager" ? "Manager" : "Team Member"}
+                        </Badge>
+                        {member.role !== "contractor_account_owner" && member.role !== "contractor_individual" && (
+                          <Badge variant="outline" className={getPermissionColor(member.permissionLevel)}>
+                            <div className="flex items-center gap-1">
+                              {getPermissionIcon(member.permissionLevel)}
+                              {(member.permissionLevel || 'viewer').charAt(0).toUpperCase() + (member.permissionLevel || 'viewer').slice(1)}
+                            </div>
+                          </Badge>
+                        )}
+                        {member.isActive ? (
+                          <Badge className="bg-green-100 text-green-800">Active</Badge>
+                        ) : (
+                          <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>
+                        )}
+                        
+                        {/* Action buttons for team management */}
+                        {member.id !== user?.id && (
+                          <div className="flex items-center gap-1 ml-2">
+                            {canManagePermissions && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingUser(member);
+                                  setShowEditPermissions(true);
+                                }}
+                              >
+                                <Settings className="h-3 w-3" />
+                              </Button>
+                            )}
+                            
+                            {canManagePermissions && member.role !== "contractor_account_owner" && member.role !== "contractor_individual" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedTransferUser(member);
+                                  setShowOwnershipTransfer(true);
+                                }}
+                              >
+                                <Crown className="h-3 w-3" />
+                              </Button>
+                            )}
+                            
+                            {canDeleteMembers && member.role !== "contractor_account_owner" && member.role !== "contractor_individual" && (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteUserMutation.mutate({ userId: member.id })}
+                                disabled={deleteUserMutation.isPending}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">No team members yet</p>
+                  <Button onClick={() => setIsInvitingMember(true)}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Invite First Team Member
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pending-invitations" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Pending Invitations</CardTitle>
               <CardDescription>
-                Invitations sent that haven't been accepted yet
+                Invitations sent that are waiting for new members to accept
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {pendingInvitations.filter(inv => inv.status === 'pending').map((invitation: any) => (
-                  <div key={invitation.id} className="flex items-center justify-between p-4 border rounded-lg border-yellow-200 bg-yellow-50">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-yellow-200 flex items-center justify-center">
-                        <Mail className="h-4 w-4 text-yellow-600" />
+              {pendingInvitations.filter(inv => inv.status === 'pending').length > 0 ? (
+                <div className="space-y-4">
+                  {pendingInvitations.filter(inv => inv.status === 'pending').map((invitation: any) => (
+                    <div key={invitation.id} className="flex items-center justify-between p-4 border rounded-lg border-orange-200 bg-orange-50">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full bg-orange-200 flex items-center justify-center">
+                          <Clock className="h-4 w-4 text-orange-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">
+                            {invitation.firstName} {invitation.lastName}
+                          </div>
+                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                            <Mail className="h-3 w-3" />
+                            {invitation.email}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            Invited {new Date(invitation.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-medium">
-                          {invitation.firstName} {invitation.lastName}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center gap-2">
-                          <Mail className="h-3 w-3" />
-                          {invitation.email}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          Invited {new Date(invitation.createdAt).toLocaleDateString()}
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={getPermissionColor(invitation.permissionLevel)}>
+                          <div className="flex items-center gap-1">
+                            {getPermissionIcon(invitation.permissionLevel)}
+                            {invitation.permissionLevel.charAt(0).toUpperCase() + invitation.permissionLevel.slice(1)}
+                          </div>
+                        </Badge>
+                        <Badge className="bg-orange-100 text-orange-800">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Awaiting Response
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getPermissionColor(invitation.permissionLevel)}>
-                        <div className="flex items-center gap-1">
-                          {getPermissionIcon(invitation.permissionLevel)}
-                          {invitation.permissionLevel.charAt(0).toUpperCase() + invitation.permissionLevel.slice(1)}
-                        </div>
-                      </Badge>
-                      <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
-                      {canAcceptInvitations && (
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleAcceptInvitation(invitation.invitationToken)}
-                          disabled={acceptInvitationMutation.isPending}
-                        >
-                          {acceptInvitationMutation.isPending ? "Accepting..." : "Accept"}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">No pending invitations</p>
+                  <p className="text-sm text-gray-400">All sent invitations have been accepted or expired</p>
+                </div>
+              )}
             </CardContent>
           </Card>
-        )}
-      </div>
+        </TabsContent>
+      </Tabs>
+
+
 
       {/* Credentials Display Dialog */}
       <Dialog open={showCredentials} onOpenChange={setShowCredentials}>
