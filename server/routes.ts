@@ -2275,6 +2275,41 @@ export function registerRoutes(app: Express) {
   });
 
   // ============================================================================
+  // CRITICAL DOCUMENTS ENDPOINT - DO NOT REMOVE
+  // ============================================================================
+  // GET documents by company - Required for Documents tab functionality
+  app.get('/api/documents', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user.companyId) {
+        return res.status(400).json({ message: "User not associated with a company" });
+      }
+      
+      console.log(`[DOCUMENTS API] Fetching documents for company ${user.companyId}`);
+      const documents = await dbStorage.getDocumentsByCompany(user.companyId);
+      console.log(`[DOCUMENTS API] Found ${documents.length} documents for company ${user.companyId}`);
+      
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching company documents:", error);
+      res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  });
+
+  // GET document templates - For document management page  
+  app.get('/api/documents/templates', requireAuth, async (req: any, res: Response) => {
+    try {
+      console.log('[DOCUMENTS TEMPLATES] Fetching template documents');
+      const templates = await dbStorage.getTemplateDocuments();
+      console.log(`[DOCUMENTS TEMPLATES] Found ${templates.length} template documents`);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching document templates:", error);
+      res.status(500).json({ message: "Failed to fetch document templates" });
+    }
+  });
+
+  // ============================================================================
   // CRITICAL ACTIVITY SETTINGS UPDATE ENDPOINT
   // ============================================================================ 
   // DO NOT REMOVE - Required for application limits management functionality

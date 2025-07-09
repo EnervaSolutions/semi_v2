@@ -55,8 +55,7 @@ export default function AdminPanel({ defaultTab }: AdminPanelProps) {
 
   const updateActivitySettingMutation = useMutation({
     mutationFn: async ({ activityType, isEnabled }: { activityType: string; isEnabled: boolean }) => {
-      await apiRequest("PATCH", "/api/admin/activity-settings", {
-        activityType,
+      await apiRequest(`/api/admin/activity-settings/${activityType}`, "PATCH", {
         isEnabled,
         updatedBy: user?.id
       });

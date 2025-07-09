@@ -1437,6 +1437,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(documents.originalName);
   }
 
+  async getTemplateDocuments(): Promise<Document[]> {
+    return await db
+      .select()
+      .from(documents)
+      .where(eq(documents.isTemplate, true))
+      .orderBy(documents.originalName);
+  }
+
   async getDocumentById(id: number): Promise<Document | undefined> {
     const [document] = await db.select().from(documents).where(eq(documents.id, id));
     return document;
