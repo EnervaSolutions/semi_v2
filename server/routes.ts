@@ -1742,10 +1742,10 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Invite team member (DIRECT ACCOUNT CREATION)
+  // Invite contractor team member (SENDGRID EMAIL INVITATION)
   app.post('/api/contractor/invite-team-member', requireAuth, async (req: any, res: Response) => {
     try {
-      console.log('[ROUTE] Direct account creation route called for contractor team member invitation');
+      console.log('[ROUTE] SendGrid email invitation route called for contractor team member');
       
       const userId = req.user?.id;
       if (!userId) {
@@ -1778,8 +1778,8 @@ export function registerRoutes(app: Express) {
         return res.status(403).json({ message: "Only contractor managers and account owners can invite team members" });
       }
 
-      const { email, firstName, lastName, permissionLevel } = req.body;
-      console.log('[ROUTE] Creating direct user account for:', email);
+      const { email, firstName, lastName, permissionLevel, message } = req.body;
+      console.log('[ROUTE] Creating contractor team invitation for:', email);
 
       // Check if user already exists
       const existingUser = await dbStorage.getUserByEmail(email);
@@ -1787,51 +1787,72 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "User with this email already exists" });
       }
 
-      // Generate a secure temporary password
-      const tempPassword = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10).toUpperCase();
-      console.log('[ROUTE] Generated secure temporary password, length:', tempPassword.length);
-      
-      // Create the user account directly with hashed password
-      console.log('[ROUTE] Calling createContractorTeamMember...');
-      const newUser = await dbStorage.createContractorTeamMember({
+      // Check if there's already a pending invitation for this email at this company
+      const existingInvitation = await dbStorage.getTeamInvitationByEmail(email, user.companyId);
+      if (existingInvitation && existingInvitation.status === 'pending') {
+        return res.status(400).json({ message: "An invitation has already been sent to this email address" });
+      }
+
+      // Get contractor company details for email
+      const contractorCompany = await dbStorage.getCompanyById(user.companyId);
+      if (!contractorCompany) {
+        return res.status(404).json({ message: "Contractor company not found" });
+      }
+
+      // Create invitation record
+      console.log('[ROUTE] Creating team invitation record...');
+      const invitation = await dbStorage.createTeamInvitation({
         email,
         firstName,
         lastName,
         permissionLevel,
         role: 'contractor_team_member',
         companyId: user.companyId,
-        tempPassword: tempPassword
+        invitedByUserId: user.id,
+        message
       });
 
-      // Create contractor details for the new user
-      await dbStorage.createContractorDetails({
-        userId: newUser.id,
-        // Add any default or empty fields as needed
+      // Send SendGrid email invitation
+      console.log('[ROUTE] Sending contractor team invitation email...');
+      const { sendContractorTeamInvitationEmail } = await import('./sendgrid');
+      const emailSuccess = await sendContractorTeamInvitationEmail({
+        to: email,
+        invitedBy: `${user.firstName} ${user.lastName}`,
+        invitedByEmail: user.email,
+        contractorCompany: contractorCompany.name,
+        firstName,
+        lastName,
+        permissionLevel,
+        invitationToken: invitation.invitationToken,
+        customMessage: message
       });
 
-      console.log('[ROUTE] Successfully created user account:', newUser.id);
+      if (!emailSuccess) {
+        console.error('[ROUTE] Failed to send contractor invitation email');
+        // Don't fail the request if email fails - invitation is still created
+      }
+
+      console.log('[ROUTE] Successfully created contractor team invitation:', invitation.id);
 
       res.json({ 
         success: true, 
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          role: newUser.role,
-          permissionLevel: newUser.permissionLevel
+        invitation: {
+          id: invitation.id,
+          email: invitation.email,
+          firstName: invitation.firstName,
+          lastName: invitation.lastName,
+          permissionLevel: invitation.permissionLevel,
+          status: invitation.status,
+          createdAt: invitation.createdAt
         },
-        credentials: {
-          username: email,
-          password: tempPassword
-        }
+        emailSent: emailSuccess
       });
     } catch (error) {
       console.error("Error inviting contractor team member:", error);
       
       // Handle specific database errors for better user feedback
       if (error.code === '23505' || error.message.includes('duplicate key')) {
-        return res.status(400).json({ message: "User with this email already exists" });
+        return res.status(400).json({ message: "User with this email already exists or invitation already sent" });
       }
       
       // Generic error response
@@ -3726,6 +3747,93 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('[INVITE_ACCEPT_DEBUG] Error accepting team invitation:', error, error?.stack);
       res.status(500).json({ message: error?.message || JSON.stringify(error), code: 'INVITE_ACCEPT_DEBUG' });
+    }
+  });
+
+  // Accept contractor team invitation
+  app.post('/api/accept-contractor-invite/:token', async (req: Request, res: Response) => {
+    try {
+      console.log('[CONTRACTOR_INVITE_ACCEPT] Processing contractor invitation acceptance');
+      
+      const { token } = req.params;
+      const { password } = req.body;
+
+      if (!token) {
+        return res.status(400).json({ message: "Invitation token is required" });
+      }
+
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+      }
+
+      // Get invitation by token
+      const invitation = await dbStorage.getTeamInvitationByToken(token);
+      if (!invitation) {
+        return res.status(404).json({ message: "Invalid or expired invitation" });
+      }
+
+      if (invitation.status !== 'pending') {
+        return res.status(400).json({ message: "This invitation has already been processed" });
+      }
+
+      // Check if invitation has expired
+      if (new Date() > new Date(invitation.expiresAt)) {
+        return res.status(400).json({ message: "This invitation has expired" });
+      }
+
+      // Check if user already exists
+      const existingUser = await dbStorage.getUserByEmail(invitation.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+
+      // Hash the password
+      const { hashPassword } = await import('./auth');
+      const hashedPassword = await hashPassword(password);
+
+      // Create the contractor team member user
+      console.log('[CONTRACTOR_INVITE_ACCEPT] Creating contractor team member user');
+      const { randomUUID } = await import('crypto');
+      const newUser = await dbStorage.createUser({
+        id: randomUUID(),
+        email: invitation.email,
+        firstName: invitation.firstName,
+        lastName: invitation.lastName,
+        password: hashedPassword,
+        role: 'contractor_team_member',
+        permissionLevel: invitation.permissionLevel,
+        companyId: invitation.companyId,
+        isActive: true,
+        isEmailVerified: true,
+        emailVerifiedAt: new Date(),
+      });
+
+      // Create contractor details for the new team member
+      console.log('[CONTRACTOR_INVITE_ACCEPT] Creating contractor details');
+      await dbStorage.createContractorDetails({
+        userId: newUser.id,
+        // Add any default or empty fields as needed
+      });
+
+      // Mark invitation as accepted
+      await dbStorage.updateTeamInvitation(invitation.id, { status: 'accepted' });
+
+      console.log('[CONTRACTOR_INVITE_ACCEPT] Successfully created contractor team member:', newUser.id);
+
+      res.json({ 
+        success: true,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          role: newUser.role,
+          permissionLevel: newUser.permissionLevel
+        }
+      });
+    } catch (error) {
+      console.error('[CONTRACTOR_INVITE_ACCEPT] Error accepting contractor invitation:', error);
+      res.status(500).json({ message: error.message || "Failed to accept contractor invitation" });
     }
   });
 

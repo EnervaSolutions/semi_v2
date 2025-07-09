@@ -4109,6 +4109,14 @@ export class DatabaseStorage implements IStorage {
     return invitation;
   }
 
+  async getTeamInvitationByToken(token: string): Promise<TeamInvitation | undefined> {
+    const [invitation] = await db
+      .select()
+      .from(teamInvitations)
+      .where(eq(teamInvitations.invitationToken, token));
+    return invitation;
+  }
+
   async getTeamInvitationByEmail(email: string, companyId: number): Promise<TeamInvitation | undefined> {
     const [invitation] = await db
       .select()

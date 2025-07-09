@@ -89,6 +89,165 @@ export async function sendTeamInvitationEmail(params: SimpleTeamInvitationParams
   });
 }
 
+interface ContractorTeamInvitationParams {
+  to: string;
+  invitedBy: string;
+  invitedByEmail: string;
+  contractorCompany: string;
+  firstName: string;
+  lastName: string;
+  permissionLevel: string;
+  invitationToken: string;
+  customMessage?: string;
+}
+
+export async function sendContractorTeamInvitationEmail(params: ContractorTeamInvitationParams): Promise<boolean> {
+  const {
+    to,
+    invitedBy,
+    invitedByEmail,
+    contractorCompany,
+    firstName,
+    lastName,
+    permissionLevel,
+    invitationToken,
+    customMessage
+  } = params;
+
+  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+  const acceptUrl = `${baseUrl}/accept-contractor-invite/${invitationToken}`;
+  
+  const permissionDisplayNames: Record<string, string> = {
+    'viewer': 'Viewer',
+    'editor': 'Editor',
+    'manager': 'Team Manager'
+  };
+
+  const permissionDisplay = permissionDisplayNames[permissionLevel] || permissionLevel;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
+      <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2563eb; margin: 0; font-size: 28px;">SEMI Program</h1>
+          <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Strategic Energy Management for Industry</p>
+        </div>
+        
+        <h2 style="color: #1f2937; margin-bottom: 20px;">You're Invited to Join Our Contractor Team!</h2>
+        
+        <p style="color: #374151; line-height: 1.6; margin-bottom: 16px;">Hi <strong>${firstName}</strong>,</p>
+        
+        <p style="color: #374151; line-height: 1.6; margin-bottom: 16px;">
+          <strong>${invitedBy}</strong> (${invitedByEmail}) has invited you to join the contractor team at 
+          <strong>${contractorCompany}</strong> in the SEMI Program Portal.
+        </p>
+        
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 6px; margin: 20px 0;">
+          <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 16px;">Invitation Details:</h3>
+          <ul style="color: #4b5563; margin: 0; padding-left: 20px;">
+            <li><strong>Contractor Company:</strong> ${contractorCompany}</li>
+            <li><strong>Your Role:</strong> Contractor Team Member</li>
+            <li><strong>Permission Level:</strong> ${permissionDisplay}</li>
+            <li><strong>Invited By:</strong> ${invitedBy}</li>
+          </ul>
+        </div>
+        
+        ${customMessage ? `
+          <div style="background-color: #eff6ff; border-left: 4px solid #2563eb; padding: 16px; margin: 20px 0;">
+            <h4 style="color: #1e40af; margin: 0 0 8px 0; font-size: 14px;">Personal Message from ${invitedBy}:</h4>
+            <p style="color: #1f2937; margin: 0; font-style: italic;">"${customMessage}"</p>
+          </div>
+        ` : ''}
+        
+        <p style="color: #374151; line-height: 1.6; margin-bottom: 25px;">
+          Click the button below to accept your invitation and set up your account:
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${acceptUrl}" style="background-color: #2563eb; color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
+            Accept Invitation & Set Password
+          </a>
+        </div>
+        
+        <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 16px; margin: 25px 0;">
+          <p style="color: #92400e; margin: 0; font-size: 14px;">
+            <strong>⚠️ Important:</strong> This invitation will expire in 7 days. Please accept it promptly to join the contractor team.
+          </p>
+        </div>
+        
+        <p style="color: #374151; line-height: 1.6; margin-bottom: 16px;">
+          As a contractor team member with <strong>${permissionDisplay}</strong> access, you'll be able to:
+        </p>
+        
+        <ul style="color: #4b5563; margin: 0 0 20px 20px; line-height: 1.6;">
+          ${permissionLevel === 'manager' ? `
+            <li>View and manage assigned applications</li>
+            <li>Invite and manage other team members</li>
+            <li>Update contractor services and regions</li>
+            <li>Access all contractor team features</li>
+          ` : permissionLevel === 'editor' ? `
+            <li>View and edit assigned applications</li>
+            <li>Upload documents and complete forms</li>
+            <li>Access contractor dashboard features</li>
+          ` : `
+            <li>View assigned applications</li>
+            <li>Access contractor dashboard</li>
+            <li>Download required documents</li>
+          `}
+        </ul>
+        
+        <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin-top: 30px;">
+          If you have any questions about this invitation or need assistance, please contact ${invitedByEmail} or our support team.
+        </p>
+        
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+        <div style="text-align: center;">
+          <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+            Strategic Energy Management Initiative (SEMI)<br>
+            Powered by Enerva Energy Solutions<br>
+            This invitation was sent to ${to}
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const text = `
+    You're Invited to Join Our Contractor Team - SEMI Program
+    
+    Hi ${firstName},
+    
+    ${invitedBy} (${invitedByEmail}) has invited you to join the contractor team at ${contractorCompany} in the SEMI Program Portal.
+    
+    Invitation Details:
+    - Contractor Company: ${contractorCompany}
+    - Your Role: Contractor Team Member
+    - Permission Level: ${permissionDisplay}
+    - Invited By: ${invitedBy}
+    
+    ${customMessage ? `Personal Message: "${customMessage}"` : ''}
+    
+    To accept your invitation and set up your account, visit:
+    ${acceptUrl}
+    
+    This invitation will expire in 7 days. Please accept it promptly to join the contractor team.
+    
+    If you have any questions, please contact ${invitedByEmail} or our support team.
+    
+    Strategic Energy Management Initiative (SEMI)
+    Powered by Enerva Energy Solutions
+  `;
+
+  return sendEmail({
+    to,
+    from: 'harsanjit.bhullar@enerva.ca',
+    subject: `Contractor Team Invitation - ${contractorCompany} | SEMI Program`,
+    html,
+    text,
+  });
+}
+
 interface OriginalTeamInvitationParams {
   to: string;
   invitedBy: string;
