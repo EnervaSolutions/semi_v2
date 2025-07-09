@@ -87,14 +87,16 @@ export default function AdminRecognitionPage() {
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [editingBadge, setEditingBadge] = useState<BadgeData | null>(null);
   const [editingContent, setEditingContent] = useState<ContentData | null>(null);
+  const [contentType, setContentType] = useState<string>(editingContent?.contentType || "header");
   
   // Settings form state
-  const [settingsForm, setSettingsForm] = useState({
+  const [settingsForm, setSettingsForm] = useState<RecognitionPageSettings>({
     isEnabled: false,
     pageTitle: '',
     welcomeMessage: '',
     badgesSectionTitle: '',
     contentSectionTitle: '',
+    companyId: 0,
   });
   
   const { toast } = useToast();
@@ -107,28 +109,33 @@ export default function AdminRecognitionPage() {
   });
 
   // Fetch all badges
-  const { data: allBadges = [] } = useQuery({
+  const { data: allBadges = [] } = useQuery<BadgeData[]>({
     queryKey: ["/api/admin/recognition/badges"],
   });
 
   // Fetch company-specific data
-  const { data: companyBadges = [], refetch: refetchCompanyBadges } = useQuery({
+  const { data: companyBadges = [], refetch: refetchCompanyBadges } = useQuery<CompanyBadge[]>({
     queryKey: [`/api/admin/recognition/company-badges/${selectedCompanyId}`, selectedCompanyId],
     enabled: !!selectedCompanyId,
   });
 
-  const { data: companyContent = [], refetch: refetchCompanyContent } = useQuery({
+  const { data: companyContent = [], refetch: refetchCompanyContent } = useQuery<ContentData[]>({
     queryKey: [`/api/admin/recognition/content/${selectedCompanyId}`, selectedCompanyId],
     enabled: !!selectedCompanyId,
   });
 
-  const { data: recognitionSettings, refetch: refetchSettings } = useQuery({
+  const { data: recognitionSettings = {} as RecognitionPageSettings, refetch: refetchSettings } = useQuery<RecognitionPageSettings>({
     queryKey: [`/api/admin/recognition/settings/${selectedCompanyId}`, selectedCompanyId],
     enabled: !!selectedCompanyId,
   });
 
-  // Fetch preview data for selected company
-  const { data: previewData, refetch: refetchPreviewData } = useQuery({
+  const { data: previewData = undefined, refetch: refetchPreviewData } = useQuery<{
+    settings: RecognitionPageSettings;
+    badges: CompanyBadge[];
+    content: ContentData[];
+    companyName?: string;
+    isSystemAdmin?: boolean;
+  }>({
     queryKey: [`/api/admin/recognition/page/${selectedCompanyId}`, selectedCompanyId],
     enabled: !!selectedCompanyId && previewDialogOpen,
   });
@@ -279,9 +286,17 @@ export default function AdminRecognitionPage() {
         welcomeMessage: recognitionSettings.welcomeMessage || '',
         badgesSectionTitle: recognitionSettings.badgesSectionTitle || '',
         contentSectionTitle: recognitionSettings.contentSectionTitle || '',
+        companyId: recognitionSettings.companyId,
       });
     }
   }, [recognitionSettings]);
+
+  // Update contentDialogOpen effect to reset contentType when dialog opens for new/edit
+  useEffect(() => {
+    if (contentDialogOpen) {
+      setContentType(editingContent?.contentType || "header");
+    }
+  }, [contentDialogOpen, editingContent]);
 
   const handleBadgeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -445,7 +460,7 @@ export default function AdminRecognitionPage() {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {companyBadges.map((companyBadge) => (
+                    {companyBadges.map((companyBadge: CompanyBadge) => (
                       <Card key={companyBadge.id} className="border-l-4 border-l-yellow-500">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-3">
@@ -508,108 +523,155 @@ export default function AdminRecognitionPage() {
                           Add Content
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {editingContent ? "Edit Content" : "Add Content Section"}
-                          </DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleContentSubmit} className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="contentType">Content Type</Label>
-                            <Select
-                              name="contentType"
-                              defaultValue={editingContent?.contentType || "header"}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="header">Header</SelectItem>
-                                <SelectItem value="content">Text Content</SelectItem>
-                                <SelectItem value="image">Image</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="title">Title (Optional)</Label>
-                            <Input
-                              id="title"
-                              name="title"
-                              defaultValue={editingContent?.title || ""}
-                              placeholder="Section title"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="content">Content</Label>
-                            <Textarea
-                              id="content"
-                              name="content"
-                              defaultValue={editingContent?.content || ""}
-                              placeholder="Content text"
-                              rows={4}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="image">Image</Label>
-                            <Input
-                              id="image"
-                              name="image"
-                              type="file"
-                              accept="image/*"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="imageUrl">Or Image URL</Label>
-                            <Input
-                              id="imageUrl"
-                              name="imageUrl"
-                              defaultValue={editingContent?.imageUrl || ""}
-                              placeholder="https://example.com/image.jpg"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="imageSize">Image Size</Label>
-                            <Select
-                              name="imageSize"
-                              defaultValue={editingContent?.imageSize || "medium"}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="small">Small</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="large">Large</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => {
-                                setContentDialogOpen(false);
-                                setEditingContent(null);
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              type="submit"
-                              disabled={createContentMutation.isPending || updateContentMutation.isPending}
-                            >
-                              <Save className="w-4 h-4 mr-2" />
-                              {editingContent ? "Update" : "Create"}
-                            </Button>
-                          </div>
-                        </form>
-                      </DialogContent>
+                      {contentDialogOpen && (
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>
+                              {editingContent ? "Edit Content" : "Add Content Section"}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <form onSubmit={handleContentSubmit} className="space-y-4">
+                            {/* Only show content type select when adding */}
+                            {!editingContent && (
+                              <div className="space-y-2">
+                                <Label htmlFor="contentType">Content Type</Label>
+                                <Select
+                                  name="contentType"
+                                  value={contentType}
+                                  onValueChange={setContentType}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="header">Header</SelectItem>
+                                    <SelectItem value="content">Text Content</SelectItem>
+                                    <SelectItem value="image">Image</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+                            {/* Always use the correct type for fields */}
+                            {(() => {
+                              const type = editingContent ? editingContent.contentType : contentType;
+                              if (type === "header") {
+                                return (
+                                  <div className="space-y-2">
+                                    <Label htmlFor="title">Title (Required)</Label>
+                                    <Input
+                                      id="title"
+                                      name="title"
+                                      defaultValue={editingContent?.title || ""}
+                                      placeholder="Section title"
+                                      required
+                                    />
+                                  </div>
+                                );
+                              }
+                              if (type === "content" || type === "description") {
+                                return (
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="title">Title (Optional)</Label>
+                                      <Input
+                                        id="title"
+                                        name="title"
+                                        defaultValue={editingContent?.title || ""}
+                                        placeholder="Section title"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="content">Content</Label>
+                                      <Textarea
+                                        id="content"
+                                        name="content"
+                                        defaultValue={editingContent?.content || ""}
+                                        placeholder="Content text"
+                                        rows={4}
+                                        required
+                                      />
+                                    </div>
+                                  </>
+                                );
+                              }
+                              if (type === "image" || type === "photo") {
+                                return (
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="title">Title (Optional)</Label>
+                                      <Input
+                                        id="title"
+                                        name="title"
+                                        defaultValue={editingContent?.title || ""}
+                                        placeholder="Section title"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="image">Image</Label>
+                                      <Input
+                                        id="image"
+                                        name="image"
+                                        type="file"
+                                        accept="image/*"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="imageUrl">Or Image URL</Label>
+                                      <Input
+                                        id="imageUrl"
+                                        name="imageUrl"
+                                        defaultValue={editingContent?.imageUrl || ""}
+                                        placeholder="https://example.com/image.jpg"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="imageSize">Image Size</Label>
+                                      <Select
+                                        name="imageSize"
+                                        defaultValue={editingContent?.imageSize || "medium"}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="small">Small</SelectItem>
+                                          <SelectItem value="medium">Medium</SelectItem>
+                                          <SelectItem value="large">Large</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </>
+                                );
+                              }
+                              return null;
+                            })()}
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  setContentDialogOpen(false);
+                                  setEditingContent(null);
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={createContentMutation.isPending || updateContentMutation.isPending}
+                              >
+                                <Save className="w-4 h-4 mr-2" />
+                                {editingContent ? "Update" : "Create"}
+                              </Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      )}
                     </Dialog>
                   </div>
 
                   <div className="space-y-4">
-                    {companyContent.map((content) => (
+                    {companyContent.map((content: ContentData) => (
                       <Card key={content.id}>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
@@ -926,14 +988,14 @@ export default function AdminRecognitionPage() {
               </DialogTitle>
             </DialogHeader>
             
-            {previewData && (
+            {previewData && previewData.settings && (
               <div className="space-y-6 p-6 bg-white rounded-lg border">
                 {/* Preview Header */}
                 <div className="text-center">
                   <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                    {previewData.settings?.pageTitle || "Our Recognition & Achievements"}
+                    {previewData.settings.pageTitle || "Our Recognition & Achievements"}
                   </h1>
-                  {previewData.settings?.welcomeMessage && (
+                  {previewData.settings.welcomeMessage && (
                     <p className="text-lg text-gray-600">
                       {previewData.settings.welcomeMessage}
                     </p>
@@ -944,7 +1006,7 @@ export default function AdminRecognitionPage() {
                 {previewData.badges && previewData.badges.length > 0 && (
                   <div>
                     <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                      {previewData.settings?.badgesSectionTitle || "Our Badges"}
+                      {previewData.settings.badgesSectionTitle || "Our Badges"}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {previewData.badges.map((companyBadge: any) => (
@@ -973,31 +1035,55 @@ export default function AdminRecognitionPage() {
                 {previewData.content && previewData.content.length > 0 && (
                   <div>
                     <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                      {previewData.settings?.contentSectionTitle || "Our Story"}
+                      {previewData.settings.contentSectionTitle || "Our Story"}
                     </h2>
                     <div className="space-y-4">
-                      {previewData.content.map((content: any) => (
-                        <div key={content.id}>
-                          {content.contentType === 'header' && (
-                            <h3 className="text-xl font-semibold text-gray-900">
+                      {previewData.content.map((content: any) => {
+                        const type = content.contentType;
+                        if (type === 'header') {
+                          return (
+                            <h3 key={content.id} className="text-xl font-semibold text-gray-900 mb-2">
                               {content.title}
                             </h3>
-                          )}
-                          {content.content && (
-                            <p className="text-gray-600">{content.content}</p>
-                          )}
-                          {getImageUrl(content.imageFile, content.imageUrl) && (
-                            <img
-                              src={getImageUrl(content.imageFile, content.imageUrl)}
-                              alt={content.title || "Content image"}
-                              className={`rounded ${
-                                content.imageSize === 'small' ? 'w-48' :
-                                content.imageSize === 'large' ? 'w-full' : 'w-80'
-                              }`}
-                            />
-                          )}
-                        </div>
-                      ))}
+                          );
+                        }
+                        if (type === 'content' || type === 'description') {
+                          return (
+                            <div key={content.id} className="mb-4">
+                              {content.title && (
+                                <h4 className="text-lg font-semibold text-gray-900 mb-1">{content.title}</h4>
+                              )}
+                              {content.content && (
+                                <p className="text-gray-600">{content.content}</p>
+                              )}
+                            </div>
+                          );
+                        }
+                        if (type === 'image' || type === 'photo') {
+                          return (
+                            <div key={content.id} className="mb-4">
+                              {getImageUrl(content.imageFile, content.imageUrl) && (
+                                <img
+                                  src={getImageUrl(content.imageFile, content.imageUrl)}
+                                  alt={content.title || 'Content image'}
+                                  className={`rounded mx-auto mb-2 ${
+                                    content.imageSize === 'small' ? 'w-48' :
+                                    content.imageSize === 'large' ? 'w-full' : 'w-80'
+                                  }`}
+                                />
+                              )}
+                              {content.title && (
+                                <p className="text-center mt-2 text-gray-700 font-medium">{content.title}</p>
+                              )}
+                              {content.content && (
+                                <p className="text-center mt-1 text-gray-500 text-sm">{content.content}</p>
+                              )}
+                            </div>
+                          );
+                        }
+                        // fallback
+                        return null;
+                      })}
                     </div>
                   </div>
                 )}

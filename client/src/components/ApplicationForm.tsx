@@ -38,6 +38,8 @@ import { applicationApi } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { ACTIVITY_TYPES } from "@/lib/constants";
 import { FacilityForm } from "./FacilityForm";
+import { useAuth } from "@/hooks/useAuth";
+import { canCreateEdit } from "@/lib/permissions";
 
 const applicationSchema = z.object({
   activityType: z.string().min(1, "Activity type is required"),
@@ -52,18 +54,19 @@ interface ApplicationFormProps {
 
 function ApplicationForm({ onClose, facility, activityType }: ApplicationFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [generatedId, setGeneratedId] = useState("");
   const [showFacilityForm, setShowFacilityForm] = useState(false);
 
-  const { data: facilities = [] } = useQuery({
+  const { data: facilities = [] } = useQuery<any[]>({
     queryKey: ['/api/facilities'],
   });
 
-  const { data: activitySettings = [] } = useQuery({
+  const { data: activitySettings = [] } = useQuery<any[]>({
     queryKey: ['/api/activity-settings'],
   });
 
-  const { data: currentCompany } = useQuery({
+  const { data: currentCompany } = useQuery<any>({
     queryKey: ['/api/companies/current'],
   });
 
@@ -121,34 +124,34 @@ function ApplicationForm({ onClose, facility, activityType }: ApplicationFormPro
   const watchedValues = form.watch();
 
   // Get current applications for checking limits and preview generation
-  const { data: applications = [] } = useQuery({
+  const { data: applications = [] } = useQuery<any[]>({
     queryKey: ['/api/applications'],
   });
 
   // Generate preview ID when values change
   useEffect(() => {
     if (watchedValues.activityType && watchedValues.facilityId && currentCompany && facilities && applications) {
-      const facility = facilities.find(f => f.id.toString() === watchedValues.facilityId);
+      const facility = facilities.find((f: any) => f.id.toString() === watchedValues.facilityId);
       const activityType = ACTIVITY_TYPES[watchedValues.activityType as keyof typeof ACTIVITY_TYPES];
       
       if (facility && activityType) {
         // Calculate facility position within company (same logic as server)
-        const companyFacilities = facilities.filter(f => f.companyId === currentCompany.id);
-        const facilityIndex = companyFacilities.findIndex(f => f.id === facility.id);
+        const companyFacilities = facilities.filter((f: any) => f.companyId === (currentCompany as any).id);
+        const facilityIndex = companyFacilities.findIndex((f: any) => f.id === (facility as any).id);
         const facilityCode = String(facilityIndex + 1).padStart(3, '0');
         
         // Find existing applications for this facility and activity type
-        const existingApps = applications.filter(app => 
+        const existingApps = applications.filter((app: any) => 
           app.facilityId === facility.id && 
           app.activityType === watchedValues.activityType
         );
         
         // Calculate next available application number
         let appNumber = 1;
-        let foundId;
+        let foundId: string = '';
         do {
           const appNumberStr = String(appNumber).padStart(2, '0');
-          foundId = `${currentCompany.shortName}-${facilityCode}-${activityType.code}${appNumberStr}`;
+          foundId = `${(currentCompany as any).shortName}-${facilityCode}-${activityType.code}${appNumberStr}`;
           
           // Check if this ID already exists
           const exists = existingApps.some(app => app.applicationId === foundId);
@@ -164,6 +167,7 @@ function ApplicationForm({ onClose, facility, activityType }: ApplicationFormPro
   }, [watchedValues.activityType, watchedValues.facilityId, currentCompany, facilities, applications]);
 
   const onSubmit = (values: z.infer<typeof applicationSchema>) => {
+    if (!canCreateEdit(user)) return;
     createApplicationMutation.mutate(values);
   };
 
@@ -192,13 +196,13 @@ function ApplicationForm({ onClose, facility, activityType }: ApplicationFormPro
     if (activityType === 'FRA') {
       return true;
     }
-    
     // For other activities, check if they're enabled for the selected facility
     if (!selectedFacilityId || !facilityActivities) {
       return false;
     }
-    
-    return facilityActivities.enabledActivities?.includes(activityType) || false;
+    // Check activity settings
+    const setting = (activitySettings as any[]).find((s: any) => s.activityType === activityType);
+    return setting?.isEnabled ?? false;
   };
 
   const isActivityAtLimit = (activityType: string) => {
@@ -374,17 +378,20 @@ function ApplicationForm({ onClose, facility, activityType }: ApplicationFormPro
             )}
 
             {/* Form Actions */}
-            <div className="flex space-x-4 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <div className="flex justify-end space-x-2 mt-6">
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                disabled={createApplicationMutation.isPending}
-                className="flex-1"
-              >
-                {createApplicationMutation.isPending ? 'Creating...' : 'Create Application'}
-              </Button>
+              {canCreateEdit(user) && (
+                <Button type="submit" disabled={createApplicationMutation.isPending}>
+                  {createApplicationMutation.isPending ? 'Creating...' : 'Create Application'}
+                </Button>
+              )}
+              {!canCreateEdit(user) && (
+                <Button type="button" disabled title="You do not have permission to create applications">
+                  Create Application
+                </Button>
+              )}
             </div>
           </form>
         </Form>

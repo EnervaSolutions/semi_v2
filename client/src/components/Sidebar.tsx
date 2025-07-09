@@ -21,6 +21,7 @@ import {
   Archive,
   Trophy
 } from "lucide-react";
+import { hasPermissionLevel, canInviteUsers } from "@/lib/permissions";
 
 const iconMap = {
   Home,
@@ -70,7 +71,7 @@ export default function Sidebar() {
       name: "Team Management",
       href: "/team",
       icon: "Users",
-      roles: ["company_admin", "system_admin"]
+      roles: ["company_admin", "system_admin", "team_member"] // allow team_member, but filter below
     },
     {
       name: "Support",
@@ -203,13 +204,21 @@ export default function Sidebar() {
   // Determine which navigation set to use based on user role
   const isContractor = user?.role === 'contractor_individual' || user?.role === 'contractor_team_member' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager';
   const isSystemAdmin = user?.role === 'system_admin';
+  const isViewer = user?.permissionLevel === 'viewer';
   
   // System admins only see admin navigation items
   const navigationItems = isSystemAdmin ? [] : (isContractor ? contractorNavigationItems : regularNavigationItems);
   
-  const filteredNavItems = navigationItems.filter(item => 
-    user?.role && item.roles.includes(user.role)
-  );
+  const filteredNavItems = navigationItems.filter(item => {
+    if (!user?.role || !item.roles.includes(user.role)) return false;
+    // Hide facility/application creation/editing links for viewers
+    if (isViewer && (item.name === 'Facilities' || item.name === 'Add Facility' || item.name === 'Create Application' || item.name === 'Start Application')) return false;
+    // Special logic for Team Management tab
+    if (item.name === "Team Management") {
+      return user.role === "company_admin" || user.role === "system_admin" || canInviteUsers(user);
+    }
+    return true;
+  });
 
   const filteredAdminItems = adminNavigationItems.filter(item =>
     user?.role && item.roles.includes(user.role)

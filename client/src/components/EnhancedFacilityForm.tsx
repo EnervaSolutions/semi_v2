@@ -28,6 +28,8 @@ import {
   generateNAICSCode,
   getNAICSDescription 
 } from "@shared/naics-data";
+import { useAuth } from "@/hooks/useAuth";
+import { canCreateEdit } from "@/lib/permissions";
 
 const facilitySchema = z.object({
   name: z.string().min(1, "Facility name is required"),
@@ -112,6 +114,7 @@ const PROVINCES = [
 
 export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacility }: EnhancedFacilityFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Initialize categories and types based on existing facility data
   const initialCategories = editingFacility?.facilitySector 
@@ -528,6 +531,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
   });
 
   const onSubmit = (data: FacilityFormData) => {
+    if (!canCreateEdit(user)) return;
     facilityMutation.mutate(data);
   };
 
@@ -1212,17 +1216,24 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                   Cancel
                 </Button>
               )}
-              <Button 
-                type="submit" 
-                disabled={facilityMutation.isPending}
-                className="min-w-[120px]"
-              >
-                {facilityMutation.isPending ? (
-                  editingFacility ? "Updating..." : "Creating..."
-                ) : (
-                  editingFacility ? "Update Facility" : "Create Facility"
-                )}
-              </Button>
+              {canCreateEdit(user) && (
+                <Button 
+                  type="submit" 
+                  disabled={facilityMutation.isPending}
+                  className="min-w-[120px]"
+                >
+                  {facilityMutation.isPending ? (
+                    editingFacility ? "Updating..." : "Creating..."
+                  ) : (
+                    editingFacility ? "Update Facility" : "Create Facility"
+                  )}
+                </Button>
+              )}
+              {!canCreateEdit(user) && (
+                <Button type="button" disabled title="You do not have permission to create or edit facilities">
+                  {editingFacility ? 'Save Changes' : 'Create Facility'}
+                </Button>
+              )}
             </div>
           </form>
         </CardContent>

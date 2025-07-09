@@ -285,19 +285,20 @@ export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    if (!user) return undefined;
+    return { ...user, permissionLevel: user.permissionLevel || 'viewer' };
   }
-
-
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    if (!user) return undefined;
+    return { ...user, permissionLevel: user.permissionLevel || 'viewer' };
   }
 
   async getUserByVerificationToken(token: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.emailVerificationToken, token));
-    return user;
+    if (!user) return undefined;
+    return { ...user, permissionLevel: user.permissionLevel || 'viewer' };
   }
 
   async createUser(userData: UpsertUser): Promise<User> {
@@ -1663,19 +1664,14 @@ export class DatabaseStorage implements IStorage {
 
   // Team management
   async getUsersByCompany(companyId: number): Promise<User[]> {
-    return await db
-      .select()
-      .from(users)
-      .where(and(eq(users.companyId, companyId), eq(users.isActive, true)))
-      .orderBy(users.firstName, users.lastName);
+    const usersList = await db.select().from(users).where(eq(users.companyId, companyId));
+    return usersList.map(user => ({ ...user, permissionLevel: user.permissionLevel || 'viewer' }));
   }
 
   async getUserById(userId: string): Promise<User | undefined> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId));
-    return user;
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (!user) return undefined;
+    return { ...user, permissionLevel: user.permissionLevel || 'viewer' };
   }
 
   async updateUserRole(userId: string, role: string): Promise<User> {
@@ -1828,18 +1824,23 @@ export class DatabaseStorage implements IStorage {
 
   // Admin operations
   async getAllUsers(): Promise<User[]> {
-    try {
-      const allUsers = await db.select().from(users).orderBy(users.createdAt);
-      console.log('Storage getAllUsers() found:', allUsers.length, 'users');
-      return allUsers;
-    } catch (error) {
-      console.error('Error in getAllUsers():', error);
-      return [];
-    }
+    const usersList = await db.select().from(users);
+    return usersList.map(user => ({ ...user, permissionLevel: user.permissionLevel || 'viewer' }));
   }
 
   async getCompanyUsers(companyId: number): Promise<User[]> {
-    return await db.select().from(users).where(eq(users.companyId, companyId));
+    const usersList = await db.select().from(users).where(eq(users.companyId, companyId));
+    return usersList.map(user => ({ ...user, permissionLevel: user.permissionLevel || 'viewer' }));
+  }
+
+  async getAdminUsers(): Promise<User[]> {
+    const usersList = await db.select().from(users).where(eq(users.role, 'company_admin'));
+    return usersList.map(user => ({ ...user, permissionLevel: user.permissionLevel || 'viewer' }));
+  }
+
+  async getContractorTeamMembers(companyId: number): Promise<User[]> {
+    const usersList = await db.select().from(users).where(eq(users.companyId, companyId)).where(eq(users.role, 'contractor_team_member'));
+    return usersList.map(user => ({ ...user, permissionLevel: user.permissionLevel || 'viewer' }));
   }
 
   // This method has been replaced by the enriched version below
@@ -5954,10 +5955,20 @@ export class DatabaseStorage implements IStorage {
     displayOrder?: number;
     createdBy: string;
   }): Promise<RecognitionContent> {
+    // Always save title, even for image/photo content
+    const dataToInsert = {
+      ...contentData,
+      title: typeof contentData.title === 'string' ? contentData.title : '',
+      content: typeof contentData.content === 'string' ? contentData.content : '',
+      imageUrl: typeof contentData.imageUrl === 'string' ? contentData.imageUrl : '',
+      imageFile: typeof contentData.imageFile === 'string' ? contentData.imageFile : '',
+      imageSize: typeof contentData.imageSize === 'string' ? contentData.imageSize : 'medium',
+      displayOrder: typeof contentData.displayOrder === 'number' ? contentData.displayOrder : 0,
+    };
     try {
       const [content] = await db
         .insert(recognitionContent)
-        .values(contentData)
+        .values(dataToInsert)
         .returning();
       return content;
     } catch (error) {
@@ -5968,7 +5979,7 @@ export class DatabaseStorage implements IStorage {
 
   async getRecognitionContent(companyId: number): Promise<RecognitionContent[]> {
     try {
-      return await db
+      const rawContent = await db
         .select()
         .from(recognitionContent)
         .where(and(
@@ -5976,6 +5987,14 @@ export class DatabaseStorage implements IStorage {
           eq(recognitionContent.isVisible, true)
         ))
         .orderBy(recognitionContent.displayOrder, recognitionContent.createdAt);
+      // Normalize contentType for frontend
+      return rawContent.map((item: any) => ({
+        ...item,
+        contentType: item.contentType === 'header' ? 'header'
+          : item.contentType === 'content' || item.contentType === 'text_section' ? 'description'
+          : item.contentType === 'image' ? 'photo'
+          : item.contentType // fallback to original if unknown
+      }));
     } catch (error) {
       console.error('Error fetching recognition content:', error);
       throw error;
@@ -5983,13 +6002,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateRecognitionContent(contentId: number, updates: Partial<RecognitionContent>): Promise<RecognitionContent> {
+    // Always update title if provided, even for image/photo content
+    const updatesToApply: any = {
+      ...updates,
+      updatedAt: new Date(),
+    };
+    // Only set title if provided (do not override with undefined)
+    if (updates.title !== undefined) {
+      updatesToApply.title = updates.title;
+    } else {
+      delete updatesToApply.title;
+    }
     try {
       const [updatedContent] = await db
         .update(recognitionContent)
-        .set({
-          ...updates,
-          updatedAt: new Date(),
-        })
+        .set(updatesToApply)
         .where(eq(recognitionContent.id, contentId))
         .returning();
       return updatedContent;
@@ -6076,8 +6103,15 @@ export class DatabaseStorage implements IStorage {
         this.getCompanyBadges(companyId),
         this.getRecognitionContent(companyId),
       ]);
-
-      return { settings, badges, content };
+      // content is already normalized by getRecognitionContent
+      return {
+        settings,
+        badges,
+        content: content.map((item: any) => ({
+          ...item,
+          title: typeof item.title === 'string' ? item.title : '',
+        })),
+      };
     } catch (error) {
       console.error('Error fetching company recognition page:', error);
       throw error;
@@ -6304,7 +6338,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserPermissions(userId: string, permissionLevel: string) {
     try {
-      await this.db.execute(sql`
+      await db.execute(sql`
         UPDATE users 
         SET permission_level = ${permissionLevel}, updated_at = NOW()
         WHERE id = ${userId}

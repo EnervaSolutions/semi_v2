@@ -8,9 +8,12 @@ export function useAuth() {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
+  // Always ensure permissionLevel is present
+  const patchedUser = user ? { ...user, permissionLevel: user.permissionLevel || 'viewer' } : null;
+
   return {
-    user: user ?? null,
+    user: patchedUser,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!patchedUser,
   };
 }

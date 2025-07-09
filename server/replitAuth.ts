@@ -98,8 +98,33 @@ export async function setupAuth(app: Express) {
     passport.use(strategy);
   }
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  passport.serializeUser(async (user: Express.User, cb) => {
+    const sessionUser = user as any;
+    // Ensure permissionLevel is present
+    if (!sessionUser.permissionLevel) {
+      try {
+        // Try to fetch from storage if user has id
+        if (sessionUser.id) {
+          const dbUser = await storage.getUser(sessionUser.id);
+          sessionUser.permissionLevel = dbUser?.permissionLevel || 'viewer';
+        } else {
+          sessionUser.permissionLevel = 'viewer';
+        }
+      } catch {
+        sessionUser.permissionLevel = 'viewer';
+      }
+    }
+    cb(null, sessionUser);
+  });
+
+  passport.deserializeUser((user: Express.User, cb) => {
+    const sessionUser = user as any;
+    // Ensure permissionLevel is present
+    if (!sessionUser.permissionLevel) {
+      sessionUser.permissionLevel = 'viewer';
+    }
+    cb(null, sessionUser);
+  });
 
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
@@ -126,30 +151,3 @@ export async function setupAuth(app: Express) {
     });
   });
 }
-
-export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    return res.redirect("/api/login");
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    return res.redirect("/api/login");
-  }
-};

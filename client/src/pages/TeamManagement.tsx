@@ -36,7 +36,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
-import { hasPermission, PERMISSIONS, getRoleInfo, canInviteUsers, canEditPermissions, PERMISSION_LEVEL_INFO } from "@/lib/permissions";
+import { hasPermission, PERMISSIONS, getRoleInfo, canInviteUsers, canEditPermissions, PERMISSION_LEVEL_INFO, canCreateEdit } from "@/lib/permissions";
 
 export default function TeamManagement() {
   const { user } = useAuth();
@@ -101,7 +101,13 @@ export default function TeamManagement() {
 
   const updatePermissionLevelMutation = useMutation({
     mutationFn: async ({ userId, permissionLevel }: { userId: string; permissionLevel: string }) => {
-      return await apiRequest(`/api/users/${userId}/permission-level`, 'PATCH', { permissionLevel });
+      if (!userId) throw new Error('User ID is required');
+      // Use new endpoint for company admins/managers, old endpoint for system admins
+      if (user && user.role === 'system_admin') {
+        return await apiRequest(`/api/admin/users/${userId}`, 'PATCH', { permissionLevel });
+      }
+      // fallback to team endpoint for all other cases
+      return await apiRequest(`/api/team/${userId}/permission-level`, 'PATCH', { permissionLevel });
     },
     onSuccess: () => {
       toast({
@@ -156,7 +162,7 @@ export default function TeamManagement() {
       firstName,
       lastName,
       message,
-      permissionLevel: invitePermissionLevel,
+      permissionLevel: invitePermissionLevel || 'viewer',
       companyId: user?.companyId,
       invitedByUserId: user?.id
     });
@@ -200,14 +206,27 @@ export default function TeamManagement() {
     }
   };
 
-  const canInviteTeamMembers = user ? hasPermission(user.role, PERMISSIONS.INVITE_TEAM_MEMBERS) : false;
-  const canManageTeam = user ? hasPermission(user.role, PERMISSIONS.MANAGE_TEAM_MEMBERS) : false;
+  // Permission helpers
+  const canInviteTeamMembers = user ? canInviteUsers(user) : false;
+  const canEditTeamPermissions = user ? canEditPermissions({ ...user, permissionLevel: user.permissionLevel || 'viewer' }) : false;
+  const canCreateOrEdit = user ? canCreateEdit(user) : false;
+
+  // Defensive debug logging for user object and permission checks
+  console.log('TeamManagement Permission Debug:', {
+    user,
+    userPermissionLevel: (user?.permissionLevel ?? 'viewer') as string,
+    canEditTeamPermissions,
+    canEditPermissionsResult: canEditPermissions(user ? { ...user, permissionLevel: (user.permissionLevel ?? 'viewer') as string } : null),
+  });
+
+  // Defensive fallback for canEditTeamPermissions
+  const canEditTeamPermissionsSafe = user ? canEditPermissions({ ...user, permissionLevel: (user.permissionLevel ?? 'viewer') as string }) : false;
 
   // Debug logging for team management permissions
   console.log('TeamManagement Debug:', {
-    user: user ? { id: user.id, role: user.role, email: user.email } : null,
+    user: user ? { id: user.id, role: user.role, email: user.email, permissionLevel: (user.permissionLevel || 'viewer') as string } : null,
     canInviteTeamMembers,
-    canManageTeam,
+    canEditTeamPermissions,
     teamMembersCount: teamMembers.length,
     teamMembers: teamMembers.map((m: any) => ({ id: m.id, role: m.role, isActive: m.isActive, email: m.email }))
   });
@@ -392,7 +411,7 @@ export default function TeamManagement() {
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={member.profileImageUrl} alt={`${member.firstName} ${member.lastName}`} />
                         <AvatarFallback>
-                          {getInitials(member.firstName, member.lastName)}
+                          {getInitials(String(member.firstName || ''), String(member.lastName || ''))}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -417,12 +436,17 @@ export default function TeamManagement() {
                     </div>
                     
                     {member.role === 'team_member' && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Permission Level:</span>
-                        <Badge variant="outline" className={getPermissionLevelColor(member.permissionLevel || 'viewer')}>
-                          {getPermissionLevelDisplayName(member.permissionLevel || 'viewer')}
-                        </Badge>
-                      </div>
+                      (() => {
+                        const memberPermissionLevel = typeof member.permissionLevel === 'string' ? member.permissionLevel : 'viewer';
+                        return (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-500">Permission Level:</span>
+                            <Badge variant="outline" className={getPermissionLevelColor(memberPermissionLevel)}>
+                              {getPermissionLevelDisplayName(memberPermissionLevel)}
+                            </Badge>
+                          </div>
+                        );
+                      })()
                     )}
                     
                     <div className="flex items-center justify-between">
@@ -442,7 +466,7 @@ export default function TeamManagement() {
                     )}
                   </div>
 
-                  {hasPermission(user?.role, PERMISSIONS.MANAGE_TEAM_MEMBERS) && member.id !== user?.id && (
+                  {(hasPermission(user?.role ?? '', PERMISSIONS.MANAGE_TEAM_MEMBERS) || (user?.permissionLevel ?? 'viewer') === 'manager') && member.id !== user?.id && (
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -452,7 +476,7 @@ export default function TeamManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {member.role === 'team_member' && canEditPermissions(user) && (
+                          {member.role === 'team_member' && canEditTeamPermissionsSafe && (
                             <DropdownMenuItem
                               onClick={() => {
                                 console.log('Change Permissions clicked for member:', member);
@@ -568,56 +592,66 @@ export default function TeamManagement() {
               Update the permission level for {selectedMember?.firstName} {selectedMember?.lastName}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const permissionLevel = formData.get('permissionLevel') as string;
-            if (selectedMember && permissionLevel) {
-              updatePermissionLevelMutation.mutate({ 
-                userId: selectedMember.id, 
-                permissionLevel 
-              });
-            }
-          }}>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="permissionLevel">Permission Level</Label>
-                <Select name="permissionLevel" defaultValue={selectedMember?.permissionLevel || 'viewer'}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select permission level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="viewer">
-                      <div>
-                        <div className="font-medium">Viewer</div>
-                        <div className="text-xs text-gray-500">Read-only access to view company data</div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="editor">
-                      <div>
-                        <div className="font-medium">Editor</div>
-                        <div className="text-xs text-gray-500">Can create, edit and submit facilities and applications</div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="manager">
-                      <div>
-                        <div className="font-medium">Manager</div>
-                        <div className="text-xs text-gray-500">Can invite users and assign permissions</div>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+          {canEditTeamPermissionsSafe && (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const permissionLevel = formData.get('permissionLevel') as string;
+              if (selectedMember && permissionLevel) {
+                if (selectedMember?.id) {
+                  updatePermissionLevelMutation.mutate({
+                    userId: String(selectedMember.id),
+                    permissionLevel: permissionLevel || 'viewer'
+                  });
+                } else {
+                  toast({
+                    title: "Update failed",
+                    description: "No user selected.",
+                    variant: "destructive",
+                  });
+                }
+              }
+            }}>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="permissionLevel">Permission Level</Label>
+                  <Select name="permissionLevel" defaultValue={selectedMember?.permissionLevel || 'viewer'}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select permission level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="viewer">
+                        <div>
+                          <div className="font-medium">Viewer</div>
+                          <div className="text-xs text-gray-500">Read-only access to view company data</div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="editor">
+                        <div>
+                          <div className="font-medium">Editor</div>
+                          <div className="text-xs text-gray-500">Can create, edit and submit facilities and applications</div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="manager">
+                        <div>
+                          <div className="font-medium">Manager</div>
+                          <div className="text-xs text-gray-500">Can invite users and assign permissions</div>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setShowPermissionLevelDialog(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={updatePermissionLevelMutation.isPending}>
-                {updatePermissionLevelMutation.isPending ? 'Updating...' : 'Update Permission Level'}
-              </Button>
-            </div>
-          </form>
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setShowPermissionLevelDialog(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updatePermissionLevelMutation.isPending}>
+                  {updatePermissionLevelMutation.isPending ? 'Updating...' : 'Update Permission Level'}
+                </Button>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </div>

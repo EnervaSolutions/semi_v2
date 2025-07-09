@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 import archiver from "archiver";
 import { v4 as uuidv4 } from 'uuid';
+import { canInviteUsers, canEditPermissions, canCreateEdit, hasPermissionLevel } from './permissions';
 
 // Configure multer for file uploads with proper file path handling
 const multerStorage = multer.diskStorage({
@@ -155,7 +156,8 @@ export function registerRoutes(app: Express) {
   app.get('/api/auth/user', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
-      res.json({ ...user, password: undefined });
+      // Always include permissionLevel, default to 'viewer' if missing
+      res.json({ ...user, permissionLevel: user.permissionLevel || 'viewer', password: undefined });
     } catch (error) {
       res.status(401).json({ message: "Not authenticated" });
     }
@@ -746,8 +748,49 @@ export function registerRoutes(app: Express) {
       if (user.role !== 'system_admin') {
         return res.status(403).json({ message: "Access denied" });
       }
+      // Fetch all applications
       const applications = await dbStorage.getAllApplications();
-      res.json(applications);
+      // For each application, fetch its activity submissions and determine status
+      const enhancedApplications = await Promise.all(applications.map(async (app: any) => {
+        // Fetch all activity submissions for this application
+        const activitySubmissions = await dbStorage.getActivityTemplateSubmissions(app.id);
+        // Sort by submittedAt or createdAt to find the latest
+        const sorted = activitySubmissions
+          .filter(sub => sub.status === 'submitted' || sub.status === 'approved' || sub.status === 'completed')
+          .sort((a, b) => {
+            const aDate = a.submittedAt ? new Date(a.submittedAt) : new Date(a.createdAt);
+            const bDate = b.submittedAt ? new Date(b.submittedAt) : new Date(b.createdAt);
+            return bDate.getTime() - aDate.getTime();
+          });
+        let detailedStatus = 'Draft';
+        if (sorted.length > 0) {
+          // Use the status of the last submitted/completed/approved activity
+          const last = sorted[0];
+          if (last.status === 'approved') {
+            detailedStatus = `Approved: ${last.activityType || last.activityTemplateId || ''}`;
+          } else if (last.status === 'completed') {
+            detailedStatus = `Completed: ${last.activityType || last.activityTemplateId || ''}`;
+          } else if (last.status === 'submitted') {
+            detailedStatus = `Submitted: ${last.activityType || last.activityTemplateId || ''}`;
+          } else {
+            detailedStatus = last.status;
+          }
+        } else if (activitySubmissions.length > 0) {
+          // If there are drafts, show the latest draft
+          const lastDraft = activitySubmissions.sort((a, b) => {
+            const aDate = a.updatedAt ? new Date(a.updatedAt) : new Date(a.createdAt);
+            const bDate = b.updatedAt ? new Date(b.updatedAt) : new Date(b.createdAt);
+            return bDate.getTime() - aDate.getTime();
+          })[0];
+          detailedStatus = lastDraft.status === 'draft' ? 'Draft' : lastDraft.status;
+        }
+        // Only enable the next activity after explicit approval (not here)
+        return {
+          ...app,
+          detailedStatus,
+        };
+      }));
+      res.json(enhancedApplications);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch applications" });
     }
@@ -3600,6 +3643,46 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Add after POST /api/team/invite endpoint:
+  app.patch('/api/team/:userId/permission-level', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      const { permissionLevel } = req.body;
+
+      // Only company_admin or team_member with manager/owner permission can update
+      if (
+        user.role !== 'company_admin' &&
+        user.role !== 'system_admin' &&
+        !(user.role === 'team_member' && ['manager', 'owner'].includes(user.permissionLevel))
+      ) {
+        return res.status(403).json({ message: "Insufficient permissions to update team member permissions" });
+      }
+
+      // Prevent updating own permissionLevel
+      if (user.id === userId) {
+        return res.status(400).json({ message: "You cannot change your own permission level." });
+      }
+
+      // Only allow valid permission levels
+      if (!['viewer', 'editor', 'manager', 'owner'].includes(permissionLevel)) {
+        return res.status(400).json({ message: "Invalid permission level." });
+      }
+
+      // Prevent demoting an owner unless system_admin or company_admin
+      const targetUser = await dbStorage.getUser(userId);
+      if (targetUser && targetUser.permissionLevel === 'owner' && user.role !== 'company_admin' && user.role !== 'system_admin') {
+        return res.status(403).json({ message: "Only company admin or system admin can change owner permissions." });
+      }
+
+      await dbStorage.updateUserPermissions(userId, permissionLevel);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error updating team member permission level:", error, error?.stack);
+      res.status(500).json({ message: error?.message || "Failed to update team member permission level.", details: error?.stack });
+    }
+  });
+
   // Dashboard stats endpoint for company users
   app.get('/api/dashboard/stats', requireAuth, async (req: any, res: Response) => {
     try {
@@ -3683,6 +3766,23 @@ async function generateUniqueShortName(baseShortName: string, storage: any): Pro
   
   // If we can't find a unique name, return the base with timestamp
   return `${baseShortName.substring(0, 4)}${Date.now().toString().slice(-2)}`;
+}
+
+// Backend permission helpers (match frontend logic)
+function hasPermissionLevel(user: any, level: string): boolean {
+  if (!user) return false;
+  const levels = ['viewer', 'editor', 'manager', 'owner'];
+  const userLevel = user.permissionLevel || 'viewer';
+  return levels.indexOf(userLevel) >= levels.indexOf(level);
+}
+function canCreateEdit(user: any): boolean {
+  return user && (user.role === 'company_admin' || (user.role === 'team_member' && hasPermissionLevel(user, 'editor')));
+}
+function canInviteUsers(user: any): boolean {
+  return user && (user.role === 'company_admin' || (user.role === 'team_member' && hasPermissionLevel(user, 'manager')));
+}
+function canEditPermissions(user: any): boolean {
+  return user && (user.role === 'company_admin' || (user.role === 'team_member' && hasPermissionLevel(user, 'manager')));
 }
 
 

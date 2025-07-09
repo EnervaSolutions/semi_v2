@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { isValid, parseISO } from "date-fns";
 
 interface BadgeData {
   id: number;
@@ -14,9 +15,19 @@ interface BadgeData {
   description: string;
   imageUrl?: string;
   imageFile?: string;
-  awardedAt: string;
+  awardedDate: string;
   awardNote?: string;
   displayOrder: number;
+  badge: {
+    id: number
+    name: string,
+    description: string,
+    imageUrl?: string,
+    imageFile?: string,
+    createdAt: string,
+    createdBy: string,
+    isActive: boolean
+  }
 }
 
 interface ContentData {
@@ -150,14 +161,14 @@ export default function RecognitionPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedBadges.map((badge) => (
-                <Card key={badge.id} className="hover:shadow-lg transition-shadow">
+              {sortedBadges.map((badgeObj) => (
+                <Card key={badgeObj.badge.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6 text-center">
                     <div className="mb-4">
-                      {getImageUrl(badge.imageFile, badge.imageUrl) ? (
+                      {getImageUrl(badgeObj.badge.imageFile, badgeObj.badge.imageUrl) ? (
                         <img
-                          src={getImageUrl(badge.imageFile, badge.imageUrl)}
-                          alt={badge.name}
+                          src={getImageUrl(badgeObj.badge.imageFile, badgeObj.badge.imageUrl)}
+                          alt={badgeObj.badge.name}
                           className="w-20 h-20 mx-auto rounded-full object-cover"
                         />
                       ) : (
@@ -165,23 +176,24 @@ export default function RecognitionPage() {
                       )}
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {badge.name}
+                      {badgeObj.badge.name}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      {badge.description}
+                      {badgeObj.badge.description}
                     </p>
-                    <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        Awarded {format(new Date(badge.awardedAt), "MMMM d, yyyy")}
-                      </span>
-                    </div>
-                    {badge.awardNote && (
+                    {badgeObj.awardNote && (
                       <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                         <p className="text-sm text-blue-800 italic">
-                          "{badge.awardNote}"
+                          "{badgeObj.awardNote}"
                         </p>
                       </div>
+                    )}
+
+                    {/* Show awarded date if present */}
+                    {badgeObj.awardedDate && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        Awarded: {new Date(badgeObj.awardedDate).toLocaleDateString()}
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -204,7 +216,7 @@ export default function RecognitionPage() {
               {sortedContent.map((item) => (
                 <div key={item.id}>
                   {item.contentType === 'header' && (
-                    <div className="text-center mb-6">
+                    <div className="text-left mb-6">
                       <h3 className="text-2xl font-bold text-gray-900">
                         {item.title}
                       </h3>
@@ -240,7 +252,7 @@ export default function RecognitionPage() {
                   {item.contentType === 'photo' && getImageUrl(item.imageFile, item.imageUrl) && (
                     <div className="mb-6">
                       <div
-                        className={`mx-auto rounded-lg overflow-hidden shadow-lg ${
+                        className={`mx-auto${
                           item.imageSize === 'small'
                             ? 'max-w-md'
                             : item.imageSize === 'large'
@@ -253,17 +265,18 @@ export default function RecognitionPage() {
                           alt={item.title || 'Recognition content'}
                           className="w-full h-auto"
                         />
-                      </div>
-                      {item.title && (
-                        <p className="text-center mt-3 text-gray-600 font-medium">
+                        {item.title && (
+                        <p className="text-left mt-3 text-gray-600 font-medium">
                           {item.title}
                         </p>
                       )}
                       {item.content && (
-                        <p className="text-center mt-2 text-gray-500 text-sm">
+                        <p className="text-left mt-2 text-gray-500 text-sm">
                           {item.content}
                         </p>
                       )}
+                      </div>
+                      
                     </div>
                   )}
                 </div>

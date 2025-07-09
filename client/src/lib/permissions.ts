@@ -175,28 +175,18 @@ export function getRoleInfo(role: string) {
 // Permission level functions for team members
 export function hasPermissionLevel(user: any, requiredLevel: string): boolean {
   if (!user) return false;
-  
   // Company admin and system admin have all permissions
   if (user.role === 'company_admin' || user.role === 'system_admin') {
     return true;
   }
-  
   // For team members, check permission level
   if (user.role === 'team_member') {
     const userLevel = user.permissionLevel || 'viewer';
-    
-    switch (requiredLevel) {
-      case 'viewer':
-        return ['viewer', 'editor', 'manager'].includes(userLevel);
-      case 'editor':
-        return ['editor', 'manager'].includes(userLevel);
-      case 'manager':
-        return userLevel === 'manager';
-      default:
-        return false;
-    }
+    const levels = ['viewer', 'editor', 'manager', 'owner'];
+    const userIdx = levels.indexOf(userLevel);
+    const reqIdx = levels.indexOf(requiredLevel);
+    return userIdx >= reqIdx;
   }
-  
   return false;
 }
 
@@ -224,13 +214,18 @@ export const PERMISSION_LEVEL_INFO = {
     color: 'gray',
   },
   editor: {
-    label: 'Editor', 
+    label: 'Editor',
     description: 'Can create, edit and submit facilities and applications',
     color: 'blue',
   },
   manager: {
     label: 'Manager',
-    description: 'Can invite users and assign permissions (except for other managers and company admin)',
+    description: 'Can invite users and assign permissions (except for other managers, owners, and company admin)',
     color: 'green',
+  },
+  owner: {
+    label: 'Owner',
+    description: 'Full access, cannot be demoted by others except system/company admin',
+    color: 'purple',
   },
 };

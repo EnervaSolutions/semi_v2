@@ -21,6 +21,7 @@ import { AlertCircle, Download, Upload, FileText, CheckCircle, Clock, ArrowLeft,
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import ContractorAssignmentDialog from "@/components/ContractorAssignmentDialog";
+import { canCreateEdit } from "@/lib/permissions";
 
 
 export default function ApplicationDetails() {
@@ -329,10 +330,10 @@ export default function ApplicationDetails() {
     }
     
     // Calculate progress based on completed templates for this application only
-    const applicationSubmissions = submissions.filter((s: any) => s.applicationId === application.id);
+    const applicationSubmissions = submissions.filter((s: any) => (s as any).applicationId === application.id);
     const completedTemplates = templates.filter((template: any) => {
       return applicationSubmissions.some((s: any) => 
-        s.formTemplateId === template.id && s.status === 'submitted'
+        (s as any).formTemplateId === template.id && (s as any).status === 'submitted'
       );
     });
     
@@ -349,10 +350,12 @@ export default function ApplicationDetails() {
   };
 
   // Enhanced permission checking for contractors
-  const canSubmitApplication = !user?.role?.startsWith('contractor_');
-  const canEditApplication = user?.role === 'company_admin' || 
-                            user?.role === 'team_member' || 
-                            user?.role?.startsWith('contractor_');
+  // const canSubmitApplication = !user?.role?.startsWith('contractor_');
+  // const canEditApplication = user?.role === 'company_admin' || 
+  //                           user?.role === 'team_member' || 
+  //                           user?.role?.startsWith('contractor_');
+  const canEditApplication = canCreateEdit(user);
+  const canSubmitApplication = canEditApplication && !user?.role?.startsWith('contractor_');
 
   // Template-driven status logic
   const getDetailedStatusLabel = () => {
@@ -561,9 +564,9 @@ export default function ApplicationDetails() {
 
                 {/* Template Steps */}
                 {templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0)).map((template: any, index: number) => {
-                  const applicationSubmissions = submissions.filter((s: any) => s.applicationId === application.id);
+                  const applicationSubmissions = submissions.filter((s: any) => (s as any).applicationId === application.id);
                   const isCompleted = applicationSubmissions.some((s: any) => 
-                    s.formTemplateId === template.id && s.status === 'submitted'
+                    (s as any).formTemplateId === template.id && (s as any).status === 'submitted'
                   );
                   const stepProgress = 30 + ((index + 1) * (70 / templates.length));
                   
@@ -920,8 +923,10 @@ function TemplateSection({
     }
   };
 
+  const isViewer = (user?.permissionLevel ?? 'viewer') === 'viewer';
   const renderField = (field: any) => {
-    const isDisabled = isSubmitted;
+    // Disable all fields for viewers, or if submitted
+    const isDisabled = isViewer || isSubmitted;
     const fieldClassName = `w-full p-2 border border-gray-300 rounded-md ${
       isDisabled ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
     }`;
@@ -985,6 +990,7 @@ function TemplateSection({
           </select>
         );
       case 'file_download':
+        // Download buttons should always be enabled
         return (
           <div key={field.id} className="space-y-2">
             {field.downloadUrl ? (
@@ -1024,9 +1030,6 @@ function TemplateSection({
                 <UploadedFilesDisplay 
                   applicationId={application.id} 
                   documentType={template.name.toLowerCase() === 'preactivity' ? 'pre_activity' : template.name.toLowerCase() === 'post' ? 'post_activity' : 'other'} 
-                  onDeleteFile={(docId: number, filename: string) => {
-                    setDeleteConfirm({ open: true, docId, filename });
-                  }}
                 />
               </div>
             ) : (
@@ -1034,9 +1037,6 @@ function TemplateSection({
                 applicationId={application.id} 
                 canUpload={canSubmit || user?.role?.startsWith('contractor_')} 
                 documentType={template.name.toLowerCase() === 'preactivity' ? 'pre_activity' : template.name.toLowerCase() === 'post' ? 'post_activity' : 'other'}
-                onDeleteFile={(docId: number, filename: string) => {
-                  setDeleteConfirm({ open: true, docId, filename });
-                }}
               />
             )}
           </div>
@@ -1083,7 +1083,7 @@ function TemplateSection({
             </div>
           ))}
 
-          {!isSubmitted && (
+          {(!isSubmitted && !isViewer) &&(
             <div className="flex justify-end gap-3 pt-4">
               {/* Save Progress Button - Available for contractors and company members */}
               <Button
@@ -1323,7 +1323,7 @@ function SimpleFileUpload({ applicationId, canUpload, documentType = 'other', on
 }
 
 // Component to display uploaded files for submitted forms
-function UploadedFilesDisplay({ applicationId, documentType, onDeleteFile }: { applicationId: number, documentType?: string, onDeleteFile: (docId: number, filename: string) => void }) {
+function UploadedFilesDisplay({ applicationId, documentType, onDeleteFile }: { applicationId: number, documentType?: string, onDeleteFile?: (docId: number, filename: string) => void }) {
   const { data: documents, isLoading } = useQuery({
     queryKey: ['/api/documents/application', applicationId],
     queryFn: () => fetch(`/api/documents/application/${applicationId}`, { credentials: 'include' }).then(res => res.json()),
@@ -1495,9 +1495,6 @@ function DynamicForm({ fields, onSubmit, canSubmit, submitLabel, submitButtonCla
                   <UploadedFilesDisplay 
                     applicationId={applicationId} 
                     documentType={phase} 
-                    onDeleteFile={(docId: number, filename: string) => {
-                      setDeleteConfirm({ open: true, docId, filename });
-                    }}
                   />
                 </div>
               ) : (

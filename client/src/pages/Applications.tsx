@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { canCreateEdit } from "@/lib/permissions";
+import AddApplicationDialog from "@/components/AddApplicationDialog";
 
 interface ColumnVisibility {
   applicationId: boolean;
@@ -70,16 +72,16 @@ export default function Applications() {
     localStorage.setItem('applicationTable_columnVisibility', JSON.stringify(newVisibility));
   };
 
-  const { data: applications = [], isLoading } = useQuery({
+  const { data: applications = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/applications'],
   });
 
-  const { data: assignedApplications = [] } = useQuery({
+  const { data: assignedApplications = [] } = useQuery<any[]>({
     queryKey: ['/api/applications/assigned'],
     enabled: user?.role === 'contractor_individual',
   });
 
-  const applicationsToShow = user?.role === 'contractor_individual' ? assignedApplications : applications;
+  const applicationsToShow: any[] = user?.role === 'contractor_individual' ? assignedApplications : applications;
 
   // Filter and search applications
   const filteredApplications = useMemo(() => {
@@ -102,14 +104,16 @@ export default function Applications() {
   }, [applicationsToShow, searchTerm, statusFilter, activityFilter]);
 
   // Get unique statuses and activity types for filter options
-  const uniqueStatuses = useMemo(() => {
-    const statuses = [...new Set(applicationsToShow.map((app: any) => app.status))];
-    return statuses.filter(Boolean);
+  const uniqueStatuses: string[] = useMemo(() => {
+    const statusesArr = applicationsToShow.map((app: any) => app.status);
+    const statuses = Array.from(new Set(statusesArr));
+    return statuses.filter(Boolean) as string[];
   }, [applicationsToShow]);
 
-  const uniqueActivityTypes = useMemo(() => {
-    const types = [...new Set(applicationsToShow.map((app: any) => app.activityType))];
-    return types.filter(Boolean);
+  const uniqueActivityTypes: string[] = useMemo(() => {
+    const typesArr = applicationsToShow.map((app: any) => app.activityType);
+    const types = Array.from(new Set(typesArr));
+    return types.filter(Boolean) as string[];
   }, [applicationsToShow]);
 
   const clearFilters = () => {
@@ -137,6 +141,9 @@ export default function Applications() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Applications ({filteredApplications.length} of {applicationsToShow.length})</CardTitle>
+            {canCreateEdit(user) && (
+              <AddApplicationDialog onSuccess={() => {}} />
+            )}
             {hasActiveFilters && (
               <Button 
                 variant="outline" 
