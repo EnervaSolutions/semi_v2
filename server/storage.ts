@@ -1702,8 +1702,8 @@ export class DatabaseStorage implements IStorage {
 
   // Contractor operations
   async createContractorDetails(details: InsertContractorDetails): Promise<ContractorDetails> {
-    const [contractorDetails] = await db.insert(contractorDetails).values(details).returning();
-    return contractorDetails;
+    const [contractorDetailsResult] = await db.insert(contractorDetails).values(details).returning();
+    return contractorDetailsResult;
   }
 
   async getContractorDetails(userId: string): Promise<ContractorDetails | undefined> {

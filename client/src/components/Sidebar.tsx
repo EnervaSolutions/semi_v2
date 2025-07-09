@@ -106,7 +106,7 @@ export default function Sidebar() {
       name: "Team Management",
       href: "/team",
       icon: "Users",
-      roles: ["contractor_individual", "contractor_account_owner", "contractor_manager"]
+      roles: ["contractor_individual", "contractor_account_owner", "contractor_manager", "team_member"] // allow team_member for contractor companies
     },
     {
       name: "Support",
@@ -202,7 +202,7 @@ export default function Sidebar() {
   ];
 
   // Determine which navigation set to use based on user role
-  const isContractor = user?.role === 'contractor_individual' || user?.role === 'contractor_team_member' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager';
+  const isContractor = user?.role === 'contractor_individual' || user?.role === 'contractor_team_member' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager' || (user?.role === 'team_member' && user?.company?.isContractor);
   const isSystemAdmin = user?.role === 'system_admin';
   const isViewer = user?.permissionLevel === 'viewer';
   
@@ -215,9 +215,12 @@ export default function Sidebar() {
     if (isViewer && (item.name === 'Facilities' || item.name === 'Add Facility' || item.name === 'Create Application' || item.name === 'Start Application')) return false;
     // Special logic for Team Management tab
     if (item.name === "Team Management") {
-      // For contractors, only show team management for account owners and managers
+      // For contractors, show team management for account owners, managers, and team members with manager permissions
       if (isContractor) {
-        return user.role === "contractor_individual" || user.role === "contractor_account_owner" || user.role === "contractor_manager";
+        return user.role === "contractor_individual" || 
+               user.role === "contractor_account_owner" || 
+               user.role === "contractor_manager" ||
+               (user.role === "team_member" && user.permissionLevel === "manager");
       }
       // For regular users, show if they are company admin or can invite users
       return user.role === "company_admin" || user.role === "system_admin" || canInviteUsers(user);

@@ -1645,17 +1645,19 @@ export function registerRoutes(app: Express) {
 
       console.log('[CONTRACTOR TEAM] User details:', { role: user.role, permissionLevel: user.permissionLevel, companyId: user.companyId });
 
-      // Check if user is contractor account owner or manager (including team members with manager permissions)
+      // Check if user is contractor account owner or manager (including contractor team members with manager permissions)
       const hasTeamManagementAccess = user.role === 'contractor_individual' || 
                                        user.role === 'contractor_account_owner' || 
                                        user.role === 'contractor_manager' ||
-                                       (user.role === 'team_member' && user.permissionLevel === 'manager');
+                                       (user.role === 'team_member' && user.permissionLevel === 'manager') ||
+                                       (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
       
       console.log('[CONTRACTOR TEAM] Team management access check:', { hasTeamManagementAccess, 
         isContractorIndividual: user.role === 'contractor_individual',
         isContractorAccountOwner: user.role === 'contractor_account_owner', 
         isContractorManager: user.role === 'contractor_manager',
-        isTeamMemberWithManager: user.role === 'team_member' && user.permissionLevel === 'manager'
+        isTeamMemberWithManager: user.role === 'team_member' && user.permissionLevel === 'manager',
+        isContractorTeamMemberWithManager: user.role === 'contractor_team_member' && user.permissionLevel === 'manager'
       });
       
       if (!hasTeamManagementAccess) {
@@ -1685,11 +1687,12 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: "Contractor company not found" });
       }
 
-      // Check if user is contractor account owner or manager (including team members with manager permissions)
+      // Check if user is contractor account owner or manager (including contractor team members with manager permissions)
       const hasTeamManagementAccess = user.role === 'contractor_individual' || 
                                        user.role === 'contractor_account_owner' || 
                                        user.role === 'contractor_manager' ||
-                                       (user.role === 'team_member' && user.permissionLevel === 'manager');
+                                       (user.role === 'team_member' && user.permissionLevel === 'manager') ||
+                                       (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
       
       if (!hasTeamManagementAccess) {
         return res.status(403).json({ message: "Only contractor managers and account owners can view team members" });
@@ -1718,11 +1721,12 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: "Contractor company not found" });
       }
 
-      // Check if user is contractor account owner or manager (including team members with manager permissions)
+      // Check if user is contractor account owner or manager (including contractor team members with manager permissions)
       const hasInvitationAccess = user.role === 'contractor_individual' || 
                                    user.role === 'contractor_account_owner' || 
                                    user.role === 'contractor_manager' ||
-                                   (user.role === 'team_member' && user.permissionLevel === 'manager');
+                                   (user.role === 'team_member' && user.permissionLevel === 'manager') ||
+                                   (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
       
       if (!hasInvitationAccess) {
         return res.status(403).json({ message: "Only contractor managers and account owners can view team invitations" });
@@ -1755,17 +1759,19 @@ export function registerRoutes(app: Express) {
 
       console.log('[INVITE] User details:', { role: user.role, permissionLevel: user.permissionLevel, companyId: user.companyId });
 
-      // Check if user is contractor account owner or manager (including team members with manager permissions)
+      // Check if user is contractor account owner or manager (including contractor team members with manager permissions)
       const hasInviteAccess = user.role === 'contractor_individual' || 
                                user.role === 'contractor_account_owner' || 
                                user.role === 'contractor_manager' ||
-                               (user.role === 'team_member' && user.permissionLevel === 'manager');
+                               (user.role === 'team_member' && user.permissionLevel === 'manager') ||
+                               (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
       
       console.log('[INVITE] Invite access check:', { hasInviteAccess, 
         isContractorIndividual: user.role === 'contractor_individual',
         isContractorAccountOwner: user.role === 'contractor_account_owner', 
         isContractorManager: user.role === 'contractor_manager',
-        isTeamMemberWithManager: user.role === 'team_member' && user.permissionLevel === 'manager'
+        isTeamMemberWithManager: user.role === 'team_member' && user.permissionLevel === 'manager',
+        isContractorTeamMemberWithManager: user.role === 'contractor_team_member' && user.permissionLevel === 'manager'
       });
       
       if (!hasInviteAccess) {
