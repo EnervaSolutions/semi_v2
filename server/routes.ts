@@ -1933,9 +1933,14 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: "Contractor company not found" });
       }
 
-      // Check if user is contractor account owner or manager
-      if (user.role !== 'contractor_individual' && user.role !== 'contractor_account_owner' && user.role !== 'contractor_manager') {
-        return res.status(403).json({ message: "Only contractor managers and account owners can remove team members" });
+      // Check if user is contractor account owner, manager, or team member with manager permissions
+      const hasDeleteAccess = user.role === 'contractor_individual' || 
+                              user.role === 'contractor_account_owner' || 
+                              user.role === 'contractor_manager' ||
+                              (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+
+      if (!hasDeleteAccess) {
+        return res.status(403).json({ message: "Only contractor account owners and managers can remove team members" });
       }
 
       const { userId: targetUserId } = req.body;
@@ -3834,6 +3839,46 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('[CONTRACTOR_INVITE_ACCEPT] Error accepting contractor invitation:', error);
       res.status(500).json({ message: error.message || "Failed to accept contractor invitation" });
+    }
+  });
+
+  // Delete team member endpoint for regular companies
+  app.delete('/api/team/member/:userId', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId: targetUserId } = req.params;
+
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+
+      // Only company_admin or team_member with manager/owner permission can delete
+      if (
+        user.role !== 'company_admin' &&
+        user.role !== 'system_admin' &&
+        !(user.role === 'team_member' && ['manager', 'owner'].includes(user.permissionLevel))
+      ) {
+        return res.status(403).json({ message: "Insufficient permissions to remove team members" });
+      }
+
+      // Prevent removing yourself
+      if (user.id === targetUserId) {
+        return res.status(400).json({ message: "You cannot remove yourself from the team" });
+      }
+
+      // Get target user to verify they're in the same company
+      const targetUser = await dbStorage.getUser(targetUserId);
+      if (!targetUser || targetUser.companyId !== user.companyId) {
+        return res.status(404).json({ message: "Team member not found or not in your company" });
+      }
+
+      // Delete team member
+      await dbStorage.deleteTeamMember(targetUserId);
+
+      res.json({ success: true, message: "Team member removed successfully" });
+    } catch (error: any) {
+      console.error("Error deleting team member:", error);
+      res.status(500).json({ message: error?.message || "Failed to remove team member" });
     }
   });
 

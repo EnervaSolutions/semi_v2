@@ -6381,44 +6381,55 @@ export class DatabaseStorage implements IStorage {
   async deleteTeamMember(userId: string) {
     try {
       // First, handle foreign key constraints by setting references to 'deleted_user' or removing assignments
-      await this.db.execute(sql`
+      await db.execute(sql`
         UPDATE applications SET submitted_by = 'deleted_user' WHERE submitted_by = ${userId}
       `);
       
-      await this.db.execute(sql`
+      await db.execute(sql`
         UPDATE activity_template_submissions SET submitted_by = 'deleted_user' WHERE submitted_by = ${userId}
       `);
       
-      await this.db.execute(sql`
-        DELETE FROM application_assignments WHERE assigned_to_user_id = ${userId}
+      await db.execute(sql`
+        DELETE FROM application_assignments WHERE user_id = ${userId}
       `);
       
-      await this.db.execute(sql`
-        DELETE FROM contractor_company_assignment_history WHERE assigned_to_user_id = ${userId}
+      await db.execute(sql`
+        DELETE FROM company_application_assignments WHERE application_id IN (
+          SELECT id FROM applications WHERE submitted_by = ${userId}
+        )
       `);
       
-      await this.db.execute(sql`
+      await db.execute(sql`
+        DELETE FROM contractor_company_assignment_history WHERE assigned_by = ${userId}
+      `);
+      
+      await db.execute(sql`
         DELETE FROM team_invitations WHERE invited_by_user_id = ${userId}
       `);
       
-      await this.db.execute(sql`
+      await db.execute(sql`
         UPDATE messages SET from_user_id = 'deleted_user' WHERE from_user_id = ${userId}
       `);
       
-      await this.db.execute(sql`
+      await db.execute(sql`
         UPDATE messages SET to_user_id = 'deleted_user' WHERE to_user_id = ${userId}
       `);
       
-      await this.db.execute(sql`
+      await db.execute(sql`
         DELETE FROM notifications WHERE user_id = ${userId}
       `);
       
-      await this.db.execute(sql`
+      await db.execute(sql`
         DELETE FROM documents WHERE uploaded_by = ${userId}
       `);
 
+      // Also delete contractor details if they exist
+      await db.execute(sql`
+        DELETE FROM contractor_details WHERE user_id = ${userId}
+      `);
+
       // Finally, delete the user
-      await this.db.execute(sql`
+      await db.execute(sql`
         DELETE FROM users WHERE id = ${userId}
       `);
 

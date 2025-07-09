@@ -114,7 +114,26 @@ export async function sendContractorTeamInvitationEmail(params: ContractorTeamIn
     customMessage
   } = params;
 
-  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+  // Determine the base URL based on environment
+  let baseUrl = process.env.FRONTEND_URL;
+  
+  if (!baseUrl) {
+    // Auto-detect environment based on Replit environment variables
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      // Replit development environment
+      baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+    } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      // Replit production deployment
+      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    } else if (process.env.NODE_ENV === 'production') {
+      // Generic production environment
+      baseUrl = 'https://your-production-domain.com';
+    } else {
+      // Local development
+      baseUrl = 'http://localhost:5000';
+    }
+  }
+  
   const acceptUrl = `${baseUrl}/accept-contractor-invite/${invitationToken}`;
   
   const permissionDisplayNames: Record<string, string> = {
