@@ -1,11 +1,13 @@
 import { MailService } from '@sendgrid/mail';
 
-if (!process.env.SENDGRID_API_KEY) {
+const isDevelopment = process.env.NODE_ENV === 'development';
+const mailService = new MailService();
+
+if (process.env.SENDGRID_API_KEY) {
+  mailService.setApiKey(process.env.SENDGRID_API_KEY);
+} else if (!isDevelopment) {
   throw new Error("SENDGRID_API_KEY environment variable must be set");
 }
-
-const mailService = new MailService();
-mailService.setApiKey(process.env.SENDGRID_API_KEY);
 
 interface EmailParams {
   to: string;
@@ -17,6 +19,13 @@ interface EmailParams {
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
+    if (!process.env.SENDGRID_API_KEY && isDevelopment) {
+      console.log('Development mode: Email would be sent to:', params.to);
+      console.log('Subject:', params.subject);
+      console.log('Content:', params.text || params.html);
+      return true;
+    }
+    
     await mailService.send({
       to: params.to,
       from: params.from || 'harsanjit.bhullar@enerva.ca',
