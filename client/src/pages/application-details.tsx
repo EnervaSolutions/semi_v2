@@ -1098,8 +1098,8 @@ function TemplateSection({
                 {uploading ? 'Saving...' : 'Save Progress'}
               </Button>
               
-              {/* Submit Button - Only for company admins/managers, not contractors */}
-              {!user?.role?.startsWith('contractor_') && ['company_admin', 'team_member'].includes(user?.role || '') && canSubmit && (
+              {/* Submit Button - Only for company admins/managers/system admins, not contractors */}
+              {!user?.role?.startsWith('contractor_') && ['company_admin', 'team_member', 'system_admin'].includes(user?.role || '') && canSubmit && (
                 <Button type="submit" disabled={uploading}>
                   {uploading ? 'Submitting...' : 'Submit'}
                 </Button>
