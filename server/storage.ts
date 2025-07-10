@@ -5085,11 +5085,11 @@ export class DatabaseStorage implements IStorage {
         .limit(1);
       
       if (application) {
-        // Update application status to "Rejected" for admin visibility and tracking
+        // Update application status to "rejected" for admin visibility and tracking
         await db
           .update(applications)
           .set({
-            status: 'Rejected',
+            status: 'rejected',
             updatedAt: new Date()
           })
           .where(eq(applications.id, submission.applicationId));

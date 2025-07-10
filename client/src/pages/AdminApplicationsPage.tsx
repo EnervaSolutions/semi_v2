@@ -205,7 +205,7 @@ export default function AdminApplicationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Approved</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('Approved')}</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('approved')}</p>
                 </div>
                 <div className="h-5 w-5 bg-green-500 rounded-full"></div>
               </div>
@@ -217,7 +217,7 @@ export default function AdminApplicationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Rejected</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('Rejected')}</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('rejected')}</p>
                 </div>
                 <div className="h-5 w-5 bg-red-500 rounded-full"></div>
               </div>
