@@ -337,6 +337,19 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Password update method - for invitation acceptance and password changes
+  async updateUserPassword(id: string, hashedPassword: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        password: hashedPassword,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
   // Company info update method - for basic company information updates
   async updateCompanyInfo(companyId: number, updates: { name: string; address?: string; phone?: string; website?: string }): Promise<void> {
     await db

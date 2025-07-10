@@ -484,7 +484,15 @@ export function registerRoutes(app: Express) {
       await dbStorage.updateUserPermissions(userId, permissionLevel);
       
       console.log(`[TEAM PERMISSION] Successfully updated user ${userId} permission to ${permissionLevel}`);
-      res.json({ message: "Permission level updated successfully" });
+      
+      // Ensure JSON response with proper headers
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ 
+        success: true,
+        message: "Permission level updated successfully",
+        userId,
+        permissionLevel 
+      });
     } catch (error: any) {
       console.error("Error updating team member permission level:", error);
       res.status(500).json({ message: error.message || "Failed to update permission level" });
@@ -4073,19 +4081,45 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: "Invalid or expired invitation" });
       }
 
-      if (invitation.status !== 'pending') {
-        return res.status(400).json({ message: "This invitation has already been processed" });
+      // Allow password setup for both pending and accepted invitations
+      // Accepted invitations mean the user account exists but may need password setup
+      if (invitation.status !== 'pending' && invitation.status !== 'accepted') {
+        return res.status(400).json({ message: "This invitation is no longer valid" });
       }
+      
+      console.log('[CONTRACTOR_INVITE_ACCEPT] Invitation status:', invitation.status);
 
       // Check if invitation has expired
       if (new Date() > new Date(invitation.expiresAt)) {
         return res.status(400).json({ message: "This invitation has expired" });
       }
 
-      // Check if user already exists
+      // Check if user already exists - if they do, this is password setup
       const existingUser = await dbStorage.getUserByEmail(invitation.email);
       if (existingUser) {
-        return res.status(400).json({ message: "User with this email already exists" });
+        console.log('[CONTRACTOR_INVITE_ACCEPT] User exists, updating password for:', existingUser.id);
+        
+        // Update existing user's password
+        const { hashPassword } = await import('./auth');
+        const hashedPassword = await hashPassword(password);
+        
+        await dbStorage.updateUserPassword(existingUser.id, hashedPassword);
+        
+        console.log('[CONTRACTOR_INVITE_ACCEPT] Password updated for existing user:', existingUser.id);
+        
+        res.json({ 
+          success: true,
+          message: "Password has been set successfully. You can now log in.",
+          user: {
+            id: existingUser.id,
+            email: existingUser.email,
+            firstName: existingUser.firstName,
+            lastName: existingUser.lastName,
+            role: existingUser.role,
+            permissionLevel: existingUser.permissionLevel
+          }
+        });
+        return;
       }
 
       // Hash the password
