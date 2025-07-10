@@ -137,13 +137,17 @@ export function registerRoutes(app: Express) {
       }
 
       if (user.twoFactorEnabled && twoFactorCode) {
+        console.log(`[LOGIN] Verifying 2FA code for user: ${user.id}`);
         const isValidTwoFactor = await dbStorage.verifyTwoFactorCode(user.id, twoFactorCode);
         if (!isValidTwoFactor) {
+          console.log(`[LOGIN] 2FA verification failed for user: ${user.id}`);
           return res.status(401).json({ message: "Invalid two-factor code" });
         }
+        console.log(`[LOGIN] 2FA verification successful for user: ${user.id}`);
       }
 
       // Set session
+      console.log(`[LOGIN] Setting session for user: ${user.id}`);
       (req as any).session.userId = user.id;
       
       // Check if user has a temporary password

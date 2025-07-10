@@ -389,7 +389,7 @@ export default function AuthPage() {
       const res = await apiRequest("/api/auth/login", "POST", {
         email: loginEmail,
         password: loginForm.getValues("password"),
-        twoFactorToken: twoFactorCode
+        twoFactorCode: twoFactorCode
       });
       return await res.json();
     },
