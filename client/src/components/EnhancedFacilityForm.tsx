@@ -337,8 +337,11 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         console.log('[FORM RESET] Calling reset with formData');
         reset(formData);
         
-        // Force form values to be set explicitly for energy management fields
-        console.log('[FORM RESET] Setting explicit values for energy management fields');
+        // Force form values to be set explicitly for critical fields including NAICS
+        console.log('[FORM RESET] Setting explicit values for NAICS and energy management fields');
+        setValue("facilitySector", editingFacility.facilitySector || "");
+        setValue("facilityCategory", editingFacility.facilityCategory || "");
+        setValue("facilityType", editingFacility.facilityType || "");
         setValue("emisRealtimeMonitoring", !!editingFacility.emisRealtimeMonitoring);
         setValue("energyManagerFullTime", !!editingFacility.energyManagerFullTime);
         setValue("hasEMIS", !!editingFacility.hasEMIS);
@@ -348,6 +351,9 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         // Verify values after setting
         setTimeout(() => {
           console.log('[FORM RESET] Values after explicit setValue:', {
+            facilitySector: watch("facilitySector"),
+            facilityCategory: watch("facilityCategory"),
+            facilityType: watch("facilityType"),
             emisRealtimeMonitoring: watch("emisRealtimeMonitoring"),
             energyManagerFullTime: watch("energyManagerFullTime"),
             hasEMIS: watch("hasEMIS"),

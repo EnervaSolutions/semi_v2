@@ -351,6 +351,94 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // ============================================================================ 
+  // COMPANY STATUS MANAGEMENT ENDPOINTS - CRITICAL FOR ADMIN OPERATIONS
+  // ============================================================================
+  
+  // PATCH /api/admin/companies/:id/toggle-status - Toggle company active status
+  app.patch('/api/admin/companies/:id/toggle-status', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (user.role !== 'system_admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const companyId = parseInt(req.params.id);
+      const { isActive } = req.body;
+      
+      console.log(`[ADMIN] Toggling company ${companyId} status to: ${isActive}`);
+      
+      await dbStorage.updateCompanyStatus(companyId, isActive);
+      res.json({ message: "Company status updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating company status:", error);
+      res.status(500).json({ message: error.message || "Failed to update company status" });
+    }
+  });
+
+  // ============================================================================ 
+  // USER MANAGEMENT ENDPOINTS - CRITICAL FOR TEAM OPERATIONS
+  // ============================================================================
+  
+  // PATCH /api/users/:userId/deactivate - Deactivate user account
+  app.patch('/api/users/:userId/deactivate', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      
+      // Permission check: company_admin or system_admin or manager level
+      if (user.role !== 'company_admin' && 
+          user.role !== 'system_admin' && 
+          !(user.role === 'team_member' && ['manager', 'owner'].includes(user.permissionLevel))) {
+        return res.status(403).json({ message: "Insufficient permissions to deactivate users" });
+      }
+      
+      // Prevent deactivating yourself
+      if (user.id === userId) {
+        return res.status(400).json({ message: "You cannot deactivate yourself" });
+      }
+      
+      console.log(`[USER DEACTIVATION] Deactivating user ${userId} by ${user.id}`);
+      
+      await dbStorage.deactivateUser(userId);
+      res.json({ message: "User deactivated successfully" });
+    } catch (error: any) {
+      console.error("Error deactivating user:", error);
+      res.status(500).json({ message: error.message || "Failed to deactivate user" });
+    }
+  });
+
+  // ============================================================================ 
+  // COMPANY INFORMATION PROPAGATION FIX - CRITICAL FOR USER-ADMIN SYNC
+  // ============================================================================
+  
+  // Add missing endpoint for company information updates to propagate to user views
+  app.patch('/api/companies/current/refresh', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+      
+      console.log(`[COMPANY REFRESH] Refreshing company data for user ${user.id}, company ${user.companyId}`);
+      
+      // Get updated company information
+      const company = await dbStorage.getCompanyById(user.companyId);
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      
+      // Return refreshed company data
+      res.json({ 
+        company,
+        message: "Company information refreshed successfully" 
+      });
+    } catch (error: any) {
+      console.error("Error refreshing company information:", error);
+      res.status(500).json({ message: error.message || "Failed to refresh company information" });
+    }
+  });
+
   // ============================================================================
   // CRITICAL ADMIN ENDPOINTS - DO NOT MODIFY WITHOUT CAREFUL CONSIDERATION
   // ============================================================================

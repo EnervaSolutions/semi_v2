@@ -311,13 +311,21 @@ export default function AdminEnhancedFacilityForm({ onSuccess, onCancel, editing
           type: editingFacility.facilityType
         });
         
+        // Set NAICS values multiple times to ensure they stick
         setValue("facilitySector", editingFacility.facilitySector || "");
-        console.log('[ADMIN FORM RESET] Set facilitySector to:', editingFacility.facilitySector, 'current watch value:', watch("facilitySector"));
-        
         setValue("facilityCategory", editingFacility.facilityCategory || "");
-        console.log('[ADMIN FORM RESET] Set facilityCategory to:', editingFacility.facilityCategory, 'current watch value:', watch("facilityCategory"));
-        
         setValue("facilityType", editingFacility.facilityType || "");
+        
+        // Force second setting for NAICS fields
+        setTimeout(() => {
+          setValue("facilitySector", editingFacility.facilitySector || "");
+          setValue("facilityCategory", editingFacility.facilityCategory || "");
+          setValue("facilityType", editingFacility.facilityType || "");
+          console.log('[ADMIN FORM RESET] Second NAICS setValue complete');
+        }, 50);
+        
+        console.log('[ADMIN FORM RESET] Set facilitySector to:', editingFacility.facilitySector, 'current watch value:', watch("facilitySector"));
+        console.log('[ADMIN FORM RESET] Set facilityCategory to:', editingFacility.facilityCategory, 'current watch value:', watch("facilityCategory"));
         console.log('[ADMIN FORM RESET] Set facilityType to:', editingFacility.facilityType, 'current watch value:', watch("facilityType"));
         
         setValue("emisRealtimeMonitoring", !!editingFacility.emisRealtimeMonitoring);

@@ -157,6 +157,7 @@ export interface IStorage {
   // Profile and company update methods
   updateUserProfile(userId: string, updates: { firstName: string; lastName: string }): Promise<User>;
   updateCompanyInfo(companyId: number, updates: { name: string; address?: string; phone?: string; website?: string }): Promise<void>;
+  updateCompanyStatus(companyId: number, isActive: boolean): Promise<void>;
   
   // Password reset methods
   createPasswordResetToken(email: string): Promise<{ token: string; expiry: Date } | null>;
@@ -345,6 +346,17 @@ export class DatabaseStorage implements IStorage {
         address: updates.address || null,
         phone: updates.phone || null,
         website: updates.website || null,
+        updatedAt: new Date()
+      })
+      .where(eq(companies.id, companyId));
+  }
+
+  // Company status update method - for admin company status management
+  async updateCompanyStatus(companyId: number, isActive: boolean): Promise<void> {
+    await db
+      .update(companies)
+      .set({
+        isActive: isActive,
         updatedAt: new Date()
       })
       .where(eq(companies.id, companyId));
