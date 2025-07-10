@@ -4965,27 +4965,26 @@ export class DatabaseStorage implements IStorage {
         const availableTemplates = await this.getActivityTemplates(application.activityType);
         console.log(`[APPROVAL] Found ${availableTemplates.length} available templates for ${application.activityType}`);
         
-        // Get all submitted activities for this application
-        const submittedActivities = await db
+        // Get all approved activities for this application
+        const approvedActivities = await db
           .select()
           .from(activityTemplateSubmissions)
           .where(
             and(
               eq(activityTemplateSubmissions.applicationId, submission.applicationId),
-              eq(activityTemplateSubmissions.status, 'submitted'),
               eq(activityTemplateSubmissions.approvalStatus, 'approved')
             )
           );
         
-        console.log(`[APPROVAL] Application has ${submittedActivities.length} approved submissions out of ${availableTemplates.length} total templates`);
+        console.log(`[APPROVAL] Application has ${approvedActivities.length} approved submissions out of ${availableTemplates.length} total templates`);
         
         // Determine next status based on workflow progression
         let newStatus: string;
         let statusDescription: string;
         
-        if (submittedActivities.length < availableTemplates.length) {
+        if (approvedActivities.length < availableTemplates.length) {
           // More activities available - application can progress to next activity
-          const nextTemplateIndex = submittedActivities.length;
+          const nextTemplateIndex = approvedActivities.length;
           const nextTemplate = availableTemplates[nextTemplateIndex];
           
           if (nextTemplate) {
