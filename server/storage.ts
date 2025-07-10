@@ -2923,19 +2923,8 @@ export class DatabaseStorage implements IStorage {
         console.log('Sending temporary password email...');
         
         try {
-          const { sendEmail } = await import('./sendgrid');
-          
-          // Get the correct base URL for login links
-          let baseUrl = process.env.FRONTEND_URL;
-          if (!baseUrl) {
-            if (process.env.REPLIT_DEV_DOMAIN) {
-              baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
-            } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-              baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
-            } else {
-              baseUrl = 'http://localhost:5000';
-            }
-          }
+          const { sendEmail, getBaseUrl } = await import('./sendgrid');
+          const baseUrl = getBaseUrl();
           
           const loginUrl = `${baseUrl}/auth`;
           console.log(`[ADMIN USER EMAIL] Using login URL: ${loginUrl}`);
