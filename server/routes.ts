@@ -116,8 +116,14 @@ export function registerRoutes(app: Express) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      console.log(`[LOGIN] User found: ${user.id}, role: ${user.role}, passwordLength: ${user.password?.length || 0}`);
+      console.log(`[LOGIN] User found: ${user.id}, role: ${user.role}, isActive: ${user.isActive}, passwordLength: ${user.password?.length || 0}`);
       console.log(`[LOGIN] Stored hash starts with: ${user.password?.substring(0, 15) || 'NULL'}...`);
+      
+      // Check if user account is active
+      if (user.isActive === false) {
+        console.log(`[LOGIN] Login rejected - user account is deactivated: ${email}`);
+        return res.status(403).json({ message: "Your account has been deactivated. Please contact support." });
+      }
       
       const isValidPassword = await dbStorage.verifyPassword(password, user.password || '');
       if (!isValidPassword) {
@@ -436,6 +442,48 @@ export function registerRoutes(app: Express) {
     } catch (error: any) {
       console.error("Error refreshing company information:", error);
       res.status(500).json({ message: error.message || "Failed to refresh company information" });
+    }
+  });
+
+  // ============================================================================ 
+  // TEAM MEMBER PERMISSION MANAGEMENT ENDPOINTS - CRITICAL FIX
+  // ============================================================================
+  
+  // PATCH /api/team/:userId/permission-level - Update team member permission level
+  app.patch('/api/team/:userId/permission-level', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      const { permissionLevel } = req.body;
+      
+      console.log(`[TEAM PERMISSION] Update request from ${user.id} for user ${userId} to ${permissionLevel}`);
+      
+      // Permission check: company_admin or system_admin or manager level
+      if (user.role !== 'company_admin' && 
+          user.role !== 'system_admin' && 
+          !(user.role === 'team_member' && ['manager', 'owner'].includes(user.permissionLevel))) {
+        return res.status(403).json({ message: "Insufficient permissions to update user permissions" });
+      }
+      
+      // Validate permission level
+      const validPermissions = ['viewer', 'editor', 'manager', 'owner'];
+      if (!validPermissions.includes(permissionLevel)) {
+        return res.status(400).json({ message: "Invalid permission level" });
+      }
+      
+      // Prevent changing own permissions (except system admin)
+      if (user.id === userId && user.role !== 'system_admin') {
+        return res.status(400).json({ message: "You cannot change your own permissions" });
+      }
+      
+      // Update user permissions
+      await dbStorage.updateUserPermissions(userId, permissionLevel);
+      
+      console.log(`[TEAM PERMISSION] Successfully updated user ${userId} permission to ${permissionLevel}`);
+      res.json({ message: "Permission level updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating team member permission level:", error);
+      res.status(500).json({ message: error.message || "Failed to update permission level" });
     }
   });
 

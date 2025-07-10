@@ -869,7 +869,7 @@ export function setupAuth(app: Express) {
 
       res.json({
         secret: twoFactorSetup.secret,
-        qrCode: qrCodeDataUrl,
+        qrCodeUrl: qrCodeDataUrl,
         manualEntryKey: twoFactorSetup.manualEntryKey
       });
     } catch (error) {
@@ -951,11 +951,17 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     const user = await storage.getUserById(userId);
-    console.log('Auth middleware - user found:', user?.email, 'role:', user?.role);
+    console.log('Auth middleware - user found:', user?.email, 'role:', user?.role, 'isActive:', user?.isActive);
     
     if (!user) {
       console.log('User not found in database');
       return res.status(401).json({ message: "User not found" });
+    }
+
+    // Check if user account is active
+    if (user.isActive === false) {
+      console.log('Access denied - user account is deactivated:', user.email);
+      return res.status(403).json({ message: "Your account has been deactivated. Please contact support." });
     }
 
     (req as any).user = user;

@@ -90,6 +90,7 @@ export default function SecuritySettings() {
     mutationFn: async (data: TwoFactorData) => {
       const res = await apiRequest("/api/auth/2fa/verify", "POST", {
         token: data.token,
+        secret: setupData?.secret,
       });
       return await res.json();
     },
