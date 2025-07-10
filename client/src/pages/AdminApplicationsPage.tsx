@@ -115,7 +115,7 @@ export default function AdminApplicationsPage() {
 
   // Status badge variants
   const getStatusVariant = (status: string) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case 'submitted': return 'default';
       case 'approved': return 'default';
       case 'rejected': return 'destructive';
@@ -133,7 +133,7 @@ export default function AdminApplicationsPage() {
       application.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.facilityName.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === "all" || application.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || application.status?.toLowerCase() === statusFilter?.toLowerCase();
     const matchesActivity = activityFilter === "all" || application.activityType === activityFilter;
     const matchesCompany = companyFilter === "all" || application.companyName === companyFilter;
     
@@ -175,7 +175,7 @@ export default function AdminApplicationsPage() {
         </div>
 
         {/* Professional Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <Card className="border-gray-200 dark:border-gray-700">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -192,8 +192,20 @@ export default function AdminApplicationsPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Active</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">In Progress</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('in_progress')}</p>
+                </div>
+                <div className="h-5 w-5 bg-blue-500 rounded-full"></div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-gray-200 dark:border-gray-700">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Approved</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('Approved')}</p>
                 </div>
                 <div className="h-5 w-5 bg-green-500 rounded-full"></div>
               </div>
@@ -204,10 +216,10 @@ export default function AdminApplicationsPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Submitted</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('submitted')}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Rejected</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('Rejected')}</p>
                 </div>
-                <div className="h-5 w-5 bg-blue-500 rounded-full"></div>
+                <div className="h-5 w-5 bg-red-500 rounded-full"></div>
               </div>
             </CardContent>
           </Card>

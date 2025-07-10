@@ -5085,41 +5085,17 @@ export class DatabaseStorage implements IStorage {
         .limit(1);
       
       if (application) {
-        // Determine what status to revert to based on current workflow state
-        let revertStatus = 'draft'; // Default fallback
-        
-        // Check if there are any previously approved submissions for this application
-        const approvedSubmissions = await db
-          .select()
-          .from(activityTemplateSubmissions)
-          .where(
-            and(
-              eq(activityTemplateSubmissions.applicationId, submission.applicationId),
-              eq(activityTemplateSubmissions.approvalStatus, 'approved')
-            )
-          );
-        
-        if (approvedSubmissions.length > 0) {
-          // There are approved submissions, so keep the application in progress
-          revertStatus = 'in_progress';
-          console.log(`[REJECTION] Application has ${approvedSubmissions.length} approved submissions - reverting to 'in_progress'`);
-        } else {
-          // No approved submissions yet, revert to draft
-          revertStatus = 'draft';
-          console.log(`[REJECTION] No approved submissions found - reverting to 'draft'`);
-        }
-        
-        // Update application status to reverted status 
+        // Update application status to "Rejected" for admin visibility and tracking
         await db
           .update(applications)
           .set({
-            status: revertStatus,
+            status: 'Rejected',
             updatedAt: new Date()
           })
           .where(eq(applications.id, submission.applicationId));
         
-        console.log(`[REJECTION] Application ${submission.applicationId} reverted to '${revertStatus}' status after rejection`);
-        console.log(`[REJECTION] Submission ${submissionId} reverted to 'draft' status for resubmission`);
+        console.log(`[REJECTION] Application ${submission.applicationId} marked as 'Rejected' status for admin tracking`);
+        console.log(`[REJECTION] Submission ${submissionId} reverted to 'draft' status - user can modify and resubmit`);
       }
     }
     
