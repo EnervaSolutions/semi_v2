@@ -378,8 +378,8 @@ export default function AdminApplicationsPage() {
                         </Badge>
                       </td>
                       <td className="p-4">
-                        <Badge variant={getStatusVariant(application.status)} className="text-xs">
-                          {application.status.replace('_', ' ')}
+                        <Badge variant={getStatusVariant(application.detailedStatus || application.status)} className="text-xs">
+                          {application.detailedStatus || application.status.replace('_', ' ')}
                         </Badge>
                       </td>
                       <td className="p-4">
