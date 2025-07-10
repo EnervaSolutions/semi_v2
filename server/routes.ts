@@ -521,6 +521,64 @@ export function registerRoutes(app: Express) {
   });
 
   // ============================================================================
+  // TEAM ADMIN TRANSFER ENDPOINT - CRITICAL FOR MANAGEMENT FUNCTIONALITY
+  // ============================================================================
+  
+  // PATCH /api/team/transfer-admin - Transfer admin/manager role to another team member
+  app.patch('/api/team/transfer-admin', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { newAdminId } = req.body;
+      
+      console.log(`[TEAM TRANSFER] Admin transfer request from ${user.id} to ${newAdminId}`);
+      
+      // Permission check: only company_admin and system_admin can transfer admin role
+      if (user.role !== 'company_admin' && user.role !== 'system_admin') {
+        return res.status(403).json({ message: "Only company admins can transfer manager role" });
+      }
+      
+      // Validate required fields
+      if (!newAdminId) {
+        return res.status(400).json({ message: "New admin user ID is required" });
+      }
+      
+      // Get target user to verify they exist and are in the same company
+      const targetUser = await dbStorage.getUser(newAdminId);
+      if (!targetUser) {
+        return res.status(404).json({ message: "Target user not found" });
+      }
+      
+      if (targetUser.companyId !== user.companyId) {
+        return res.status(403).json({ message: "Can only transfer admin role to team members in your company" });
+      }
+      
+      // Cannot transfer to yourself
+      if (user.id === newAdminId) {
+        return res.status(400).json({ message: "Cannot transfer admin role to yourself" });
+      }
+      
+      // Update roles: new admin becomes company_admin, current admin becomes team_member with manager permission
+      await dbStorage.updateUserRole(newAdminId, 'company_admin');
+      await dbStorage.updateUserRole(user.id, 'team_member');
+      await dbStorage.updateUserPermissions(user.id, 'manager');
+      
+      console.log(`[TEAM TRANSFER] Successfully transferred admin role from ${user.id} to ${newAdminId}`);
+      
+      // Ensure JSON response with proper headers
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ 
+        success: true,
+        message: "Manager role transferred successfully",
+        newAdminId,
+        previousAdminId: user.id
+      });
+    } catch (error: any) {
+      console.error("Error transferring admin role:", error);
+      res.status(500).json({ message: error.message || "Failed to transfer manager role" });
+    }
+  });
+
+  // ============================================================================
   // CRITICAL ADMIN ENDPOINTS - DO NOT MODIFY WITHOUT CAREFUL CONSIDERATION
   // ============================================================================
   
