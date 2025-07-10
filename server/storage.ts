@@ -6537,6 +6537,40 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  // ========================================
+  // CRITICAL 2FA VERIFICATION METHOD
+  // ========================================
+  // Required for login functionality with 2FA enabled users
+  async verifyTwoFactorCode(userId: string, code: string): Promise<boolean> {
+    try {
+      console.log(`[2FA] Verifying 2FA code for user: ${userId}`);
+      
+      // Get user's 2FA secret
+      const [user] = await db
+        .select({ twoFactorSecret: users.twoFactorSecret })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      
+      if (!user || !user.twoFactorSecret) {
+        console.log(`[2FA] No 2FA secret found for user: ${userId}`);
+        return false;
+      }
+      
+      // Import the verification function from twoFactorAuth.ts
+      const { verifyTwoFactorToken } = await import('./twoFactorAuth');
+      
+      // Verify the code using speakeasy
+      const isValid = verifyTwoFactorToken(code, user.twoFactorSecret);
+      console.log(`[2FA] Verification result for user ${userId}: ${isValid}`);
+      
+      return isValid;
+    } catch (error) {
+      console.error('[2FA] Error verifying two-factor code:', error);
+      return false;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
