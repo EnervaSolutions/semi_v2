@@ -1017,6 +1017,22 @@ export class DatabaseStorage implements IStorage {
       )
       .orderBy(desc(applications.createdAt));
     
+    // Get all application IDs for contractor assignment lookup
+    const appIds = appsWithFacilities.map(app => app.id);
+    
+    // Get assigned contractor company names for each application
+    const contractorAssignments = appIds.length > 0 ? await db
+      .select({
+        applicationId: companyApplicationAssignments.applicationId,
+        contractorCompanyId: companyApplicationAssignments.contractorCompanyId,
+        contractorName: companies.name,
+      })
+      .from(companyApplicationAssignments)
+      .innerJoin(companies, eq(companyApplicationAssignments.contractorCompanyId, companies.id))
+      .where(inArray(companyApplicationAssignments.applicationId, appIds)) : [];
+    
+    console.log(`[COMPANY APPS] Found contractor assignments for ${contractorAssignments.length} application(s)`);
+
     // Get submission data for each application to determine detailed status
     const appsWithSubmissions = await Promise.all(
       appsWithFacilities.map(async (app) => {
@@ -1103,11 +1119,21 @@ export class DatabaseStorage implements IStorage {
           detailedStatus = 'Activities Started';
         }
         
+        // Get assigned contractors for this application
+        const appContractors = contractorAssignments.filter(ca => ca.applicationId === app.id);
+        const assignedContractors = appContractors.map(ca => ({
+          companyId: ca.contractorCompanyId,
+          companyName: ca.contractorName
+        }));
+        
+        console.log(`[COMPANY APPS] Application ${app.applicationId} has ${assignedContractors.length} contractors:`, assignedContractors.map(c => c.companyName));
+        
         return {
           ...app,
           detailedStatus,
           hasPreActivitySubmission: submittedActivities.length > 0,
           hasPostActivitySubmission: false, // Legacy field
+          assignedContractors, // Add contractor data to each application
         };
       })
     );

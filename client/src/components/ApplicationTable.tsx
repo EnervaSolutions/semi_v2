@@ -252,21 +252,49 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
     return 'Not submitted';
   };
 
-  // Helper to display assigned contractors
+  // Helper to display assigned contractors with smart truncation
   const getContractorsDisplay = (application: Application) => {
     const contractors = application.assignedContractors;
     if (!contractors || contractors.length === 0) {
       return <span className="text-gray-400 text-sm">None assigned</span>;
     }
-    // Show all contractor names - handle both string and object formats
+    
+    // Extract contractor names - handle both string and object formats
     const contractorNames = contractors.map(c =>
       typeof c === 'string'
         ? c
         : (c.companyName || c.name || (c.userFirstName && c.userLastName ? c.userFirstName + ' ' + c.userLastName : 'Unknown Contractor'))
     ).filter(name => name && name.trim());
+    
+    if (contractorNames.length === 0) {
+      return <span className="text-gray-400 text-sm">Assigned (Name unavailable)</span>;
+    }
+    
+    // If only one contractor, show full name
+    if (contractorNames.length === 1) {
+      return (
+        <div className="text-sm text-gray-700">
+          {contractorNames[0]}
+        </div>
+      );
+    }
+    
+    // If multiple contractors, show first name with count and expandable popup
     return (
-      <div className="text-sm text-gray-700">
-        {contractorNames.length > 0 ? contractorNames.join(', ') : 'Assigned (Name unavailable)'}
+      <div className="relative group">
+        <div className="text-sm text-gray-700 cursor-pointer hover:text-blue-600">
+          {contractorNames[0]} +{contractorNames.length - 1} more
+        </div>
+        {/* Tooltip popup with all contractor names */}
+        <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap max-w-xs">
+          <div className="space-y-1">
+            {contractorNames.map((name, index) => (
+              <div key={index}>{name}</div>
+            ))}
+          </div>
+          {/* Arrow pointing down */}
+          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+        </div>
       </div>
     );
   };
