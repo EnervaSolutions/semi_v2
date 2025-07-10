@@ -42,7 +42,7 @@ export default function Profile() {
   // Profile update mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: { firstName: string; lastName: string }) => {
-      const res = await apiRequest("PATCH", "/api/auth/profile", data);
+      const res = await apiRequest("/api/auth/profile", "PATCH", data);
       return res.json();
     },
     onSuccess: () => {
@@ -65,7 +65,7 @@ export default function Profile() {
   // Company update mutation
   const updateCompanyMutation = useMutation({
     mutationFn: async (data: { name: string; address: string; phone: string; website: string }) => {
-      const res = await apiRequest("PATCH", "/api/companies/current", data);
+      const res = await apiRequest("/api/companies/current", "PATCH", data);
       return res.json();
     },
     onSuccess: () => {
@@ -119,9 +119,9 @@ export default function Profile() {
   const handleCompanyEdit = () => {
     setCompanyData({
       name: company?.name || "",
-      address: company?.address || "",
-      phone: company?.phone || "",
-      website: company?.website || ""
+      address: getCompanyAddress(company) || "",
+      phone: getCompanyPhone(company) === 'Not Provided' ? "" : getCompanyPhone(company),
+      website: getCompanyWebsite(company) === 'Not Provided' ? "" : getCompanyWebsite(company)
     });
     setIsEditingCompany(true);
   };
@@ -144,10 +144,10 @@ export default function Profile() {
   const handleCompanyCancel = () => {
     setIsEditingCompany(false);
     setCompanyData({
-      name: company?.name || "",
-      address: company?.address || "",
-      phone: company?.phone || "",
-      website: company?.website || ""
+      name: "",
+      address: "",
+      phone: "",
+      website: ""
     });
   };
 

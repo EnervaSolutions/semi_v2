@@ -154,6 +154,10 @@ export interface IStorage {
   getUsersByCompany(companyId: number): Promise<User[]>;
   updateUserRole(userId: string, role: string): Promise<User>;
   
+  // Profile and company update methods
+  updateUserProfile(userId: string, updates: { firstName: string; lastName: string }): Promise<User>;
+  updateCompanyInfo(companyId: number, updates: { name: string; address?: string; phone?: string; website?: string }): Promise<void>;
+  
   // Password reset methods
   createPasswordResetToken(email: string): Promise<{ token: string; expiry: Date } | null>;
   setTemporaryPassword(email: string, tempPassword: string): Promise<void>;
@@ -316,6 +320,34 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  // Profile update method - specifically for user profile information
+  async updateUserProfile(id: string, updates: { firstName: string; lastName: string }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        firstName: updates.firstName,
+        lastName: updates.lastName,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  // Company info update method - for basic company information updates
+  async updateCompanyInfo(companyId: number, updates: { name: string; address?: string; phone?: string; website?: string }): Promise<void> {
+    await db
+      .update(companies)
+      .set({
+        name: updates.name,
+        address: updates.address || null,
+        phone: updates.phone || null,
+        website: updates.website || null,
+        updatedAt: new Date()
+      })
+      .where(eq(companies.id, companyId));
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {

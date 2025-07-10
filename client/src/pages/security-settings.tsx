@@ -65,7 +65,7 @@ export default function SecuritySettings() {
   // Setup 2FA mutation
   const setupMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/auth/2fa/setup");
+      const res = await apiRequest("/api/auth/2fa/setup", "POST");
       return await res.json();
     },
     onSuccess: (data) => {
@@ -88,7 +88,7 @@ export default function SecuritySettings() {
   // Verify 2FA mutation
   const verifyMutation = useMutation({
     mutationFn: async (data: TwoFactorData) => {
-      const res = await apiRequest("POST", "/api/auth/2fa/verify", {
+      const res = await apiRequest("/api/auth/2fa/verify", "POST", {
         token: data.token,
       });
       return await res.json();
@@ -115,7 +115,7 @@ export default function SecuritySettings() {
   // Disable 2FA mutation
   const disableMutation = useMutation({
     mutationFn: async (data: TwoFactorData) => {
-      const res = await apiRequest("POST", "/api/auth/2fa/disable", {
+      const res = await apiRequest("/api/auth/2fa/disable", "POST", {
         token: data.token,
       });
       return await res.json();
@@ -140,12 +140,12 @@ export default function SecuritySettings() {
   // ========================================
   // PASSWORD CHANGE MUTATION
   // ========================================
-  // Calls the /api/auth/reset-password endpoint which uses bcrypt hashing
+  // Calls the /api/auth/change-password endpoint which uses bcrypt hashing
   // This ensures passwords are properly hashed before storage
   const passwordChangeMutation = useMutation({
     mutationFn: async (data: PasswordChangeData) => {
-      const res = await apiRequest("POST", "/api/auth/reset-password", {
-        email: user?.email,
+      const res = await apiRequest("/api/auth/change-password", "POST", {
+        currentPassword: data.currentPassword,
         newPassword: data.newPassword
       });
       return res.json();

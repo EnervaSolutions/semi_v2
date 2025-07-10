@@ -65,8 +65,10 @@ export default function ContractorProfile() {
 
   // Update company info mutation
   const updateCompanyMutation = useMutation({
-    mutationFn: (data: { name: string; phone: string; website: string }) =>
-      apiRequest(`/api/companies/current`, "PATCH", data),
+    mutationFn: async (data: { name: string; phone: string; website: string }) => {
+      const res = await apiRequest("/api/companies/current", "PATCH", data);
+      return res.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contractor/company"] });
       queryClient.invalidateQueries({ queryKey: ["/api/companies/current"] });

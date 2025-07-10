@@ -302,6 +302,56 @@ export function registerRoutes(app: Express) {
   });
 
   // ============================================================================
+  // PROFILE AND COMPANY UPDATE ENDPOINTS - CRITICAL FOR USER SETTINGS
+  // ============================================================================
+  
+  // PATCH /api/auth/profile - Update user profile information  
+  app.patch('/api/auth/profile', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { firstName, lastName } = req.body;
+
+      if (!firstName || !lastName) {
+        return res.status(400).json({ message: "First name and last name are required" });
+      }
+
+      await dbStorage.updateUserProfile(user.id, { firstName, lastName });
+      res.json({ message: "Profile updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // PATCH /api/companies/current - Update current user's company information
+  app.patch('/api/companies/current', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      
+      if (!user.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+
+      // Only company admins can update company information
+      if (user.role !== 'company_admin' && user.role !== 'contractor_individual') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { name, address, phone, website } = req.body;
+
+      if (!name) {
+        return res.status(400).json({ message: "Company name is required" });
+      }
+
+      await dbStorage.updateCompanyInfo(user.companyId, { name, address, phone, website });
+      res.json({ message: "Company information updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating company:", error);
+      res.status(500).json({ message: "Failed to update company information" });
+    }
+  });
+
+  // ============================================================================
   // CRITICAL ADMIN ENDPOINTS - DO NOT MODIFY WITHOUT CAREFUL CONSIDERATION
   // ============================================================================
   
