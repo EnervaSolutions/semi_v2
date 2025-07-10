@@ -4627,8 +4627,9 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("[APPROVALS] Getting ALL submitted applications for approval review...");
       
-      // Get ALL submitted activities across all applications
-      const submissions = await db
+      // Query BOTH submission tables since submissions may be in either table
+      // First, get submissions from applicationSubmissions table
+      const appSubmissions = await db
         .select({
           id: applicationSubmissions.id,
           applicationId: applicationSubmissions.applicationId,
@@ -4638,7 +4639,8 @@ export class DatabaseStorage implements IStorage {
           submittedAt: applicationSubmissions.submittedAt,
           submittedBy: applicationSubmissions.submittedBy,
           createdAt: applicationSubmissions.createdAt,
-          data: applicationSubmissions.data
+          data: applicationSubmissions.data,
+          source: sql`'applicationSubmissions'`.as('source')
         })
         .from(applicationSubmissions)
         .where(
@@ -4649,9 +4651,44 @@ export class DatabaseStorage implements IStorage {
               isNull(applicationSubmissions.approvalStatus)
             )
           )
-        )
-        .orderBy(desc(applicationSubmissions.submittedAt || applicationSubmissions.createdAt))
-        .limit(100); // Increased limit to capture all submitted activities
+        );
+      
+      // Then, get submissions from activityTemplateSubmissions table  
+      const activitySubmissions = await db
+        .select({
+          id: activityTemplateSubmissions.id,
+          applicationId: activityTemplateSubmissions.applicationId,
+          formTemplateId: activityTemplateSubmissions.activityTemplateId,
+          status: activityTemplateSubmissions.status,
+          approvalStatus: activityTemplateSubmissions.approvalStatus,
+          submittedAt: activityTemplateSubmissions.submittedAt,
+          submittedBy: activityTemplateSubmissions.submittedBy,
+          createdAt: activityTemplateSubmissions.createdAt,
+          data: activityTemplateSubmissions.data,
+          source: sql`'activityTemplateSubmissions'`.as('source')
+        })
+        .from(activityTemplateSubmissions)
+        .where(
+          and(
+            eq(activityTemplateSubmissions.status, 'submitted'),
+            or(
+              eq(activityTemplateSubmissions.approvalStatus, 'pending'),
+              isNull(activityTemplateSubmissions.approvalStatus)
+            )
+          )
+        );
+      
+      // Combine both sets of submissions
+      const allSubmissions = [...appSubmissions, ...activitySubmissions];
+      
+      // Sort by submission date and limit
+      const submissions = allSubmissions
+        .sort((a, b) => {
+          const dateA = new Date(a.submittedAt || a.createdAt);
+          const dateB = new Date(b.submittedAt || b.createdAt);
+          return dateB.getTime() - dateA.getTime();
+        })
+        .slice(0, 100);
 
       console.log(`[APPROVALS] Found ${submissions.length} submitted activities for approval review`);
 
@@ -4857,24 +4894,58 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async approveSubmission(submissionId: number, reviewedBy: string, reviewNotes?: string): Promise<ApplicationSubmission> {
+  async approveSubmission(submissionId: number, reviewedBy: string, reviewNotes?: string): Promise<any> {
     console.log(`[APPROVAL] Approving submission ${submissionId} by user ${reviewedBy}`);
     
-    const [submission] = await db
-      .update(applicationSubmissions)
-      .set({
-        approvalStatus: 'approved',
-        reviewedBy,
-        reviewedAt: new Date(),
-        reviewNotes: reviewNotes || 'Approved via admin dashboard',
-        updatedAt: new Date()
-      })
-      .where(eq(applicationSubmissions.id, submissionId))
-      .returning();
+    // Try to update in applicationSubmissions table first
+    let submission = null;
+    try {
+      const [appSubmission] = await db
+        .update(applicationSubmissions)
+        .set({
+          approvalStatus: 'approved',
+          reviewedBy,
+          reviewedAt: new Date(),
+          reviewNotes: reviewNotes || 'Approved via admin dashboard',
+          updatedAt: new Date()
+        })
+        .where(eq(applicationSubmissions.id, submissionId))
+        .returning();
+      
+      if (appSubmission) {
+        submission = appSubmission;
+        console.log(`[APPROVAL] Successfully approved submission ${submissionId} in applicationSubmissions table`);
+      }
+    } catch (err) {
+      console.log(`[APPROVAL] Submission ${submissionId} not found in applicationSubmissions, trying activityTemplateSubmissions...`);
+    }
+    
+    // If not found in applicationSubmissions, try activityTemplateSubmissions
+    if (!submission) {
+      try {
+        const [activitySubmission] = await db
+          .update(activityTemplateSubmissions)
+          .set({
+            approvalStatus: 'approved',
+            reviewedBy,
+            reviewedAt: new Date(),
+            reviewNotes: reviewNotes || 'Approved via admin dashboard',
+            updatedAt: new Date()
+          })
+          .where(eq(activityTemplateSubmissions.id, submissionId))
+          .returning();
+        
+        if (activitySubmission) {
+          submission = activitySubmission;
+          console.log(`[APPROVAL] Successfully approved submission ${submissionId} in activityTemplateSubmissions table`);
+        }
+      } catch (err) {
+        console.error(`[APPROVAL] Error updating submission ${submissionId}:`, err);
+        throw new Error(`Submission ${submissionId} not found in either table`);
+      }
+    }
     
     if (submission) {
-      console.log(`[APPROVAL] Successfully approved submission ${submissionId} for application ${submission.applicationId}`);
-      
       // Update application status to allow progression to next activity
       await db
         .update(applications)
@@ -4890,33 +4961,76 @@ export class DatabaseStorage implements IStorage {
     return submission;
   }
 
-  async rejectSubmission(submissionId: number, reviewedBy: string, reviewNotes: string): Promise<ApplicationSubmission> {
+  async rejectSubmission(submissionId: number, reviewedBy: string, reviewNotes: string): Promise<any> {
     console.log(`[REJECTION] Rejecting submission ${submissionId} by user ${reviewedBy}: ${reviewNotes}`);
     
-    const [submission] = await db
-      .update(applicationSubmissions)
-      .set({
-        approvalStatus: 'rejected',
-        reviewedBy,
-        reviewedAt: new Date(),
-        reviewNotes,
-        updatedAt: new Date()
-      })
-      .where(eq(applicationSubmissions.id, submissionId))
-      .returning();
-    
-    if (submission) {
-      console.log(`[REJECTION] Successfully rejected submission ${submissionId} for application ${submission.applicationId}`);
-      
-      // Update submission status back to draft to allow resubmission
-      await db
+    // Try to update in applicationSubmissions table first
+    let submission = null;
+    try {
+      const [appSubmission] = await db
         .update(applicationSubmissions)
         .set({
-          status: 'draft',
+          approvalStatus: 'rejected',
+          reviewedBy,
+          reviewedAt: new Date(),
+          reviewNotes,
           updatedAt: new Date()
         })
-        .where(eq(applicationSubmissions.id, submissionId));
+        .where(eq(applicationSubmissions.id, submissionId))
+        .returning();
       
+      if (appSubmission) {
+        submission = appSubmission;
+        console.log(`[REJECTION] Successfully rejected submission ${submissionId} in applicationSubmissions table`);
+        
+        // Update submission status back to draft to allow resubmission
+        await db
+          .update(applicationSubmissions)
+          .set({
+            status: 'draft',
+            updatedAt: new Date()
+          })
+          .where(eq(applicationSubmissions.id, submissionId));
+      }
+    } catch (err) {
+      console.log(`[REJECTION] Submission ${submissionId} not found in applicationSubmissions, trying activityTemplateSubmissions...`);
+    }
+    
+    // If not found in applicationSubmissions, try activityTemplateSubmissions
+    if (!submission) {
+      try {
+        const [activitySubmission] = await db
+          .update(activityTemplateSubmissions)
+          .set({
+            approvalStatus: 'rejected',
+            reviewedBy,
+            reviewedAt: new Date(),
+            reviewNotes,
+            updatedAt: new Date()
+          })
+          .where(eq(activityTemplateSubmissions.id, submissionId))
+          .returning();
+        
+        if (activitySubmission) {
+          submission = activitySubmission;
+          console.log(`[REJECTION] Successfully rejected submission ${submissionId} in activityTemplateSubmissions table`);
+          
+          // Update submission status back to draft to allow resubmission
+          await db
+            .update(activityTemplateSubmissions)
+            .set({
+              status: 'draft',
+              updatedAt: new Date()
+            })
+            .where(eq(activityTemplateSubmissions.id, submissionId));
+        }
+      } catch (err) {
+        console.error(`[REJECTION] Error updating submission ${submissionId}:`, err);
+        throw new Error(`Submission ${submissionId} not found in either table`);
+      }
+    }
+    
+    if (submission) {
       // Update application status to indicate need for revision
       await db
         .update(applications)
