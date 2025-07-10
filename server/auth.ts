@@ -65,25 +65,14 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  // Production-ready session configuration with security enhancements
-  const isProduction = process.env.NODE_ENV === 'production';
-  const sessionSecret = process.env.SESSION_SECRET || 'development-only-secret-key';
-
-  if (isProduction && sessionSecret === 'development-only-secret-key') {
-    console.error('[SECURITY WARNING] SESSION_SECRET must be set in production!');
-    process.exit(1);
-  }
-
   const sessionSettings: session.SessionOptions = {
-    secret: sessionSecret,
+    secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
     resave: false,
     saveUninitialized: false,
-    name: 'semi.sid',
     cookie: {
       httpOnly: true,
-      secure: isProduction, // Use secure cookies in production (requires HTTPS)
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: isProduction ? 'strict' : 'lax'
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   };
 

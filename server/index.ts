@@ -47,50 +47,24 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Production-ready static file serving configuration
-  const nodeEnv = process.env.NODE_ENV || 'development';
-  const isReplitDev = process.env.REPLIT_DEV_DOMAIN;
-  const isProduction = nodeEnv === 'production' && !isReplitDev;
-  
-  console.log(`[STATIC] NODE_ENV: ${nodeEnv}`);
-  console.log(`[STATIC] REPLIT_DEV_DOMAIN: ${process.env.REPLIT_DEV_DOMAIN || 'Not set'}`);
-  console.log(`[STATIC] REPL_SLUG: ${process.env.REPL_SLUG || 'Not set'}`);
-  console.log(`[STATIC] Is Replit Dev: ${isReplitDev ? 'Yes' : 'No'}`);
-  console.log(`[STATIC] Is Production: ${isProduction ? 'Yes' : 'No'}`);
-  
-  // Use Vite dev server for Replit development or local development
-  if (nodeEnv === "development" || isReplitDev) {
-    console.log(`[STATIC] Setting up Vite development server`);
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    console.log(`[STATIC] Setting up production static file serving`);
     serveStatic(app);
   }
 
-  // Production-ready server configuration
+  // ALWAYS serve the app on port 5000
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
-  
-  // CRITICAL: Always bind to 0.0.0.0 in production for external access
-  // Only use 127.0.0.1 in Replit development environment
-  const isReplit = process.env.REPLIT_DEV_DOMAIN || process.env.REPL_SLUG;
-  const isProdMode = process.env.NODE_ENV === 'production';
-  
-  let host = "127.0.0.1"; // Default for local development
-  if (isProdMode || process.env.PORT) {
-    host = "0.0.0.0"; // Required for production deployments (Render, etc.)
-  } else if (isReplit) {
-    host = "0.0.0.0"; // Required for Replit environments
-  }
-  
-  console.log(`[SERVER] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[SERVER] Binding to ${host}:${port}`);
-  console.log(`[SERVER] Replit environment: ${isReplit ? 'Yes' : 'No'}`);
-  console.log(`[SERVER] Production mode: ${isProdMode ? 'Yes' : 'No'}`);
-  
+  const host = process.env.PORT ? "0.0.0.0" : "127.0.0.1";
   server.listen({
     port,
     host
   }, () => {
-    log(`serving on port ${port} (host: ${host})`);
+    log(`serving on port ${port}`);
   });
 })();

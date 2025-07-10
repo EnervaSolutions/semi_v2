@@ -2923,8 +2923,19 @@ export class DatabaseStorage implements IStorage {
         console.log('Sending temporary password email...');
         
         try {
-          const { sendEmail, getBaseUrl } = await import('./sendgrid');
-          const baseUrl = getBaseUrl();
+          const { sendEmail } = await import('./sendgrid');
+          
+          // Get the correct base URL for login links
+          let baseUrl = process.env.FRONTEND_URL;
+          if (!baseUrl) {
+            if (process.env.REPLIT_DEV_DOMAIN) {
+              baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+            } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+              baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+            } else {
+              baseUrl = 'http://localhost:5000';
+            }
+          }
           
           const loginUrl = `${baseUrl}/auth`;
           console.log(`[ADMIN USER EMAIL] Using login URL: ${loginUrl}`);
@@ -4616,31 +4627,30 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("[APPROVALS] Getting ALL submitted applications for approval review...");
       
-      // CRITICAL FIX: Query activityTemplateSubmissions table where submissions are actually stored
-      // NOT applicationSubmissions table which is empty/deprecated
+      // Get ALL submitted activities across all applications
       const submissions = await db
         .select({
-          id: activityTemplateSubmissions.id,
-          applicationId: activityTemplateSubmissions.applicationId,
-          activityTemplateId: activityTemplateSubmissions.activityTemplateId,
-          status: activityTemplateSubmissions.status,
-          approvalStatus: activityTemplateSubmissions.approvalStatus,
-          submittedAt: activityTemplateSubmissions.submittedAt,
-          submittedBy: activityTemplateSubmissions.submittedBy,
-          createdAt: activityTemplateSubmissions.createdAt,
-          data: activityTemplateSubmissions.data
+          id: applicationSubmissions.id,
+          applicationId: applicationSubmissions.applicationId,
+          formTemplateId: applicationSubmissions.formTemplateId,
+          status: applicationSubmissions.status,
+          approvalStatus: applicationSubmissions.approvalStatus,
+          submittedAt: applicationSubmissions.submittedAt,
+          submittedBy: applicationSubmissions.submittedBy,
+          createdAt: applicationSubmissions.createdAt,
+          data: applicationSubmissions.data
         })
-        .from(activityTemplateSubmissions)
+        .from(applicationSubmissions)
         .where(
           and(
-            eq(activityTemplateSubmissions.status, 'submitted'),
+            eq(applicationSubmissions.status, 'submitted'),
             or(
-              eq(activityTemplateSubmissions.approvalStatus, 'pending'),
-              isNull(activityTemplateSubmissions.approvalStatus)
+              eq(applicationSubmissions.approvalStatus, 'pending'),
+              isNull(applicationSubmissions.approvalStatus)
             )
           )
         )
-        .orderBy(desc(activityTemplateSubmissions.submittedAt || activityTemplateSubmissions.createdAt))
+        .orderBy(desc(applicationSubmissions.submittedAt || applicationSubmissions.createdAt))
         .limit(100); // Increased limit to capture all submitted activities
 
       console.log(`[APPROVALS] Found ${submissions.length} submitted activities for approval review`);
@@ -4675,19 +4685,14 @@ export class DatabaseStorage implements IStorage {
             submitterUser = submitter[0] || null;
           }
           
-          // Get template information - check form_templates first, then activity_templates
-          if (submission.activityTemplateId) {
-            // Try form_templates first (form builder templates)
-            const formTmpl = await db.select().from(formTemplates).where(eq(formTemplates.id, submission.activityTemplateId)).limit(1);
-            if (formTmpl[0]) {
-              template = {
-                id: formTmpl[0].id,
-                name: formTmpl[0].name,
-                activityType: formTmpl[0].activityType
-              };
-            } else {
-              // Fallback to activity_templates
-              const activityTmpl = await db.select().from(activityTemplates).where(eq(activityTemplates.id, submission.activityTemplateId)).limit(1);
+          // Get template information from form_templates
+          if (submission.formTemplateId) {
+            const tmpl = await db.select().from(formTemplates).where(eq(formTemplates.id, submission.formTemplateId)).limit(1);
+            template = tmpl[0] || null;
+            
+            // If not found in form_templates, try activity_templates
+            if (!template) {
+              const activityTmpl = await db.select().from(activityTemplates).where(eq(activityTemplates.id, submission.formTemplateId)).limit(1);
               if (activityTmpl[0]) {
                 template = {
                   id: activityTmpl[0].id,
@@ -4704,8 +4709,7 @@ export class DatabaseStorage implements IStorage {
         const enrichedSubmission = {
           id: submission.id,
           applicationId: submission.applicationId,
-          formTemplateId: submission.activityTemplateId, // Map for compatibility
-          activityTemplateId: submission.activityTemplateId,
+          formTemplateId: submission.formTemplateId,
           status: submission.status,
           approvalStatus: submission.approvalStatus || 'pending',
           submittedAt: submission.submittedAt,
@@ -4721,7 +4725,7 @@ export class DatabaseStorage implements IStorage {
           applicationId_display: applicationData?.applicationId || `App-${submission.applicationId}`,
           companyName: company?.name || 'Unknown Company',
           facilityName: facility?.name || 'Unknown Facility',
-          templateName: template?.name || `Template ${submission.activityTemplateId}`,
+          templateName: template?.name || `Template ${submission.formTemplateId}`,
           activityType: applicationData?.activityType || template?.activityType || 'Unknown'
         };
 
@@ -4853,12 +4857,11 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async approveSubmission(submissionId: number, reviewedBy: string, reviewNotes?: string): Promise<ActivityTemplateSubmission> {
+  async approveSubmission(submissionId: number, reviewedBy: string, reviewNotes?: string): Promise<ApplicationSubmission> {
     console.log(`[APPROVAL] Approving submission ${submissionId} by user ${reviewedBy}`);
     
-    // CRITICAL FIX: Update activityTemplateSubmissions table, not applicationSubmissions
     const [submission] = await db
-      .update(activityTemplateSubmissions)
+      .update(applicationSubmissions)
       .set({
         approvalStatus: 'approved',
         reviewedBy,
@@ -4866,7 +4869,7 @@ export class DatabaseStorage implements IStorage {
         reviewNotes: reviewNotes || 'Approved via admin dashboard',
         updatedAt: new Date()
       })
-      .where(eq(activityTemplateSubmissions.id, submissionId))
+      .where(eq(applicationSubmissions.id, submissionId))
       .returning();
     
     if (submission) {
@@ -4884,15 +4887,14 @@ export class DatabaseStorage implements IStorage {
       console.log(`[APPROVAL] Updated application ${submission.applicationId} status to 'approved'`);
     }
     
-    return submission as any;
+    return submission;
   }
 
-  async rejectSubmission(submissionId: number, reviewedBy: string, reviewNotes: string): Promise<ActivityTemplateSubmission> {
+  async rejectSubmission(submissionId: number, reviewedBy: string, reviewNotes: string): Promise<ApplicationSubmission> {
     console.log(`[REJECTION] Rejecting submission ${submissionId} by user ${reviewedBy}: ${reviewNotes}`);
     
-    // CRITICAL FIX: Update activityTemplateSubmissions table, not applicationSubmissions
     const [submission] = await db
-      .update(activityTemplateSubmissions)
+      .update(applicationSubmissions)
       .set({
         approvalStatus: 'rejected',
         reviewedBy,
@@ -4900,7 +4902,7 @@ export class DatabaseStorage implements IStorage {
         reviewNotes,
         updatedAt: new Date()
       })
-      .where(eq(activityTemplateSubmissions.id, submissionId))
+      .where(eq(applicationSubmissions.id, submissionId))
       .returning();
     
     if (submission) {
@@ -4908,12 +4910,12 @@ export class DatabaseStorage implements IStorage {
       
       // Update submission status back to draft to allow resubmission
       await db
-        .update(activityTemplateSubmissions)
+        .update(applicationSubmissions)
         .set({
           status: 'draft',
           updatedAt: new Date()
         })
-        .where(eq(activityTemplateSubmissions.id, submissionId));
+        .where(eq(applicationSubmissions.id, submissionId));
       
       // Update application status to indicate need for revision
       await db
@@ -4927,7 +4929,7 @@ export class DatabaseStorage implements IStorage {
       console.log(`[REJECTION] Application ${submission.applicationId} marked for revision - user must update and resubmit`);
     }
     
-    return submission as any;
+    return submission;
   }
 
   async getSubmissionDetails(submissionId: number): Promise<any> {

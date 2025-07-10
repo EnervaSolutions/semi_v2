@@ -9,55 +9,28 @@ import archiver from "archiver";
 import { v4 as uuidv4 } from 'uuid';
 import { canInviteUsers, canEditPermissions, canCreateEdit, hasPermissionLevel } from './permissions';
 
-// Production-ready multer configuration with enhanced security and logging
+// Configure multer for file uploads with proper file path handling
 const multerStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = 'uploads/';
-    // Ensure upload directory exists - CRITICAL for production deployment
+    // Ensure upload directory exists
     if (!fs.existsSync(uploadDir)) {
-      console.log(`[UPLOAD] Creating uploads directory: ${uploadDir}`);
-      fs.mkdirSync(uploadDir, { recursive: true, mode: 0o755 });
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     // Generate unique filename with timestamp and random string
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const extension = path.extname(file.originalname).toLowerCase();
-    const filename = file.fieldname + '-' + uniqueSuffix + extension;
-    console.log(`[UPLOAD] Generated filename: ${filename} for original: ${file.originalname}`);
-    cb(null, filename);
+    const extension = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + extension);
   }
 });
 
 const upload = multer({ 
   storage: multerStorage,
-  fileFilter: (req, file, cb) => {
-    // Production-ready file type validation
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/csv',
-      'text/plain',
-      'image/jpeg',
-      'image/jpg', 
-      'image/png',
-      'image/gif'
-    ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      console.log(`[UPLOAD] Rejected file type: ${file.mimetype} for file: ${file.originalname}`);
-      cb(new Error(`File type ${file.mimetype} not allowed`), false);
-    }
-  },
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit (increased for production)
-    files: 10 // Maximum 10 files per upload
+    fileSize: 10 * 1024 * 1024 // 10MB limit
   }
 });
 
@@ -240,8 +213,19 @@ export function registerRoutes(app: Express) {
       await dbStorage.setTemporaryPassword(email, tempPassword);
 
       // Send email via SendGrid with proper login URL
-      const { sendEmail, getBaseUrl } = await import('./sendgrid');
-      const baseUrl = getBaseUrl();
+      const { sendEmail } = await import('./sendgrid');
+      
+      // Get the correct base URL for login links
+      let baseUrl = process.env.FRONTEND_URL;
+      if (!baseUrl) {
+        if (process.env.REPLIT_DEV_DOMAIN) {
+          baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+        } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+          baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+        } else {
+          baseUrl = 'http://localhost:5000';
+        }
+      }
       
       const loginUrl = `${baseUrl}/auth`;
       console.log(`[FORGOT PASSWORD] Using login URL: ${loginUrl}`);
@@ -2733,15 +2717,10 @@ export function registerRoutes(app: Express) {
       const user = req.user;
       const documentId = parseInt(req.params.id);
       
-      console.log(`[DOWNLOAD] Document download request - ID: ${documentId}, User: ${user.id} (${user.role})`);
-      
       const document = await dbStorage.getDocumentById(documentId);
       if (!document) {
-        console.log(`[DOWNLOAD] Document ${documentId} not found in database`);
         return res.status(404).json({ message: "Document not found" });
       }
-      
-      console.log(`[DOWNLOAD] Document found - Original: ${document.originalName}, FilePath: ${document.filePath}`);
       
       // Check user permissions for document access
       if (document.applicationId) {
@@ -2749,85 +2728,7 @@ export function registerRoutes(app: Express) {
         if (application && user.role !== 'system_admin' && 
             (!user.companyId || application.companyId !== user.companyId) &&
             !user.role?.startsWith('contractor_')) {
-          console.log(`[DOWNLOAD] Access denied for user ${user.id} to document ${documentId}`);
           return res.status(403).json({ message: "Access denied" });
-        }
-      }
-      
-      // Production-ready file path resolution
-      let resolvedFilePath;
-      
-      // Check if filePath is already absolute or relative to current working directory
-      if (path.isAbsolute(document.filePath)) {
-        resolvedFilePath = document.filePath;
-      } else {
-        // For relative paths, ensure they're resolved from the project root
-        resolvedFilePath = path.resolve(process.cwd(), document.filePath);
-      }
-      
-      console.log(`[DOWNLOAD] Attempting to serve file from: ${resolvedFilePath}`);
-      console.log(`[DOWNLOAD] Current working directory: ${process.cwd()}`);
-      console.log(`[DOWNLOAD] File exists check: ${fs.existsSync(resolvedFilePath)}`);
-      
-      if (!fs.existsSync(resolvedFilePath)) {
-        // Try alternative path resolution for production environments
-        const alternativePath = path.resolve(process.cwd(), 'uploads', path.basename(document.filePath));
-        console.log(`[DOWNLOAD] Trying alternative path: ${alternativePath}`);
-        console.log(`[DOWNLOAD] Alternative path exists: ${fs.existsSync(alternativePath)}`);
-        
-        if (fs.existsSync(alternativePath)) {
-          resolvedFilePath = alternativePath;
-        } else {
-          // Try searching for the file by exact filename in uploads directory
-          const filename = document.filename || path.basename(document.filePath);
-          const directUploadPath = path.resolve(process.cwd(), 'uploads', filename);
-          console.log(`[DOWNLOAD] Trying direct filename path: ${directUploadPath}`);
-          
-          if (fs.existsSync(directUploadPath)) {
-            resolvedFilePath = directUploadPath;
-            console.log(`[DOWNLOAD] Found file using direct filename: ${directUploadPath}`);
-          } else {
-            // Final attempt: search for any file with similar name pattern
-            const uploadsDir = path.resolve(process.cwd(), 'uploads');
-            try {
-              const files = fs.readdirSync(uploadsDir);
-              const baseFilename = filename.replace(/^files-\d+-\d+-/, '');
-              const matchingFile = files.find(f => 
-                f === filename || 
-                f.includes(baseFilename) ||
-                (document.originalName && f.includes(document.originalName.replace(/[^a-zA-Z0-9.-]/g, '')))
-              );
-              
-              if (matchingFile) {
-                resolvedFilePath = path.resolve(uploadsDir, matchingFile);
-                console.log(`[DOWNLOAD] Found matching file: ${resolvedFilePath}`);
-              } else {
-                console.log(`[DOWNLOAD] File not found at any path for document ${documentId}`);
-                console.log(`[DOWNLOAD] Available files in uploads:`, files.slice(0, 20));
-                return res.status(404).json({ 
-                  message: "File not found - This file may have been uploaded in a different environment or deleted",
-                  help: "This usually happens when files are uploaded in development but not transferred to production",
-                  debug: {
-                    documentId: documentId,
-                    originalPath: document.filePath,
-                    resolvedPath: resolvedFilePath,
-                    alternativePath: alternativePath,
-                    directPath: directUploadPath,
-                    filename: filename,
-                    originalName: document.originalName,
-                    cwd: process.cwd(),
-                    availableFiles: files.slice(0, 10)
-                  }
-                });
-              }
-            } catch (dirError) {
-              console.error(`[DOWNLOAD] Error reading uploads directory:`, dirError);
-              return res.status(500).json({ 
-                message: "Unable to access uploads directory",
-                error: dirError.message
-              });
-            }
-          }
         }
       }
       
@@ -2835,19 +2736,13 @@ export function registerRoutes(app: Express) {
       res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
       res.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
       
-      console.log(`[DOWNLOAD] Serving file: ${resolvedFilePath} as ${document.originalName}`);
-      
       // Stream the file
-      res.sendFile(resolvedFilePath, (err) => {
-        if (err) {
-          console.error(`[DOWNLOAD] Error serving file ${resolvedFilePath}:`, err);
-          if (!res.headersSent) {
-            res.status(500).json({ message: "Error serving file", error: err.message });
-          }
-        } else {
-          console.log(`[DOWNLOAD] Successfully served file: ${document.originalName}`);
-        }
-      });
+      const filePath = path.resolve(document.filePath);
+      if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+      } else {
+        res.status(404).json({ message: "File not found on disk" });
+      }
     } catch (error: any) {
       console.error('Error downloading document:', error);
       res.status(500).json({ message: 'Error downloading document', error: error.message });
@@ -3409,87 +3304,6 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Admin utility endpoint to check for orphaned documents (database records without files)
-  app.get('/api/admin/orphaned-documents', requireAuth, async (req: any, res: Response) => {
-    try {
-      // Check admin permission
-      if (req.user?.role !== 'system_admin') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      console.log('[ORPHAN CHECK] Starting orphaned documents check...');
-      
-      // Get all documents from database
-      const allDocuments = await dbStorage.getAllDocuments();
-      console.log(`[ORPHAN CHECK] Found ${allDocuments.length} documents in database`);
-      
-      const orphanedDocuments = [];
-      const validDocuments = [];
-      
-      for (const doc of allDocuments) {
-        if (!doc.filePath) {
-          orphanedDocuments.push({
-            ...doc,
-            reason: 'No file path in database'
-          });
-          continue;
-        }
-        
-        // Check multiple possible paths
-        const possiblePaths = [
-          path.resolve(process.cwd(), doc.filePath),
-          path.resolve(process.cwd(), 'uploads', path.basename(doc.filePath)),
-          doc.filename ? path.resolve(process.cwd(), 'uploads', doc.filename) : null
-        ].filter(Boolean);
-        
-        let fileExists = false;
-        let foundPath = null;
-        
-        for (const checkPath of possiblePaths) {
-          if (fs.existsSync(checkPath)) {
-            fileExists = true;
-            foundPath = checkPath;
-            break;
-          }
-        }
-        
-        if (fileExists) {
-          validDocuments.push({
-            ...doc,
-            resolvedPath: foundPath
-          });
-        } else {
-          orphanedDocuments.push({
-            ...doc,
-            reason: 'File not found on disk',
-            checkedPaths: possiblePaths
-          });
-        }
-      }
-      
-      console.log(`[ORPHAN CHECK] Valid documents: ${validDocuments.length}, Orphaned: ${orphanedDocuments.length}`);
-      
-      res.json({
-        total: allDocuments.length,
-        valid: validDocuments.length,
-        orphaned: orphanedDocuments.length,
-        orphanedDocuments: orphanedDocuments.map(doc => ({
-          id: doc.id,
-          originalName: doc.originalName,
-          filePath: doc.filePath,
-          filename: doc.filename,
-          reason: doc.reason,
-          applicationId: doc.applicationId,
-          createdAt: doc.createdAt
-        }))
-      });
-      
-    } catch (error: any) {
-      console.error('[ORPHAN CHECK] Error checking orphaned documents:', error);
-      res.status(500).json({ message: 'Failed to check orphaned documents' });
-    }
-  });
-
   // Admin endpoint to download all documents for a specific activity type as ZIP
   app.get('/api/admin/export/documents/:activityType', requireAuth, async (req: any, res: Response) => {
     try {
@@ -3592,7 +3406,9 @@ export function registerRoutes(app: Express) {
       console.log('[EXPORT] Adding files to archive...');
       let filesAdded = 0;
       for (const doc of allDocuments) {
-        console.log(`[EXPORT] Processing document:`, {
+        const filePath = path.join(process.cwd(), doc.filePath || '');
+        console.log(`[EXPORT] Checking file: ${filePath}`);
+        console.log(`[EXPORT] Document details:`, {
           id: doc.id,
           filename: doc.filename,
           originalName: doc.originalName || doc.original_name,
@@ -3602,49 +3418,22 @@ export function registerRoutes(app: Express) {
           facilityName: doc.facilityName,
           applicationId: doc.applicationId
         });
-
-        if (!doc.filePath) {
-          console.warn(`[EXPORT] Document ${doc.id} has no filePath, skipping`);
-          continue;
-        }
-
-        // Production-ready file path resolution (same logic as download endpoint)
-        let resolvedFilePath;
         
-        if (path.isAbsolute(doc.filePath)) {
-          resolvedFilePath = doc.filePath;
-        } else {
-          // For relative paths, ensure they're resolved from the project root
-          resolvedFilePath = path.resolve(process.cwd(), doc.filePath);
-        }
-        
-        console.log(`[EXPORT] Attempting to locate file at: ${resolvedFilePath}`);
-        
-        if (!fs.existsSync(resolvedFilePath)) {
-          // Try alternative path resolution for production environments
-          const alternativePath = path.resolve(process.cwd(), 'uploads', path.basename(doc.filePath));
-          console.log(`[EXPORT] Trying alternative path: ${alternativePath}`);
+        if (doc.filePath && fs.existsSync(filePath)) {
+          // Create folder structure: Company (SHORTNAME)/Facility/Application/filename
+          const companyFolder = `${doc.companyName} (${doc.companyShortName})`;
+          const facilityFolder = doc.facilityName;
+          const applicationFolder = doc.applicationId;
+          const filename = doc.originalName || doc.original_name || doc.filename;
           
-          if (fs.existsSync(alternativePath)) {
-            resolvedFilePath = alternativePath;
-            console.log(`[EXPORT] Found file at alternative path: ${alternativePath}`);
-          } else {
-            console.warn(`[EXPORT] File not found at any path for document ${doc.id}: ${doc.filePath}`);
-            continue;
-          }
+          const archivePath = `${companyFolder}/${facilityFolder}/${applicationFolder}/${filename}`;
+          
+          console.log(`[EXPORT] Adding file to ZIP: ${archivePath}`);
+          archive.file(filePath, { name: archivePath });
+          filesAdded++;
+        } else {
+          console.warn(`[EXPORT] File not found or path missing: ${filePath} (doc.filePath: ${doc.filePath})`);
         }
-        
-        // Create folder structure: Company (SHORTNAME)/Facility/Application/filename
-        const companyFolder = `${doc.companyName} (${doc.companyShortName})`;
-        const facilityFolder = doc.facilityName;
-        const applicationFolder = doc.applicationId;
-        const filename = doc.originalName || doc.original_name || doc.filename;
-        
-        const archivePath = `${companyFolder}/${facilityFolder}/${applicationFolder}/${filename}`;
-        
-        console.log(`[EXPORT] Adding file to ZIP: ${resolvedFilePath} -> ${archivePath}`);
-        archive.file(resolvedFilePath, { name: archivePath });
-        filesAdded++;
       }
 
       console.log(`[EXPORT] Files added to archive: ${filesAdded}/${allDocuments.length}`);
