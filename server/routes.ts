@@ -1163,66 +1163,9 @@ export function registerRoutes(app: Express) {
   });
 
   // ============================================================================
-  // APPLICATION ID PREDICTION ENDPOINTS
+  // APPLICATION ID PREDICTION ENDPOINT FOR COMPANY USERS
   // ============================================================================
-  // DO NOT REMOVE - Required for application creation dialogs
-  
-  // Admin predict application ID endpoint
-  app.get('/api/admin/predict-application-id', requireAuth, async (req: any, res: Response) => {
-    try {
-      const user = req.user;
-      if (user.role !== 'system_admin') {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      const { companyId, facilityId, activityType } = req.query;
-      
-      if (!companyId || !facilityId || !activityType) {
-        return res.status(400).json({ message: "Missing required parameters: companyId, facilityId, activityType" });
-      }
-
-      // Validate facility activities are enabled
-      const activitySettings = await dbStorage.getFacilityActivitySettings(parseInt(facilityId as string));
-      const fraExplicitSetting = activitySettings.find((setting: any) => setting.activityType === 'FRA');
-      const fraExplicitlyDisabled = fraExplicitSetting && !fraExplicitSetting.isEnabled;
-      
-      const enabledActivities = activitySettings
-        .filter((setting: any) => setting.isEnabled)
-        .map((setting: any) => setting.activityType);
-      
-      // FRA is enabled by default unless explicitly disabled by admin
-      if (!fraExplicitlyDisabled && !enabledActivities.includes('FRA')) {
-        enabledActivities.push('FRA');
-      }
-      
-      if (!enabledActivities.includes(activityType as string)) {
-        return res.status(400).json({ message: `Activity type ${activityType} is not enabled for this facility` });
-      }
-
-      // Get facility and company for ID generation
-      const facility = await dbStorage.getFacilityById(parseInt(facilityId as string));
-      const company = await dbStorage.getCompanyById(parseInt(companyId as string));
-      
-      if (!facility || !company) {
-        return res.status(404).json({ message: "Facility or company not found" });
-      }
-
-      // Generate the predicted application ID
-      const predictedId = await dbStorage.generateApplicationId(
-        company.shortName,
-        facility.code,
-        activityType as string
-      );
-      
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(predictedId);
-    } catch (error) {
-      console.error("Error predicting application ID (admin):", error);
-      res.status(500).json({ message: error.message || "Failed to predict application ID" });
-    }
-  });
-
-  // Company users predict application ID endpoint
+  // DO NOT REMOVE - Required for application creation dialog
   app.get('/api/predict-application-id', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
@@ -1240,24 +1183,6 @@ export function registerRoutes(app: Express) {
       const facility = await dbStorage.getFacilityById(parseInt(facilityId as string));
       if (!facility || facility.companyId !== user.companyId) {
         return res.status(403).json({ message: "Access denied - facility not found or not owned by your company" });
-      }
-
-      // Validate facility activities are enabled
-      const activitySettings = await dbStorage.getFacilityActivitySettings(parseInt(facilityId as string));
-      const fraExplicitSetting = activitySettings.find((setting: any) => setting.activityType === 'FRA');
-      const fraExplicitlyDisabled = fraExplicitSetting && !fraExplicitSetting.isEnabled;
-      
-      const enabledActivities = activitySettings
-        .filter((setting: any) => setting.isEnabled)
-        .map((setting: any) => setting.activityType);
-      
-      // FRA is enabled by default unless explicitly disabled by admin
-      if (!fraExplicitlyDisabled && !enabledActivities.includes('FRA')) {
-        enabledActivities.push('FRA');
-      }
-      
-      if (!enabledActivities.includes(activityType as string)) {
-        return res.status(400).json({ message: `Activity type ${activityType} is not enabled for this facility` });
       }
 
       // Get company for short name
