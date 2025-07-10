@@ -350,13 +350,15 @@ export default function ApplicationDetails() {
   };
 
   // Enhanced permission checking for contractors
-  // const canSubmitApplication = !user?.role?.startsWith('contractor_');
-  // const canEditApplication = user?.role === 'company_admin' || 
-  //                           user?.role === 'team_member' || 
-  //                           user?.role?.startsWith('contractor_');
   const canEditApplication = canCreateEdit(user);
-  // System admins can always submit regardless of permission level
-  const canSubmitApplication = (user?.role === 'system_admin' || canEditApplication) && !user?.role?.startsWith('contractor_');
+  
+  // Company admins and system admins can always submit regardless of permission level
+  // Team members need editor permission or higher
+  const canSubmitApplication = (
+    user?.role === 'company_admin' || 
+    user?.role === 'system_admin' || 
+    canEditApplication
+  ) && !user?.role?.startsWith('contractor_');
 
   // Template-driven status logic
   const getDetailedStatusLabel = () => {
@@ -924,8 +926,8 @@ function TemplateSection({
     }
   };
 
-  // System admins should never be treated as viewers regardless of permission level
-  const isViewer = user?.role !== 'system_admin' && (user?.permissionLevel ?? 'viewer') === 'viewer';
+  // Company admins and system admins should never be treated as viewers regardless of permission level
+  const isViewer = !['company_admin', 'system_admin'].includes(user?.role || '') && (user?.permissionLevel ?? 'viewer') === 'viewer';
   const renderField = (field: any) => {
     // Disable all fields for viewers, or if submitted
     const isDisabled = isViewer || isSubmitted;
