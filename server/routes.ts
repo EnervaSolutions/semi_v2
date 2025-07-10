@@ -2023,6 +2023,104 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // ============================================================================
+  // CONTRACTOR APPLICATION ASSIGNMENT ENDPOINTS - CRITICAL FOR TEAM MANAGEMENT
+  // ============================================================================
+  // DO NOT REMOVE - Required for contractor team member assignment to applications
+
+  // POST /api/contractor/applications/:id/assign - Assign team member to application
+  app.post('/api/contractor/applications/:applicationId/assign', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { applicationId } = req.params;
+      const { userId, permissions } = req.body;
+      
+      console.log(`[CONTRACTOR ASSIGNMENT] Assigning user ${userId} to application ${applicationId} by ${user.id}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_individual' || 
+                                  user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can assign team members" });
+      }
+      
+      // Validate required fields
+      if (!userId || !permissions) {
+        return res.status(400).json({ message: "User ID and permissions are required" });
+      }
+      
+      // Check if application exists and is accessible to this contractor
+      const application = await dbStorage.getApplicationById(parseInt(applicationId));
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // Check if target user is in the same company
+      const targetUser = await dbStorage.getUser(userId);
+      if (!targetUser || targetUser.companyId !== user.companyId) {
+        return res.status(403).json({ message: "Can only assign team members from your company" });
+      }
+      
+      // Create team assignment record
+      await dbStorage.assignUserToApplication(parseInt(applicationId), userId, permissions, user.id);
+      
+      console.log(`[CONTRACTOR ASSIGNMENT] Successfully assigned user ${userId} to application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Team member assigned to application successfully",
+        applicationId: parseInt(applicationId),
+        userId,
+        permissions
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR ASSIGNMENT] Error assigning team member to application:", error);
+      res.status(500).json({ message: error.message || "Failed to assign team member to application" });
+    }
+  });
+
+  // POST /api/contractor/applications/:id/unassign - Remove team member from application
+  app.post('/api/contractor/applications/:applicationId/unassign', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { applicationId } = req.params;
+      const { userId } = req.body;
+      
+      console.log(`[CONTRACTOR UNASSIGNMENT] Removing user ${userId} from application ${applicationId} by ${user.id}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_individual' || 
+                                  user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can remove team member assignments" });
+      }
+      
+      // Validate required fields
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Remove team assignment record
+      await dbStorage.removeUserFromApplication(parseInt(applicationId), userId);
+      
+      console.log(`[CONTRACTOR UNASSIGNMENT] Successfully removed user ${userId} from application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Team member removed from application successfully",
+        applicationId: parseInt(applicationId),
+        userId
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR UNASSIGNMENT] Error removing team member from application:", error);
+      res.status(500).json({ message: error.message || "Failed to remove team member from application" });
+    }
+  });
+
   // Get pending team invitations
   app.get('/api/contractor/team-invitations', requireAuth, async (req: any, res: Response) => {
     try {
@@ -4251,45 +4349,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Add after POST /api/team/invite endpoint:
-  app.patch('/api/team/:userId/permission-level', requireAuth, async (req: any, res: Response) => {
-    try {
-      const user = req.user;
-      const { userId } = req.params;
-      const { permissionLevel } = req.body;
 
-      // Only company_admin or team_member with manager/owner permission can update
-      if (
-        user.role !== 'company_admin' &&
-        user.role !== 'system_admin' &&
-        !(user.role === 'team_member' && ['manager', 'owner'].includes(user.permissionLevel))
-      ) {
-        return res.status(403).json({ message: "Insufficient permissions to update team member permissions" });
-      }
-
-      // Prevent updating own permissionLevel
-      if (user.id === userId) {
-        return res.status(400).json({ message: "You cannot change your own permission level." });
-      }
-
-      // Only allow valid permission levels
-      if (!['viewer', 'editor', 'manager', 'owner'].includes(permissionLevel)) {
-        return res.status(400).json({ message: "Invalid permission level." });
-      }
-
-      // Prevent demoting an owner unless system_admin or company_admin
-      const targetUser = await dbStorage.getUser(userId);
-      if (targetUser && targetUser.permissionLevel === 'owner' && user.role !== 'company_admin' && user.role !== 'system_admin') {
-        return res.status(403).json({ message: "Only company admin or system admin can change owner permissions." });
-      }
-
-      await dbStorage.updateUserPermissions(userId, permissionLevel);
-      res.json({ success: true });
-    } catch (error: any) {
-      console.error("Error updating team member permission level:", error, error?.stack);
-      res.status(500).json({ message: error?.message || "Failed to update team member permission level.", details: error?.stack });
-    }
-  });
 
   // Dashboard stats endpoint for company users
   app.get('/api/dashboard/stats', requireAuth, async (req: any, res: Response) => {

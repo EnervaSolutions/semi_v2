@@ -199,6 +199,10 @@ export interface IStorage {
   assignContractorToApplication(applicationId: number, contractorCompanyId: number, assignedBy: string): Promise<void>;
   removeApplicationContractorAssignments(applicationId: number): Promise<void>;
   
+  // Team member application assignment operations
+  assignUserToApplication(applicationId: number, userId: string, permissions: string[], assignedBy: string): Promise<void>;
+  removeUserFromApplication(applicationId: number, userId: string): Promise<void>;
+  
   // Company helper functions
   generateShortName(companyName: string): Promise<string>;
   
@@ -3517,6 +3521,86 @@ export class DatabaseStorage implements IStorage {
       console.log(`[CONTRACTOR ASSIGNMENT] Successfully assigned contractor company ${contractorCompanyId} to application ${applicationId} with historical tracking`);
     } catch (error) {
       console.error('[CONTRACTOR ASSIGNMENT] Error assigning contractor to application:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // CONTRACTOR TEAM MEMBER APPLICATION ASSIGNMENT METHODS - CRITICAL
+  // ============================================================================
+  // DO NOT REMOVE - Required for contractor team member assignment to applications
+
+  async assignUserToApplication(applicationId: number, userId: string, permissions: string[], assignedBy: string): Promise<void> {
+    try {
+      console.log(`[USER APPLICATION ASSIGNMENT] Assigning user ${userId} to application ${applicationId} with permissions: ${permissions.join(', ')}`);
+      
+      // Check if assignment already exists
+      const existingAssignment = await db
+        .select()
+        .from(applicationAssignments)
+        .where(
+          and(
+            eq(applicationAssignments.applicationId, applicationId),
+            eq(applicationAssignments.userId, userId)
+          )
+        );
+      
+      if (existingAssignment.length > 0) {
+        // Update existing assignment
+        await db
+          .update(applicationAssignments)
+          .set({
+            permissions: permissions,
+            assignedBy,
+            assignedAt: new Date(),
+            isActive: true
+          })
+          .where(
+            and(
+              eq(applicationAssignments.applicationId, applicationId),
+              eq(applicationAssignments.userId, userId)
+            )
+          );
+        console.log(`[USER APPLICATION ASSIGNMENT] Updated existing assignment for user ${userId} to application ${applicationId}`);
+      } else {
+        // Create new assignment
+        await db.insert(applicationAssignments).values({
+          applicationId,
+          userId,
+          permissions,
+          assignedBy,
+          assignedAt: new Date(),
+          isActive: true
+        });
+        console.log(`[USER APPLICATION ASSIGNMENT] Created new assignment for user ${userId} to application ${applicationId}`);
+      }
+    } catch (error) {
+      console.error('[USER APPLICATION ASSIGNMENT] Error assigning user to application:', error);
+      throw error;
+    }
+  }
+
+  async removeUserFromApplication(applicationId: number, userId: string): Promise<void> {
+    try {
+      console.log(`[USER APPLICATION REMOVAL] Removing user ${userId} from application ${applicationId}`);
+      
+      // Set assignment as inactive instead of deleting (preserves history)
+      await db
+        .update(applicationAssignments)
+        .set({
+          isActive: false,
+          removedAt: new Date()
+        })
+        .where(
+          and(
+            eq(applicationAssignments.applicationId, applicationId),
+            eq(applicationAssignments.userId, userId)
+          )
+        );
+      
+      console.log(`[USER APPLICATION REMOVAL] Successfully removed user ${userId} from application ${applicationId}`);
+    } catch (error) {
+      console.error('[USER APPLICATION REMOVAL] Error removing user from application:', error);
       throw error;
     }
   }
