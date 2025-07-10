@@ -4998,10 +4998,10 @@ export class DatabaseStorage implements IStorage {
             console.log(`[APPROVAL] Application continues in progress`);
           }
         } else {
-          // All activities completed and approved - use "Approved" status as requested
-          newStatus = 'Approved';
+          // All activities completed and approved - use lowercase "approved" status to match database enum
+          newStatus = 'approved';
           statusDescription = 'All Activities Approved';
-          console.log(`[APPROVAL] All activities completed - Application marked as 'Approved'`);
+          console.log(`[APPROVAL] All activities completed - Application marked as 'approved'`);
         }
         
         // Update application with new workflow status
