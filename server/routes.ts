@@ -4006,38 +4006,14 @@ export function registerRoutes(app: Express) {
       // Find invitation
       const invitation = await dbStorage.getTeamInvitation(token);
       console.log('[INVITE_ACCEPT_DEBUG] Invitation:', invitation);
-      if (!invitation) {
-        console.log('[INVITE_ACCEPT_DEBUG] Invitation not found');
+      if (!invitation || invitation.status !== 'pending') {
+        console.log('[INVITE_ACCEPT_DEBUG] Invalid or expired invitation');
         return res.status(400).json({ message: 'Invalid or expired invitation.' });
       }
-
-      // Allow password setup for both pending and accepted invitations
-      // Accepted invitations mean the user account exists but may need password setup
-      if (invitation.status !== 'pending' && invitation.status !== 'accepted') {
-        console.log('[INVITE_ACCEPT_DEBUG] Invalid invitation status:', invitation.status);
-        return res.status(400).json({ message: 'This invitation is no longer valid.' });
-      }
-
       // Check if user already exists
       const existingUser = await dbStorage.getUserByEmail(invitation.email);
       console.log('[INVITE_ACCEPT_DEBUG] Existing user:', existingUser);
-      
-      // If user exists and invitation is accepted, update password instead of creating new user
-      if (existingUser && invitation.status === 'accepted') {
-        console.log('[INVITE_ACCEPT_DEBUG] Updating password for existing user');
-        const { hashPassword } = await import('./auth');
-        const hashedPassword = await hashPassword(password);
-        
-        // Update user password using the new method
-        await dbStorage.updateUserPassword(existingUser.id, hashedPassword);
-        console.log('[INVITE_ACCEPT_DEBUG] Password updated successfully');
-        
-        res.json({ success: true });
-        return;
-      }
-      
-      // If user exists and invitation is pending, it's an error
-      if (existingUser && invitation.status === 'pending') {
+      if (existingUser) {
         console.log('[INVITE_ACCEPT_DEBUG] User with this email already exists');
         return res.status(400).json({ message: 'User with this email already exists.' });
       }
