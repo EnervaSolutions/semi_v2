@@ -2235,6 +2235,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateActivityTemplateSubmission(id: number, updates: Partial<InsertActivityTemplateSubmission>): Promise<ActivityTemplateSubmission> {
+    // If this is a resubmission (status changing to 'submitted'), reset approval status to 'pending'
+    if (updates.status === 'submitted') {
+      console.log(`[RESUBMISSION] Submission ${id} being resubmitted - resetting approval status to 'pending'`);
+      updates.approvalStatus = 'pending';
+      updates.reviewedBy = null;
+      updates.reviewedAt = null;
+      updates.reviewNotes = null;
+    }
+    
     const [updated] = await db
       .update(activityTemplateSubmissions)
       .set({ ...updates, updatedAt: new Date() })
@@ -4628,7 +4637,7 @@ export class DatabaseStorage implements IStorage {
       console.log("[APPROVALS] Getting ALL submissions for approval review (pending, approved, rejected)...");
       
       // Query BOTH submission tables to get ALL submissions for admin filtering
-      // First, get submissions from applicationSubmissions table
+      // First, get submissions from applicationSubmissions table (submitted OR previously reviewed)
       const appSubmissions = await db
         .select({
           id: applicationSubmissions.id,
@@ -4646,9 +4655,12 @@ export class DatabaseStorage implements IStorage {
           source: sql`'applicationSubmissions'`.as('source')
         })
         .from(applicationSubmissions)
-        .where(eq(applicationSubmissions.status, 'submitted'));
+        .where(or(
+          eq(applicationSubmissions.status, 'submitted'),
+          isNotNull(applicationSubmissions.approvalStatus)
+        ));
       
-      // Then, get submissions from activityTemplateSubmissions table  
+      // Then, get submissions from activityTemplateSubmissions table (submitted OR previously reviewed)
       const activitySubmissions = await db
         .select({
           id: activityTemplateSubmissions.id,
@@ -4666,7 +4678,10 @@ export class DatabaseStorage implements IStorage {
           source: sql`'activityTemplateSubmissions'`.as('source')
         })
         .from(activityTemplateSubmissions)
-        .where(eq(activityTemplateSubmissions.status, 'submitted'));
+        .where(or(
+          eq(activityTemplateSubmissions.status, 'submitted'),
+          isNotNull(activityTemplateSubmissions.approvalStatus)
+        ));
       
       // Combine both sets of submissions
       const allSubmissions = [...appSubmissions, ...activitySubmissions];
