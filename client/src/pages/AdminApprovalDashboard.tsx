@@ -277,11 +277,11 @@ export default function AdminApprovalDashboard() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setLocation(`/admin/submissions/${submission.id}/review`)}
+                      onClick={() => setLocation(`/application/${submission.applicationData?.applicationId || submission.applicationId}`)}
                       className="w-full"
                     >
                       <Eye className="h-4 w-4 mr-2" />
-                      Review
+                      View Application
                     </Button>
                     
                     {submission.approvalStatus === 'pending' && (
@@ -387,10 +387,10 @@ export default function AdminApprovalDashboard() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => setLocation(`/admin/submissions/${submission.id}/review`)}
+                        onClick={() => setLocation(`/application/${submission.applicationData?.applicationId || submission.applicationId}`)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
-                        Review
+                        View Application
                       </Button>
                       
                       {submission.approvalStatus === 'pending' && (

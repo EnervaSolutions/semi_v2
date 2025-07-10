@@ -4780,11 +4780,11 @@ export class DatabaseStorage implements IStorage {
   // Get detailed submission information for comprehensive review
   async getSubmissionDetails(submissionId: number): Promise<any> {
     try {
-      // Get the submission
+      // Get the submission from activityTemplateSubmissions table
       const [submission] = await db
         .select()
-        .from(applicationSubmissions)
-        .where(eq(applicationSubmissions.id, submissionId))
+        .from(activityTemplateSubmissions)
+        .where(eq(activityTemplateSubmissions.id, submissionId))
         .limit(1);
 
       if (!submission) return null;
@@ -4793,7 +4793,7 @@ export class DatabaseStorage implements IStorage {
       const [application] = await db
         .select()
         .from(applications)
-        .where(eq(applications.id, parseInt(submission.applicationId)))
+        .where(eq(applications.id, submission.applicationId))
         .limit(1);
 
       if (!application) return null;
@@ -4847,7 +4847,7 @@ export class DatabaseStorage implements IStorage {
       const applicationDocuments = await db
         .select()
         .from(documents)
-        .where(eq(documents.applicationId, parseInt(submission.applicationId)))
+        .where(eq(documents.applicationId, submission.applicationId))
         .orderBy(desc(documents.createdAt));
 
       // Get contractor assignments if any
@@ -4866,7 +4866,7 @@ export class DatabaseStorage implements IStorage {
         })
         .from(applicationAssignments)
         .innerJoin(users, eq(applicationAssignments.userId, users.id))
-        .where(eq(applicationAssignments.applicationId, parseInt(submission.applicationId)));
+        .where(eq(applicationAssignments.applicationId, submission.applicationId));
 
       // Get all team members for the company
       const teamMembers = await db
