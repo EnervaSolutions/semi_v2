@@ -1051,47 +1051,7 @@ export class DatabaseStorage implements IStorage {
       })
     );
     
-    // Add contractor assignments to each application
-    const applicationIds = appsWithSubmissions.map(app => app.id);
-    console.log(`[COMPANY APPS] Fetching contractor assignments for ${applicationIds.length} applications`);
-    
-    let contractorAssignments = [];
-    if (applicationIds.length > 0) {
-      contractorAssignments = await db
-        .select({
-          applicationId: applicationAssignments.applicationId,
-          contractorCompanyId: applicationAssignments.contractorCompanyId,
-          companyName: companies.name,
-          companyShortName: companies.shortName,
-          assignedDate: applicationAssignments.createdAt
-        })
-        .from(applicationAssignments)
-        .leftJoin(companies, eq(applicationAssignments.contractorCompanyId, companies.id))
-        .where(inArray(applicationAssignments.applicationId, applicationIds));
-    }
-
-    // Group contractors by application ID
-    const contractorMap = new Map<number, any[]>();
-    contractorAssignments.forEach(assignment => {
-      if (!contractorMap.has(assignment.applicationId)) {
-        contractorMap.set(assignment.applicationId, []);
-      }
-      contractorMap.get(assignment.applicationId)!.push({
-        companyId: assignment.contractorCompanyId,
-        companyName: assignment.companyName,
-        companyShortName: assignment.companyShortName,
-        assignedDate: assignment.assignedDate
-      });
-    });
-
-    // Add assignedContractors to each application
-    const appsWithContractors = appsWithSubmissions.map(app => ({
-      ...app,
-      assignedContractors: contractorMap.get(app.id) || []
-    }));
-
-    console.log(`[COMPANY APPS] Returning ${appsWithContractors.length} applications for company ${companyId} with contractor data`);
-    return appsWithContractors;
+    return appsWithSubmissions;
   }
 
   async getAllApplications(): Promise<any[]> {

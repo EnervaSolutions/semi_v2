@@ -816,23 +816,6 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "Missing required fields: companyId, facilityId, activityType" });
       }
       
-      // Check if activity is enabled for this facility
-      const activitySettings = await dbStorage.getFacilityActivitySettings(parseInt(facilityId));
-      const activitySetting = activitySettings.find((setting: any) => setting.activityType === activityType);
-      
-      // FRA is enabled by default unless explicitly disabled
-      const isActivityEnabled = activityType === 'FRA' ? 
-        (!activitySetting || activitySetting.isEnabled) : 
-        (activitySetting && activitySetting.isEnabled);
-      
-      if (!isActivityEnabled) {
-        return res.status(400).json({ 
-          message: `The ${activityType} activity is currently disabled for this facility. Please enable it in facility activities settings.` 
-        });
-      }
-      
-      console.log(`[ADMIN APP CREATE] Activity ${activityType} is enabled for facility ${facilityId}`);
-      
       // Create application using the admin storage method
       const application = await dbStorage.createAdminApplication({
         companyId: parseInt(companyId),
@@ -1126,23 +1109,6 @@ export function registerRoutes(app: Express) {
       if (!facility || facility.companyId !== user.companyId) {
         return res.status(403).json({ message: "Access denied - facility not found or not owned by your company" });
       }
-      
-      // Check if activity is enabled for this facility
-      const activitySettings = await dbStorage.getFacilityActivitySettings(parseInt(facilityId));
-      const activitySetting = activitySettings.find((setting: any) => setting.activityType === activityType);
-      
-      // FRA is enabled by default unless explicitly disabled
-      const isActivityEnabled = activityType === 'FRA' ? 
-        (!activitySetting || activitySetting.isEnabled) : 
-        (activitySetting && activitySetting.isEnabled);
-      
-      if (!isActivityEnabled) {
-        return res.status(400).json({ 
-          message: `The ${activityType} activity is currently disabled for this facility. Please contact your administrator to enable it.` 
-        });
-      }
-      
-      console.log(`[COMPANY APP CREATE] Activity ${activityType} is enabled for facility ${facilityId}`);
       
       // Create application for the user's company
       const application = await dbStorage.createAdminApplication({
