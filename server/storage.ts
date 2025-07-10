@@ -4625,9 +4625,9 @@ export class DatabaseStorage implements IStorage {
   // Approval system methods
   async getPendingSubmissions(): Promise<any[]> {
     try {
-      console.log("Getting pending submissions with minimal complexity...");
+      console.log("[APPROVALS] Getting ALL submitted applications for approval review...");
       
-      // Simple query first - just get basic submission data
+      // Get ALL submitted activities across all applications
       const submissions = await db
         .select({
           id: applicationSubmissions.id,
@@ -4641,25 +4641,31 @@ export class DatabaseStorage implements IStorage {
           data: applicationSubmissions.data
         })
         .from(applicationSubmissions)
-        .where(eq(applicationSubmissions.status, 'submitted'))
-        .orderBy(desc(applicationSubmissions.createdAt))
-        .limit(20);
+        .where(
+          and(
+            eq(applicationSubmissions.status, 'submitted'),
+            or(
+              eq(applicationSubmissions.approvalStatus, 'pending'),
+              isNull(applicationSubmissions.approvalStatus)
+            )
+          )
+        )
+        .orderBy(desc(applicationSubmissions.submittedAt || applicationSubmissions.createdAt))
+        .limit(100); // Increased limit to capture all submitted activities
 
-      console.log("Found submissions:", submissions.length);
+      console.log(`[APPROVALS] Found ${submissions.length} submitted activities for approval review`);
 
-      // Return basic data first to get system working
+      // Enhanced enrichment for approval dashboard
       const enrichedSubmissions = [];
-      for (let i = 0; i < Math.min(submissions.length, 50); i++) {
-        const submission = submissions[i];
-        
-        // Get just essential related data
+      for (const submission of submissions) {
         let applicationData = null;
         let company = null;
         let facility = null;
         let template = null;
+        let submitterUser = null;
         
         try {
-          // Get application
+          // Get application with full details
           const app = await db.select().from(applications).where(eq(applications.id, submission.applicationId)).limit(1);
           applicationData = app[0] || null;
           
@@ -4673,16 +4679,34 @@ export class DatabaseStorage implements IStorage {
             facility = fac[0] || null;
           }
           
-          // Get template
+          // Get submitter information
+          if (submission.submittedBy) {
+            const submitter = await db.select().from(users).where(eq(users.id, submission.submittedBy)).limit(1);
+            submitterUser = submitter[0] || null;
+          }
+          
+          // Get template information from form_templates
           if (submission.formTemplateId) {
             const tmpl = await db.select().from(formTemplates).where(eq(formTemplates.id, submission.formTemplateId)).limit(1);
             template = tmpl[0] || null;
+            
+            // If not found in form_templates, try activity_templates
+            if (!template) {
+              const activityTmpl = await db.select().from(activityTemplates).where(eq(activityTemplates.id, submission.formTemplateId)).limit(1);
+              if (activityTmpl[0]) {
+                template = {
+                  id: activityTmpl[0].id,
+                  name: activityTmpl[0].templateName,
+                  activityType: activityTmpl[0].activityType
+                };
+              }
+            }
           }
         } catch (err: any) {
-          console.log("Error enriching submission", submission.id, ":", err?.message || err);
+          console.log(`[APPROVALS] Error enriching submission ${submission.id}:`, err?.message || err);
         }
 
-        enrichedSubmissions.push({
+        const enrichedSubmission = {
           id: submission.id,
           applicationId: submission.applicationId,
           formTemplateId: submission.formTemplateId,
@@ -4696,8 +4720,16 @@ export class DatabaseStorage implements IStorage {
           company: company,
           facility: facility,
           template: template,
-          contractorAssignments: [] // Will add later once basic system works
-        });
+          submitterUser: submitterUser,
+          // Additional fields for approval dashboard
+          applicationId_display: applicationData?.applicationId || `App-${submission.applicationId}`,
+          companyName: company?.name || 'Unknown Company',
+          facilityName: facility?.name || 'Unknown Facility',
+          templateName: template?.name || `Template ${submission.formTemplateId}`,
+          activityType: applicationData?.activityType || template?.activityType || 'Unknown'
+        };
+
+        enrichedSubmissions.push(enrichedSubmission);
       }
 
       console.log("Returning", enrichedSubmissions.length, "enriched submissions");
@@ -4826,21 +4858,41 @@ export class DatabaseStorage implements IStorage {
   }
 
   async approveSubmission(submissionId: number, reviewedBy: string, reviewNotes?: string): Promise<ApplicationSubmission> {
+    console.log(`[APPROVAL] Approving submission ${submissionId} by user ${reviewedBy}`);
+    
     const [submission] = await db
       .update(applicationSubmissions)
       .set({
         approvalStatus: 'approved',
         reviewedBy,
         reviewedAt: new Date(),
-        reviewNotes,
+        reviewNotes: reviewNotes || 'Approved via admin dashboard',
         updatedAt: new Date()
       })
       .where(eq(applicationSubmissions.id, submissionId))
       .returning();
+    
+    if (submission) {
+      console.log(`[APPROVAL] Successfully approved submission ${submissionId} for application ${submission.applicationId}`);
+      
+      // Update application status to allow progression to next activity
+      await db
+        .update(applications)
+        .set({
+          status: 'approved',
+          updatedAt: new Date()
+        })
+        .where(eq(applications.id, submission.applicationId));
+      
+      console.log(`[APPROVAL] Updated application ${submission.applicationId} status to 'approved'`);
+    }
+    
     return submission;
   }
 
   async rejectSubmission(submissionId: number, reviewedBy: string, reviewNotes: string): Promise<ApplicationSubmission> {
+    console.log(`[REJECTION] Rejecting submission ${submissionId} by user ${reviewedBy}: ${reviewNotes}`);
+    
     const [submission] = await db
       .update(applicationSubmissions)
       .set({
@@ -4852,6 +4904,31 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(applicationSubmissions.id, submissionId))
       .returning();
+    
+    if (submission) {
+      console.log(`[REJECTION] Successfully rejected submission ${submissionId} for application ${submission.applicationId}`);
+      
+      // Update submission status back to draft to allow resubmission
+      await db
+        .update(applicationSubmissions)
+        .set({
+          status: 'draft',
+          updatedAt: new Date()
+        })
+        .where(eq(applicationSubmissions.id, submissionId));
+      
+      // Update application status to indicate need for revision
+      await db
+        .update(applications)
+        .set({
+          status: 'under_review',
+          updatedAt: new Date()
+        })
+        .where(eq(applications.id, submission.applicationId));
+      
+      console.log(`[REJECTION] Application ${submission.applicationId} marked for revision - user must update and resubmit`);
+    }
+    
     return submission;
   }
 
