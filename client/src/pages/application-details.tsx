@@ -355,7 +355,8 @@ export default function ApplicationDetails() {
   //                           user?.role === 'team_member' || 
   //                           user?.role?.startsWith('contractor_');
   const canEditApplication = canCreateEdit(user);
-  const canSubmitApplication = canEditApplication && !user?.role?.startsWith('contractor_');
+  // System admins can always submit regardless of permission level
+  const canSubmitApplication = (user?.role === 'system_admin' || canEditApplication) && !user?.role?.startsWith('contractor_');
 
   // Template-driven status logic
   const getDetailedStatusLabel = () => {
