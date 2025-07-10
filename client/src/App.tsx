@@ -98,6 +98,7 @@ function Router() {
         <AdminRedirect />
         <Switch>
           <Route path="/" component={AdminDashboard} />
+          <Route path="/dashboard" component={AdminDashboard} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/form-builder" component={AdminFormBuilder} />
           <Route path="/admin/activity-templates" component={AdminActivityTemplates} />
@@ -136,6 +137,7 @@ function Router() {
       <Layout>
         <Switch>
           <Route path="/" component={ContractorDashboard} />
+          <Route path="/dashboard" component={ContractorDashboard} />
           <Route path="/contractor-dashboard" component={ContractorDashboard} />
           <Route path="/applications" component={ContractorApplications} />
           <Route path="/applications/:id" component={ApplicationDetails} />
@@ -156,6 +158,7 @@ function Router() {
     <Layout>
       <Switch>
         <Route path="/" component={Dashboard} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/applications" component={Applications} />
         <Route path="/applications/:id" component={ApplicationDetails} />
         <Route path="/documents" component={Documents} />

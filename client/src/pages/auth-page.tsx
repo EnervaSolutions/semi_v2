@@ -405,8 +405,10 @@ export default function AuthPage() {
       // Redirect to appropriate dashboard based on user role
       if (data.user?.role === 'system_admin') {
         window.location.href = "/admin";
+      } else if (data.user?.role === 'contractor_individual' || data.user?.role === 'contractor_team_member' || data.user?.role === 'contractor_account_owner' || data.user?.role === 'contractor_manager') {
+        window.location.href = "/";
       } else {
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       }
     },
     onError: (error: Error) => {
