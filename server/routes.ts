@@ -1058,7 +1058,7 @@ export function registerRoutes(app: Express) {
   //
   // APPLICATION ENDPOINTS:
   // - GET    /api/applications                  - User application list
-  // - POST   /api/applications                  - User application creation
+  // - POST   /api/applications                  - Company user application creation
   // - GET    /api/applications/:id             - Application details
   // - PATCH  /api/applications/:id             - Application updates
   // - DELETE /api/applications/:id             - Application deletion
@@ -1075,6 +1075,99 @@ export function registerRoutes(app: Express) {
   // Before removing ANY endpoint, verify it's not used in the frontend
   // Search for the endpoint path in all .tsx files to check usage
   // ============================================================================
+
+  // ============================================================================
+  // CRITICAL APPLICATION CREATION ENDPOINT FOR COMPANY USERS
+  // ============================================================================
+  // DO NOT REMOVE - Required for company user application creation
+  app.post('/api/applications', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+
+      // Check if user has permission to create applications (editors, managers, owners)
+      if (!user.permissionLevel || !['editor', 'manager', 'owner'].includes(user.permissionLevel)) {
+        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, and owners can create applications." });
+      }
+
+      console.log('[COMPANY APP CREATE] Creating application for company user with data:', req.body);
+      
+      const { facilityId, activityType } = req.body;
+      
+      // Validate required fields
+      if (!facilityId || !activityType) {
+        return res.status(400).json({ message: "Missing required fields: facilityId, activityType" });
+      }
+      
+      // Verify facility belongs to user's company
+      const facility = await dbStorage.getFacilityById(parseInt(facilityId));
+      if (!facility || facility.companyId !== user.companyId) {
+        return res.status(403).json({ message: "Access denied - facility not found or not owned by your company" });
+      }
+      
+      // Create application for the user's company
+      const application = await dbStorage.createAdminApplication({
+        companyId: user.companyId,
+        facilityId: parseInt(facilityId),
+        activityType,
+        title: `${activityType} Application`,
+        description: null,
+        createdBy: user.id
+      });
+      
+      console.log('[COMPANY APP CREATE] Application created successfully:', application.applicationId);
+      res.json(application);
+    } catch (error) {
+      console.error("Error creating company application:", error);
+      res.status(500).json({ message: error.message || "Failed to create application" });
+    }
+  });
+
+  // ============================================================================
+  // APPLICATION ID PREDICTION ENDPOINT FOR COMPANY USERS
+  // ============================================================================
+  // DO NOT REMOVE - Required for application creation dialog
+  app.get('/api/predict-application-id', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+
+      const { facilityId, activityType } = req.query;
+      
+      if (!facilityId || !activityType) {
+        return res.status(400).json({ message: "Missing required parameters: facilityId, activityType" });
+      }
+
+      // Verify facility belongs to user's company
+      const facility = await dbStorage.getFacilityById(parseInt(facilityId as string));
+      if (!facility || facility.companyId !== user.companyId) {
+        return res.status(403).json({ message: "Access denied - facility not found or not owned by your company" });
+      }
+
+      // Get company for short name
+      const company = await dbStorage.getCompanyById(user.companyId);
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+
+      // Generate the predicted application ID
+      const predictedId = await dbStorage.generateApplicationId(
+        company.shortName,
+        facility.code,
+        activityType as string
+      );
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(predictedId);
+    } catch (error) {
+      console.error("Error predicting application ID:", error);
+      res.status(500).json({ message: error.message || "Failed to predict application ID" });
+    }
+  });
 
   // ============================================================================
   // CRITICAL FACILITY CREATION ENDPOINT  
@@ -2669,6 +2762,15 @@ export function registerRoutes(app: Express) {
   app.post('/api/activity-template-submissions', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
+      
+      // Check if user has permission to submit templates (editors, managers, owners)
+      if (!user.permissionLevel || !['editor', 'manager', 'owner'].includes(user.permissionLevel)) {
+        // Also allow contractors to submit on behalf of their assigned applications
+        if (!user.role.includes('contractor')) {
+          return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, and owners can submit templates." });
+        }
+      }
+      
       const {
         applicationId,
         activityTemplateId,
@@ -3852,24 +3954,42 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "User must be associated with a company" });
       }
 
-      // Only company_admin or team_member with manager/owner permission can remove team members
-      if (
-        user.role !== 'company_admin' &&
-        user.role !== 'system_admin' &&
-        !(user.role === 'team_member' && ['manager', 'owner'].includes(user.permissionLevel))
-      ) {
-        return res.status(403).json({ message: "Insufficient permissions to remove team members" });
+      // Get target user to verify they're in the same company
+      const targetUser = await dbStorage.getUser(targetUserId);
+      if (!targetUser || targetUser.companyId !== user.companyId) {
+        return res.status(404).json({ message: "Team member not found or not in your company" });
+      }
+
+      // Permission logic:
+      // - company_admin and system_admin can remove anyone
+      // - owner permission level can remove anyone except other owners
+      // - manager permission level can remove editors and viewers (not managers or owners)
+      // - editor/viewer permission levels cannot remove anyone
+      let canRemove = false;
+      
+      if (user.role === 'company_admin' || user.role === 'system_admin') {
+        canRemove = true;
+      } else if (user.permissionLevel === 'owner') {
+        // Owners can remove anyone except other owners (unless they're also company_admin)
+        if (targetUser.permissionLevel !== 'owner' || user.role === 'company_admin') {
+          canRemove = true;
+        }
+      } else if (user.permissionLevel === 'manager') {
+        // Managers can only remove editors and viewers
+        if (['editor', 'viewer'].includes(targetUser.permissionLevel)) {
+          canRemove = true;
+        }
+      }
+
+      if (!canRemove) {
+        return res.status(403).json({ 
+          message: "Insufficient permissions. Managers can only remove editors/viewers. Only owners/admins can remove managers/owners." 
+        });
       }
 
       // Prevent removing yourself
       if (user.id === targetUserId) {
         return res.status(400).json({ message: "You cannot remove yourself from the team" });
-      }
-
-      // Get target user to verify they're in the same company
-      const targetUser = await dbStorage.getUser(targetUserId);
-      if (!targetUser || targetUser.companyId !== user.companyId) {
-        return res.status(404).json({ message: "Team member not found or not in your company" });
       }
 
       // Remove team member from company (preserves user account)

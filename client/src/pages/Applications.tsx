@@ -17,7 +17,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { canCreateEdit } from "@/lib/permissions";
-import AddApplicationDialog from "@/components/AddApplicationDialog";
+import CompanyApplicationDialog from "@/components/CompanyApplicationDialog";
 
 interface ColumnVisibility {
   applicationId: boolean;
@@ -142,7 +142,7 @@ export default function Applications() {
           <div className="flex items-center justify-between">
             <CardTitle>Applications ({filteredApplications.length} of {applicationsToShow.length})</CardTitle>
             {canCreateEdit(user) && (
-              <AddApplicationDialog onSuccess={() => {}} />
+              <CompanyApplicationDialog onSuccess={() => {}} />
             )}
             {hasActiveFilters && (
               <Button 
