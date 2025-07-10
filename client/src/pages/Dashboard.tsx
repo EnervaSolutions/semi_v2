@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import ApplicationForm from "@/components/ApplicationForm";
+import CompanyApplicationDialog from "@/components/CompanyApplicationDialog";
 import EnhancedFacilityForm from "@/components/EnhancedFacilityForm";
 import DocumentUpload from "@/components/DocumentUpload";
 import TwoFactorPrompt from "@/components/TwoFactorPrompt";
@@ -38,11 +38,9 @@ import { canCreateEdit } from "@/lib/permissions";
 export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [showDocumentUpload, setShowDocumentUpload] = useState(false);
   const [showFacilityForm, setShowFacilityForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
-  const [selectedActivityType, setSelectedActivityType] = useState<string>("");
   const [renderKey, setRenderKey] = useState(0);
   const [facilitySearchTerm, setFacilitySearchTerm] = useState("");
   const [facilitySortBy, setFacilitySortBy] = useState<"name" | "date">("name");
@@ -424,18 +422,11 @@ export default function Dashboard() {
                           )}
                         </h5>
                         {canCreateEdit(user) && (
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setEditingFacility(facility);
-                              setShowApplicationForm(true);
+                          <CompanyApplicationDialog 
+                            onSuccess={() => {
+                              setRenderKey(prev => prev + 1);
                             }}
-                            className="h-7 px-3 text-xs font-medium bg-slate-700 hover:bg-slate-800"
-                            disabled={applicationsLoading}
-                          >
-                            <Plus className="h-3 w-3 mr-1" />
-                            New Application
-                          </Button>
+                          />
                         )}
                       </div>
 
@@ -491,9 +482,8 @@ export default function Dashboard() {
                                 }`}
                                 onClick={() => {
                                   if (canStartActivity) {
-                                    setEditingFacility(facility);
-                                    setSelectedActivityType(setting.activityType);
-                                    setShowApplicationForm(true);
+                                    // Activity tiles now redirect to applications page for creation
+                                    window.location.href = '/applications';
                                   }
                                 }}
                                 title={tooltipText}
@@ -553,17 +543,6 @@ export default function Dashboard() {
       </div>
 
       {/* Modals */}
-      {showApplicationForm && (
-        <ApplicationForm 
-          onClose={() => {
-            setShowApplicationForm(false);
-            setEditingFacility(null);
-            setSelectedActivityType("");
-          }} 
-          facility={editingFacility}
-          activityType={selectedActivityType}
-        />
-      )}
       
       {showDocumentUpload && (
         <DocumentUpload onClose={() => setShowDocumentUpload(false)} />
