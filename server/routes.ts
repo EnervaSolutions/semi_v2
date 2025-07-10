@@ -2706,10 +2706,15 @@ export function registerRoutes(app: Express) {
       const user = req.user;
       const documentId = parseInt(req.params.id);
       
+      console.log(`[DOWNLOAD] Document download request - ID: ${documentId}, User: ${user.id} (${user.role})`);
+      
       const document = await dbStorage.getDocumentById(documentId);
       if (!document) {
+        console.log(`[DOWNLOAD] Document ${documentId} not found in database`);
         return res.status(404).json({ message: "Document not found" });
       }
+      
+      console.log(`[DOWNLOAD] Document found - Original: ${document.originalName}, FilePath: ${document.filePath}`);
       
       // Check user permissions for document access
       if (document.applicationId) {
@@ -2717,7 +2722,45 @@ export function registerRoutes(app: Express) {
         if (application && user.role !== 'system_admin' && 
             (!user.companyId || application.companyId !== user.companyId) &&
             !user.role?.startsWith('contractor_')) {
+          console.log(`[DOWNLOAD] Access denied for user ${user.id} to document ${documentId}`);
           return res.status(403).json({ message: "Access denied" });
+        }
+      }
+      
+      // Production-ready file path resolution
+      let resolvedFilePath;
+      
+      // Check if filePath is already absolute or relative to current working directory
+      if (path.isAbsolute(document.filePath)) {
+        resolvedFilePath = document.filePath;
+      } else {
+        // For relative paths, ensure they're resolved from the project root
+        resolvedFilePath = path.resolve(process.cwd(), document.filePath);
+      }
+      
+      console.log(`[DOWNLOAD] Attempting to serve file from: ${resolvedFilePath}`);
+      console.log(`[DOWNLOAD] Current working directory: ${process.cwd()}`);
+      console.log(`[DOWNLOAD] File exists check: ${fs.existsSync(resolvedFilePath)}`);
+      
+      if (!fs.existsSync(resolvedFilePath)) {
+        // Try alternative path resolution for production environments
+        const alternativePath = path.resolve(process.cwd(), 'uploads', path.basename(document.filePath));
+        console.log(`[DOWNLOAD] Trying alternative path: ${alternativePath}`);
+        console.log(`[DOWNLOAD] Alternative path exists: ${fs.existsSync(alternativePath)}`);
+        
+        if (fs.existsSync(alternativePath)) {
+          resolvedFilePath = alternativePath;
+        } else {
+          console.log(`[DOWNLOAD] File not found at any path for document ${documentId}`);
+          return res.status(404).json({ 
+            message: "File not found on disk",
+            debug: {
+              originalPath: document.filePath,
+              resolvedPath: resolvedFilePath,
+              alternativePath: alternativePath,
+              cwd: process.cwd()
+            }
+          });
         }
       }
       
@@ -2725,13 +2768,19 @@ export function registerRoutes(app: Express) {
       res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
       res.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
       
+      console.log(`[DOWNLOAD] Serving file: ${resolvedFilePath} as ${document.originalName}`);
+      
       // Stream the file
-      const filePath = path.resolve(document.filePath);
-      if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-      } else {
-        res.status(404).json({ message: "File not found on disk" });
-      }
+      res.sendFile(resolvedFilePath, (err) => {
+        if (err) {
+          console.error(`[DOWNLOAD] Error serving file ${resolvedFilePath}:`, err);
+          if (!res.headersSent) {
+            res.status(500).json({ message: "Error serving file", error: err.message });
+          }
+        } else {
+          console.log(`[DOWNLOAD] Successfully served file: ${document.originalName}`);
+        }
+      });
     } catch (error: any) {
       console.error('Error downloading document:', error);
       res.status(500).json({ message: 'Error downloading document', error: error.message });
@@ -3395,9 +3444,7 @@ export function registerRoutes(app: Express) {
       console.log('[EXPORT] Adding files to archive...');
       let filesAdded = 0;
       for (const doc of allDocuments) {
-        const filePath = path.join(process.cwd(), doc.filePath || '');
-        console.log(`[EXPORT] Checking file: ${filePath}`);
-        console.log(`[EXPORT] Document details:`, {
+        console.log(`[EXPORT] Processing document:`, {
           id: doc.id,
           filename: doc.filename,
           originalName: doc.originalName || doc.original_name,
@@ -3407,22 +3454,49 @@ export function registerRoutes(app: Express) {
           facilityName: doc.facilityName,
           applicationId: doc.applicationId
         });
-        
-        if (doc.filePath && fs.existsSync(filePath)) {
-          // Create folder structure: Company (SHORTNAME)/Facility/Application/filename
-          const companyFolder = `${doc.companyName} (${doc.companyShortName})`;
-          const facilityFolder = doc.facilityName;
-          const applicationFolder = doc.applicationId;
-          const filename = doc.originalName || doc.original_name || doc.filename;
-          
-          const archivePath = `${companyFolder}/${facilityFolder}/${applicationFolder}/${filename}`;
-          
-          console.log(`[EXPORT] Adding file to ZIP: ${archivePath}`);
-          archive.file(filePath, { name: archivePath });
-          filesAdded++;
-        } else {
-          console.warn(`[EXPORT] File not found or path missing: ${filePath} (doc.filePath: ${doc.filePath})`);
+
+        if (!doc.filePath) {
+          console.warn(`[EXPORT] Document ${doc.id} has no filePath, skipping`);
+          continue;
         }
+
+        // Production-ready file path resolution (same logic as download endpoint)
+        let resolvedFilePath;
+        
+        if (path.isAbsolute(doc.filePath)) {
+          resolvedFilePath = doc.filePath;
+        } else {
+          // For relative paths, ensure they're resolved from the project root
+          resolvedFilePath = path.resolve(process.cwd(), doc.filePath);
+        }
+        
+        console.log(`[EXPORT] Attempting to locate file at: ${resolvedFilePath}`);
+        
+        if (!fs.existsSync(resolvedFilePath)) {
+          // Try alternative path resolution for production environments
+          const alternativePath = path.resolve(process.cwd(), 'uploads', path.basename(doc.filePath));
+          console.log(`[EXPORT] Trying alternative path: ${alternativePath}`);
+          
+          if (fs.existsSync(alternativePath)) {
+            resolvedFilePath = alternativePath;
+            console.log(`[EXPORT] Found file at alternative path: ${alternativePath}`);
+          } else {
+            console.warn(`[EXPORT] File not found at any path for document ${doc.id}: ${doc.filePath}`);
+            continue;
+          }
+        }
+        
+        // Create folder structure: Company (SHORTNAME)/Facility/Application/filename
+        const companyFolder = `${doc.companyName} (${doc.companyShortName})`;
+        const facilityFolder = doc.facilityName;
+        const applicationFolder = doc.applicationId;
+        const filename = doc.originalName || doc.original_name || doc.filename;
+        
+        const archivePath = `${companyFolder}/${facilityFolder}/${applicationFolder}/${filename}`;
+        
+        console.log(`[EXPORT] Adding file to ZIP: ${resolvedFilePath} -> ${archivePath}`);
+        archive.file(resolvedFilePath, { name: archivePath });
+        filesAdded++;
       }
 
       console.log(`[EXPORT] Files added to archive: ${filesAdded}/${allDocuments.length}`);
