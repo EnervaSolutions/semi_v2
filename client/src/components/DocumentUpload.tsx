@@ -29,7 +29,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { documentApi } from "@/lib/api";
+
 import { queryClient } from "@/lib/queryClient";
 import { FILE_UPLOAD_CONFIG, DOCUMENT_TYPES } from "@/lib/constants";
 
@@ -174,7 +174,8 @@ export function DocumentUpload({ onClose, applicationId }: DocumentUploadProps) 
       }
     });
     
-    if (selectedApplication) {
+    // Only include applicationId if it's a valid number (not "general")
+    if (selectedApplication && selectedApplication !== "general") {
       formData.append('applicationId', selectedApplication);
     }
     formData.append('documentType', documentType);
