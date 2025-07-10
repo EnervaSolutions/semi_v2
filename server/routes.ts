@@ -1087,8 +1087,11 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "User must be associated with a company" });
       }
 
-      // Check if user has permission to create applications (editors, managers, owners)
-      if (!user.permissionLevel || !['editor', 'manager', 'owner'].includes(user.permissionLevel)) {
+      // Check if user has permission to create applications (editors, managers, owners, company_admin)
+      const hasCreatePermission = user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel) ||
+                                   user.role === 'company_admin';
+      
+      if (!hasCreatePermission) {
         return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, and owners can create applications." });
       }
 
@@ -2763,12 +2766,13 @@ export function registerRoutes(app: Express) {
     try {
       const user = req.user;
       
-      // Check if user has permission to submit templates (editors, managers, owners)
-      if (!user.permissionLevel || !['editor', 'manager', 'owner'].includes(user.permissionLevel)) {
-        // Also allow contractors to submit on behalf of their assigned applications
-        if (!user.role.includes('contractor')) {
-          return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, and owners can submit templates." });
-        }
+      // Check if user has permission to submit templates (editors, managers, owners, company_admin)
+      const hasSubmitPermission = user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel) ||
+                                   user.role === 'company_admin' ||
+                                   user.role.includes('contractor');
+      
+      if (!hasSubmitPermission) {
+        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, and owners can submit templates." });
       }
       
       const {

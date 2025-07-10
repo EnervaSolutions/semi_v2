@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { UserPlus, Mail, Shield, User, MoreVertical, Settings, UserX } from "lucide-react";
+import { UserPlus, Mail, Shield, User, MoreVertical, Settings, UserX, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -46,6 +46,7 @@ export default function TeamManagement() {
   const [showPermissionLevelDialog, setShowPermissionLevelDialog] = useState(false);
   const [showTransferAdminDialog, setShowTransferAdminDialog] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [invitePermissionLevel, setInvitePermissionLevel] = useState('viewer');
 
   const { data: teamMembers = [], isLoading: isLoadingTeam } = useQuery<any[]>({
@@ -74,7 +75,27 @@ export default function TeamManagement() {
     }
   });
 
-
+  const removeUserMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      return await apiRequest(`/api/team/member/${userId}`, 'DELETE');
+    },
+    onSuccess: () => {
+      toast({
+        title: "User removed",
+        description: "Team member has been removed from the company successfully.",
+      });
+      setShowRemoveDialog(false);
+      setSelectedMember(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/team'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to remove user",
+        description: error.message || "An error occurred while removing the team member.",
+        variant: "destructive",
+      });
+    }
+  });
 
   const transferAdminMutation = useMutation({
     mutationFn: async ({ newAdminId }: { newAdminId: string }) => {
@@ -512,6 +533,19 @@ export default function TeamManagement() {
                               Deactivate
                             </DropdownMenuItem>
                           )}
+                          {member.role !== 'company_admin' && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                console.log('Remove clicked for member:', member);
+                                setSelectedMember(member);
+                                setShowRemoveDialog(true);
+                              }}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove from Company
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -578,6 +612,33 @@ export default function TeamManagement() {
               disabled={deactivateUserMutation.isPending}
             >
               {deactivateUserMutation.isPending ? 'Deactivating...' : 'Deactivate User'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Remove User Dialog */}
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {selectedMember?.firstName} {selectedMember?.lastName} from your company? 
+              This will remove their access to all company data and applications. Their user account will be preserved and they can join other companies in the future.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (selectedMember) {
+                  removeUserMutation.mutate({ userId: selectedMember.id });
+                }
+              }}
+              disabled={removeUserMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {removeUserMutation.isPending ? 'Removing...' : 'Remove from Company'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
