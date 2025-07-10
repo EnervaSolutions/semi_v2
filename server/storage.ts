@@ -1376,16 +1376,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDocumentsByCompany(companyId: number): Promise<Document[]> {
-    // Get documents directly associated with the company
+    console.log(`[STORAGE DEBUG] getDocumentsByCompany fetching documents for company ${companyId}`);
+    
+    // Get documents directly associated with the company (general uploads)
     const companyDocuments = await db
       .select()
       .from(documents)
       .where(eq(documents.companyId, companyId))
       .orderBy(desc(documents.createdAt));
 
-    // Get documents from applications assigned to contractor companies
-    // where the main company is the one that owns the application
-    const contractorDocuments = await db
+    console.log(`[STORAGE DEBUG] Found ${companyDocuments.length} direct company documents`);
+
+    // Get documents from applications owned by this company
+    const applicationDocuments = await db
       .select({
         id: documents.id,
         applicationId: documents.applicationId,
@@ -1403,20 +1406,19 @@ export class DatabaseStorage implements IStorage {
       })
       .from(documents)
       .innerJoin(applications, eq(documents.applicationId, applications.id))
-      .where(
-        and(
-          eq(applications.companyId, companyId),  // Application belongs to this company
-          sql`${documents.companyId} != ${companyId}`  // But document was uploaded by different company (contractor)
-        )
-      )
+      .where(eq(applications.companyId, companyId))  // Application belongs to this company
       .orderBy(desc(documents.createdAt));
 
+    console.log(`[STORAGE DEBUG] Found ${applicationDocuments.length} application documents`);
+
     // Combine and deduplicate documents
-    const allDocuments = [...companyDocuments, ...contractorDocuments];
+    const allDocuments = [...companyDocuments, ...applicationDocuments];
     const uniqueDocuments = allDocuments.filter((doc, index, self) => 
       self.findIndex(d => d.id === doc.id) === index
     );
 
+    console.log(`[STORAGE DEBUG] Total unique documents: ${uniqueDocuments.length}`);
+    
     return uniqueDocuments.sort((a, b) => 
       new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
     );
