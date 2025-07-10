@@ -4625,9 +4625,9 @@ export class DatabaseStorage implements IStorage {
   // Approval system methods
   async getPendingSubmissions(): Promise<any[]> {
     try {
-      console.log("[APPROVALS] Getting ALL submitted applications for approval review...");
+      console.log("[APPROVALS] Getting ALL submissions for approval review (pending, approved, rejected)...");
       
-      // Query BOTH submission tables since submissions may be in either table
+      // Query BOTH submission tables to get ALL submissions for admin filtering
       // First, get submissions from applicationSubmissions table
       const appSubmissions = await db
         .select({
@@ -4638,20 +4638,15 @@ export class DatabaseStorage implements IStorage {
           approvalStatus: applicationSubmissions.approvalStatus,
           submittedAt: applicationSubmissions.submittedAt,
           submittedBy: applicationSubmissions.submittedBy,
+          reviewedBy: applicationSubmissions.reviewedBy,
+          reviewedAt: applicationSubmissions.reviewedAt,
+          reviewNotes: applicationSubmissions.reviewNotes,
           createdAt: applicationSubmissions.createdAt,
           data: applicationSubmissions.data,
           source: sql`'applicationSubmissions'`.as('source')
         })
         .from(applicationSubmissions)
-        .where(
-          and(
-            eq(applicationSubmissions.status, 'submitted'),
-            or(
-              eq(applicationSubmissions.approvalStatus, 'pending'),
-              isNull(applicationSubmissions.approvalStatus)
-            )
-          )
-        );
+        .where(eq(applicationSubmissions.status, 'submitted'));
       
       // Then, get submissions from activityTemplateSubmissions table  
       const activitySubmissions = await db
@@ -4663,20 +4658,15 @@ export class DatabaseStorage implements IStorage {
           approvalStatus: activityTemplateSubmissions.approvalStatus,
           submittedAt: activityTemplateSubmissions.submittedAt,
           submittedBy: activityTemplateSubmissions.submittedBy,
+          reviewedBy: activityTemplateSubmissions.reviewedBy,
+          reviewedAt: activityTemplateSubmissions.reviewedAt,
+          reviewNotes: activityTemplateSubmissions.reviewNotes,
           createdAt: activityTemplateSubmissions.createdAt,
           data: activityTemplateSubmissions.data,
           source: sql`'activityTemplateSubmissions'`.as('source')
         })
         .from(activityTemplateSubmissions)
-        .where(
-          and(
-            eq(activityTemplateSubmissions.status, 'submitted'),
-            or(
-              eq(activityTemplateSubmissions.approvalStatus, 'pending'),
-              isNull(activityTemplateSubmissions.approvalStatus)
-            )
-          )
-        );
+        .where(eq(activityTemplateSubmissions.status, 'submitted'));
       
       // Combine both sets of submissions
       const allSubmissions = [...appSubmissions, ...activitySubmissions];
@@ -4975,8 +4965,8 @@ export class DatabaseStorage implements IStorage {
         console.log(`[APPROVAL] Application has ${submittedActivities.length} approved submissions out of ${availableTemplates.length} total templates`);
         
         // Determine next status based on workflow progression
-        let newStatus = 'approved';
-        let statusDescription = 'Approved';
+        let newStatus: string;
+        let statusDescription: string;
         
         if (submittedActivities.length < availableTemplates.length) {
           // More activities available - application can progress to next activity
@@ -4987,12 +4977,16 @@ export class DatabaseStorage implements IStorage {
             newStatus = 'in_progress';
             statusDescription = `${nextTemplate.name} Available`;
             console.log(`[APPROVAL] Application can progress to next activity: ${nextTemplate.name}`);
+          } else {
+            newStatus = 'in_progress';
+            statusDescription = 'In Progress';
+            console.log(`[APPROVAL] Application continues in progress`);
           }
         } else {
-          // All activities completed and approved
-          newStatus = 'completed';
+          // All activities completed and approved - use "Approved" status as requested
+          newStatus = 'Approved';
           statusDescription = 'All Activities Approved';
-          console.log(`[APPROVAL] Application completed - all activities approved`);
+          console.log(`[APPROVAL] All activities completed - Application marked as 'Approved'`);
         }
         
         // Update application with new workflow status
@@ -5091,16 +5085,40 @@ export class DatabaseStorage implements IStorage {
         .limit(1);
       
       if (application) {
-        // Update application status to indicate rejection and need for revision
+        // Determine what status to revert to based on current workflow state
+        let revertStatus = 'draft'; // Default fallback
+        
+        // Check if there are any previously approved submissions for this application
+        const approvedSubmissions = await db
+          .select()
+          .from(activityTemplateSubmissions)
+          .where(
+            and(
+              eq(activityTemplateSubmissions.applicationId, submission.applicationId),
+              eq(activityTemplateSubmissions.approvalStatus, 'approved')
+            )
+          );
+        
+        if (approvedSubmissions.length > 0) {
+          // There are approved submissions, so keep the application in progress
+          revertStatus = 'in_progress';
+          console.log(`[REJECTION] Application has ${approvedSubmissions.length} approved submissions - reverting to 'in_progress'`);
+        } else {
+          // No approved submissions yet, revert to draft
+          revertStatus = 'draft';
+          console.log(`[REJECTION] No approved submissions found - reverting to 'draft'`);
+        }
+        
+        // Update application status to reverted status 
         await db
           .update(applications)
           .set({
-            status: 'revision_required',
+            status: revertStatus,
             updatedAt: new Date()
           })
           .where(eq(applications.id, submission.applicationId));
         
-        console.log(`[REJECTION] Application ${submission.applicationId} marked as 'revision_required' - user must modify and resubmit`);
+        console.log(`[REJECTION] Application ${submission.applicationId} reverted to '${revertStatus}' status after rejection`);
         console.log(`[REJECTION] Submission ${submissionId} reverted to 'draft' status for resubmission`);
       }
     }
