@@ -50,7 +50,10 @@ import {
   ArrowUpDown,
   FileSpreadsheet,
   Calendar,
-  SortAsc
+  SortAsc,
+  Shuffle,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
@@ -112,8 +115,12 @@ export default function AdminUsersPage() {
     password: "",
     role: "team_member",
     companyId: "",
-    isActive: true
+    isActive: true,
+    isTemporaryPassword: false
   });
+
+  // Password field states
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
 
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -219,8 +226,10 @@ export default function AdminUsersPage() {
         password: "",
         role: "team_member",
         companyId: "",
-        isActive: true
+        isActive: true,
+        isTemporaryPassword: false
       });
+      setShowCreatePassword(false);
       toast({
         title: "Success",
         description: "User created successfully.",
@@ -431,6 +440,37 @@ export default function AdminUsersPage() {
   }, [users, searchTerm, roleFilter, statusFilter, userTypeFilter, companyFilter, sortBy]);
 
   // Excel export function
+  // Generate secure random password
+  const generateRandomPassword = () => {
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const allChars = uppercase + lowercase + numbers + symbols;
+    
+    let password = '';
+    // Ensure at least one character from each required category
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+    
+    // Fill the remaining 8 characters
+    for (let i = 4; i < 12; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    
+    // Shuffle the password to avoid predictable patterns
+    const shuffled = password.split('').sort(() => Math.random() - 0.5).join('');
+    
+    setCreateForm(prev => ({ ...prev, password: shuffled }));
+    
+    toast({
+      title: "Password Generated",
+      description: "A secure random password has been generated.",
+    });
+  };
+
   const exportToExcel = () => {
     const dataToExport = filteredAndSortedUsers.map((user: any) => ({
       'Name': `${user.firstName || ''} ${user.lastName || ''}`.trim(),
@@ -676,13 +716,50 @@ export default function AdminUsersPage() {
 
               <div>
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={createForm.password}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, password: e.target.value }))}
-                  placeholder="Minimum 8 characters"
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showCreatePassword ? "text" : "password"}
+                    value={createForm.password}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, password: e.target.value }))}
+                    placeholder="Minimum 8 characters"
+                    className="pr-20"
+                  />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={generateRandomPassword}
+                      className="h-6 w-6 p-0 hover:bg-gray-100"
+                      title="Generate random password"
+                    >
+                      <Shuffle className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowCreatePassword(!showCreatePassword)}
+                      className="h-6 w-6 p-0 hover:bg-gray-100"
+                      title={showCreatePassword ? "Hide password" : "Show password"}
+                    >
+                      {showCreatePassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isTemporaryPassword"
+                  checked={createForm.isTemporaryPassword}
+                  onCheckedChange={(checked) => setCreateForm(prev => ({ ...prev, isTemporaryPassword: !!checked }))}
                 />
+                <Label htmlFor="isTemporaryPassword">Is temporary password</Label>
+                <div className="text-xs text-gray-500">
+                  (User will be required to change password on first login)
+                </div>
               </div>
 
               <div>

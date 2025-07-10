@@ -393,7 +393,7 @@ export default function AuthPage() {
       });
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Login successful",
         description: "Welcome back!"
@@ -402,8 +402,12 @@ export default function AuthPage() {
       setTwoFactorCode("");
       // Invalidate auth query to update authentication state
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      // Force a page reload to properly update auth state
-      window.location.href = "/";
+      // Redirect to appropriate dashboard based on user role
+      if (data.user?.role === 'system_admin') {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/dashboard";
+      }
     },
     onError: (error: Error) => {
       toast({

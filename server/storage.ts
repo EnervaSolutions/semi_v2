@@ -2819,16 +2819,83 @@ export class DatabaseStorage implements IStorage {
         role: userData.role as any,
         permissionLevel: userData.permissionLevel as any || 'viewer',
         companyId: userData.companyId || null,
-        isActive: true,
+        isActive: userData.isActive !== undefined ? userData.isActive : true,
         isEmailVerified: true, // Admin-created users are auto-verified
-        emailVerifiedAt: new Date()
+        emailVerifiedAt: new Date(),
+        isTemporaryPassword: userData.isTemporaryPassword || false
       }).returning();
 
       console.log('User created successfully:', { id: user.id, email: user.email, role: user.role });
 
+      // Send temporary password email if requested
+      if (userData.isTemporaryPassword) {
+        console.log('Sending temporary password email...');
+        
+        try {
+          const { sendEmail } = await import('./sendgrid');
+          
+          const emailSent = await sendEmail({
+            to: user.email,
+            from: process.env.SENDGRID_FROM_EMAIL || 'harsanjit.bhullar@enerva.ca',
+            subject: 'SEMI Program - Your Account Setup Instructions',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
+                <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #2563eb; margin: 0; font-size: 28px;">SEMI Program</h1>
+                    <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 16px;">Strategic Energy Management Initiative</p>
+                  </div>
+                  
+                  <h2 style="color: #333; margin-bottom: 20px;">Welcome to SEMI Program</h2>
+                  <p style="color: #555; line-height: 1.6; margin-bottom: 15px;">
+                    Your account has been created by a system administrator. You can now log in to the SEMI Program platform using the credentials below:
+                  </p>
+                  
+                  <div style="background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 6px; padding: 20px; margin: 25px 0;">
+                    <h3 style="color: #374151; margin: 0 0 15px 0; font-size: 18px;">Login Information</h3>
+                    <p style="margin: 5px 0; color: #374151;">
+                      <strong>Email:</strong> ${user.email}
+                    </p>
+                    <p style="margin: 5px 0; color: #374151;">
+                      <strong>Temporary Password:</strong> ${userData.password}
+                    </p>
+                  </div>
+                  
+                  <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 20px; margin: 25px 0;">
+                    <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 16px;">⚠️ Password Change Required</h3>
+                    <p style="margin: 0; color: #92400e; line-height: 1.6;">
+                      This is a temporary password. You'll be required to change it when you first log in for security purposes.
+                    </p>
+                  </div>
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${process.env.FRONTEND_URL || 'https://janeway.replit.dev'}/auth" 
+                       style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+                      Log In to SEMI Program
+                    </a>
+                  </div>
+                  
+                  <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                      SEMI Program - Strategic Energy Management Initiative<br>
+                      If you have any questions, please contact support.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            `,
+          });
+
+          console.log('Temporary password email sent successfully:', emailSent);
+        } catch (error) {
+          console.error('Failed to send temporary password email:', error);
+          // Don't fail user creation if email fails
+        }
+      }
+
       return {
         user,
-        message: `User "${user.firstName} ${user.lastName}" (${user.email}) created successfully`
+        message: `User "${user.firstName} ${user.lastName}" (${user.email}) created successfully${userData.isTemporaryPassword ? ' and password setup email sent' : ''}`
       };
     } catch (error) {
       console.error('Error creating admin user:', error);
