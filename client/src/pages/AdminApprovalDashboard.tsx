@@ -277,7 +277,7 @@ export default function AdminApprovalDashboard() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setLocation(`/application/${submission.applicationData?.applicationId || submission.applicationId}`)}
+                      onClick={() => setLocation(`/applications/${submission.applicationId}`)}
                       className="w-full"
                     >
                       <Eye className="h-4 w-4 mr-2" />
@@ -387,7 +387,7 @@ export default function AdminApprovalDashboard() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => setLocation(`/application/${submission.applicationData?.applicationId || submission.applicationId}`)}
+                        onClick={() => setLocation(`/applications/${submission.applicationId}`)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View Application
