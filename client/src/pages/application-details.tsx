@@ -924,7 +924,8 @@ function TemplateSection({
     }
   };
 
-  const isViewer = (user?.permissionLevel ?? 'viewer') === 'viewer';
+  // System admins should never be treated as viewers regardless of permission level
+  const isViewer = user?.role !== 'system_admin' && (user?.permissionLevel ?? 'viewer') === 'viewer';
   const renderField = (field: any) => {
     // Disable all fields for viewers, or if submitted
     const isDisabled = isViewer || isSubmitted;
