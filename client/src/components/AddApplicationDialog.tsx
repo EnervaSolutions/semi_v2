@@ -64,14 +64,25 @@ export default function AddApplicationDialog({ onSuccess }: AddApplicationDialog
     enabled: !!selectedCompanyId,
   });
 
-  // Get enabled activity types (hardcoded for now as API may not exist)
-  const activitySettings = [
-    { activityType: 'FRA', isEnabled: true },
-    { activityType: 'SEM', isEnabled: true },
-    { activityType: 'EAA', isEnabled: true },
-    { activityType: 'EMIS', isEnabled: true },
-    { activityType: 'CR', isEnabled: true }
-  ];
+  // Get enabled activity types for selected facility
+  const { data: enabledActivities = [], isLoading: activitiesLoading } = useQuery({
+    queryKey: ['/api/facilities', formData.facilityId, 'activities'],
+    queryFn: async () => {
+      if (!formData.facilityId) return [];
+      console.log('Fetching enabled activities for facility:', formData.facilityId);
+      const response = await apiRequest(`/api/facilities/${formData.facilityId}/activities`, 'GET');
+      const data = await response.json();
+      console.log('Activities response:', data);
+      return data.enabledActivities || [];
+    },
+    enabled: !!formData.facilityId,
+  });
+
+  // Convert enabled activities to settings format
+  const activitySettings = enabledActivities.map((activityType: string) => ({
+    activityType,
+    isEnabled: true
+  }));
 
   // Query for predicted application ID
   const { data: predictedApplicationId, isLoading: predictingId } = useQuery({
@@ -259,10 +270,16 @@ export default function AddApplicationDialog({ onSuccess }: AddApplicationDialog
               disabled={!formData.facilityId}
             >
               <SelectTrigger>
-                <SelectValue placeholder={formData.facilityId ? "Select activity type" : "Select facility first"} />
+                <SelectValue placeholder={
+                  activitiesLoading ? "Loading activities..." : 
+                  !formData.facilityId ? "Select facility first" : 
+                  "Select activity type"
+                } />
               </SelectTrigger>
               <SelectContent>
-                {activitySettings && Array.isArray(activitySettings) && activitySettings.length > 0 ? (
+                {activitiesLoading ? (
+                  <div className="px-2 py-1 text-sm text-gray-500">Loading activities...</div>
+                ) : activitySettings && Array.isArray(activitySettings) && activitySettings.length > 0 ? (
                   activitySettings
                     .filter((setting: any) => setting.isEnabled)
                     .map((setting: any) => {
@@ -281,7 +298,7 @@ export default function AddApplicationDialog({ onSuccess }: AddApplicationDialog
                     })
                 ) : (
                   <div className="px-2 py-1 text-sm text-gray-500">
-                    No activity types available
+                    {formData.facilityId ? "No activities enabled for this facility" : "No activity types available"}
                   </div>
                 )}
               </SelectContent>
