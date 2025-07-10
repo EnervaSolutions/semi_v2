@@ -1920,7 +1920,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Delete team member
+  // Remove team member from contractor company (preserves user account)
   app.delete('/api/contractor/delete-member', requireAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user?.id;
@@ -1945,13 +1945,13 @@ export function registerRoutes(app: Express) {
 
       const { userId: targetUserId } = req.body;
 
-      // Delete team member
+      // Remove team member from company (preserves user account)
       await dbStorage.deleteTeamMember(targetUserId);
 
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting contractor team member:", error);
-      res.status(500).json({ message: "Failed to delete contractor team member" });
+      console.error("Error removing contractor team member from company:", error);
+      res.status(500).json({ message: "Failed to remove contractor team member" });
     }
   });
 
@@ -3842,7 +3842,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Delete team member endpoint for regular companies
+  // Remove team member from company (preserves user account)
   app.delete('/api/team/member/:userId', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
@@ -3852,7 +3852,7 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "User must be associated with a company" });
       }
 
-      // Only company_admin or team_member with manager/owner permission can delete
+      // Only company_admin or team_member with manager/owner permission can remove team members
       if (
         user.role !== 'company_admin' &&
         user.role !== 'system_admin' &&
@@ -3872,13 +3872,13 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: "Team member not found or not in your company" });
       }
 
-      // Delete team member
+      // Remove team member from company (preserves user account)
       await dbStorage.deleteTeamMember(targetUserId);
 
-      res.json({ success: true, message: "Team member removed successfully" });
+      res.json({ success: true, message: "Team member removed from company successfully" });
     } catch (error: any) {
-      console.error("Error deleting team member:", error);
-      res.status(500).json({ message: error?.message || "Failed to remove team member" });
+      console.error("Error removing team member from company:", error);
+      res.status(500).json({ message: error?.message || "Failed to remove team member from company" });
     }
   });
 

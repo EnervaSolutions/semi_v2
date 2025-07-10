@@ -2797,7 +2797,10 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAdminUser(userId: string): Promise<void> {
     try {
-      console.log('Deleting admin user:', userId);
+      console.log('Removing user from system (admin operation):', userId);
+      
+      // For admin deletion, we actually DO want to remove the user entirely
+      // But this should be a rare administrative action, not team member removal
       
       // Handle foreign key constraints using direct SQL for reliability
       await db.execute(sql`UPDATE applications SET submitted_by = 'deleted_user' WHERE submitted_by = ${userId}`);
@@ -2809,10 +2812,13 @@ export class DatabaseStorage implements IStorage {
       await db.execute(sql`UPDATE messages SET to_user_id = 'deleted_user' WHERE to_user_id = ${userId}`);
       await db.execute(sql`UPDATE notifications SET user_id = 'deleted_user' WHERE user_id = ${userId}`);
       
-      // Delete the user
+      // Remove contractor details
+      await db.execute(sql`DELETE FROM contractor_details WHERE user_id = ${userId}`);
+      
+      // Delete the user (this is an admin action for complete removal)
       await db.execute(sql`DELETE FROM users WHERE id = ${userId}`);
       
-      console.log('User deleted successfully with foreign key handling');
+      console.log('User completely removed from system (admin deletion)');
     } catch (error) {
       console.error('Error deleting admin user:', error);
       throw new Error((error as any)?.message || 'Failed to delete user');
@@ -6380,62 +6386,41 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTeamMember(userId: string) {
     try {
-      // First, handle foreign key constraints by setting references to 'deleted_user' or removing assignments
+      console.log(`Removing team member ${userId} from company (preserving user account)`);
+      
+      // ONLY remove company association - DO NOT delete the user account
+      // Set company_id to NULL to remove them from the company while preserving the user
       await db.execute(sql`
-        UPDATE applications SET submitted_by = 'deleted_user' WHERE submitted_by = ${userId}
+        UPDATE users SET company_id = NULL WHERE id = ${userId}
       `);
       
-      await db.execute(sql`
-        UPDATE activity_template_submissions SET submitted_by = 'deleted_user' WHERE submitted_by = ${userId}
-      `);
-      
+      // Remove any team-specific assignments but preserve the user's historical data
       await db.execute(sql`
         DELETE FROM application_assignments WHERE user_id = ${userId}
       `);
       
-      await db.execute(sql`
-        DELETE FROM company_application_assignments WHERE application_id IN (
-          SELECT id FROM applications WHERE submitted_by = ${userId}
-        )
-      `);
-      
-      await db.execute(sql`
-        DELETE FROM contractor_company_assignment_history WHERE assigned_by = ${userId}
-      `);
-      
+      // Remove any pending team invitations sent by this user (cleanup)
       await db.execute(sql`
         DELETE FROM team_invitations WHERE invited_by_user_id = ${userId}
       `);
       
-      await db.execute(sql`
-        UPDATE messages SET from_user_id = 'deleted_user' WHERE from_user_id = ${userId}
-      `);
-      
-      await db.execute(sql`
-        UPDATE messages SET to_user_id = 'deleted_user' WHERE to_user_id = ${userId}
-      `);
-      
+      // Remove user-specific notifications (cleanup)
       await db.execute(sql`
         DELETE FROM notifications WHERE user_id = ${userId}
       `);
-      
-      await db.execute(sql`
-        DELETE FROM documents WHERE uploaded_by = ${userId}
-      `);
 
-      // Also delete contractor details if they exist
+      // Remove contractor details if they exist (company-specific role)
       await db.execute(sql`
         DELETE FROM contractor_details WHERE user_id = ${userId}
       `);
 
-      // Finally, delete the user
-      await db.execute(sql`
-        DELETE FROM users WHERE id = ${userId}
-      `);
+      // NOTE: We preserve applications, documents, messages, and submissions 
+      // as these are historical records that should remain in the system
+      // The user account remains active and can join other companies
 
-      console.log(`Deleted team member ${userId}`);
+      console.log(`Successfully removed team member ${userId} from company (user account preserved)`);
     } catch (error) {
-      console.error('Error deleting team member:', error);
+      console.error('Error removing team member from company:', error);
       throw error;
     }
   }
