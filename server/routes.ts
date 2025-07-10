@@ -3141,11 +3141,13 @@ export function registerRoutes(app: Express) {
     try {
       const user = req.user;
       
-      // Check if user has permission to submit templates (editors, managers, owners, company_admin, system_admin)
-      const hasSubmitPermission = user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel) ||
+      // Check if user has permission to submit templates
+      // System admins can submit regardless of permission level
+      // Other users need editor/manager/owner permission level or specific roles
+      const hasSubmitPermission = user.role === 'system_admin' ||
                                    user.role === 'company_admin' ||
-                                   user.role === 'system_admin' ||
-                                   user.role.includes('contractor');
+                                   user.role.includes('contractor') ||
+                                   (user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel));
       
       if (!hasSubmitPermission) {
         return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, owners, and admins can submit templates." });

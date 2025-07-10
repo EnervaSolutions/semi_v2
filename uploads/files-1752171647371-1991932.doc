@@ -1,0 +1,103 @@
+
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+             xmlns:w='urn:schemas-microsoft-com:office:word' 
+             xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>EMIS Report</title>
+          <style>
+            body { 
+              font-family: 'Aptos', sans-serif; 
+              margin: 40px; 
+              line-height: 1.6; 
+              color: #333;
+            }
+            h2, h3, h4 { 
+              margin-bottom: 15px; 
+              page-break-after: avoid;
+            }
+            h2 {
+              color: #007BFF;
+              border-bottom: 2px solid #007BFF;
+              padding-bottom: 8px;
+              margin-top: 40px;
+            }
+            h3 {
+              color: #495057;
+              margin-top: 25px;
+            }
+            h4 {
+              color: #6c757d;
+              margin-top: 20px;
+            }
+            p { 
+              margin: 15px 0; 
+              text-align: justify;
+            }
+            ul { 
+              margin: 15px 0 15px 30px; 
+            }
+            li { 
+              margin-bottom: 8px; 
+            }
+            table { 
+              border-collapse: collapse; 
+              margin: 20px 0;
+              table-layout: fixed;
+              width: 100%;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+            }
+            th, td { 
+              border: 1px solid #ccc; 
+              padding: 10px;
+              word-wrap: break-word;
+              word-break: break-word;
+              white-space: normal;
+            }
+            th {
+              background-color: #f8f9fa;
+              font-weight: bold;
+            }
+            .highlight-box {
+              background-color: #f8f9fa;
+              padding: 15px;
+              border-radius: 4px;
+              margin: 15px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <h2 style='color:#007BFF; margin-top: 30px; margin-bottom: 20px; border-bottom: 2px solid #007BFF; padding-bottom: 8px;'>Organization Information</h2><div style='margin-bottom: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;'><p style='margin: 8px 0;'><strong>Application ID:</strong> AMA-001-101</p><p style='margin: 8px 0;'><strong>Organization Name:</strong> sa</p><p style='margin: 8px 0;'><strong>Facility Type:</strong> 11 - Agriculture, forestry, fishing and hunting</p><p style='margin: 8px 0;'><strong>Facility Address:</strong> 55 maitland St</p><p style='margin: 8px 0;'><strong>Attendee Names:</strong> </p></div><h2 style='color:#007BFF; margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid #007BFF; padding-bottom: 8px;'>Energy Management Information Systems (EMIS)</h2><p style='margin: 18px 0; line-height: 1.7;'>An Energy Management Information System (EMIS) provides your organization with relevant information to enhance energy performance visibility to manage and control energy use in relation to production. This enables effective planning and decision-making regarding energy management, continuous improvement, and driving significant energy efficiency and cost savings. An EMIS foundation is built on three key elements:</p><ol style='margin: 20px 0 20px 30px; line-height: 1.6;'><li style='margin-bottom: 8px;'>Data capture and storage</li><li style='margin-bottom: 8px;'>Analysis</li><li style='margin-bottom: 8px;'>Reporting and notifications</li></ol><p style='margin: 18px 0; line-height: 1.7;'>A well-designed EMIS equips your facility operators with actionable insights to optimize energy efficiency and improve overall operational performance.</p><p style='margin: 18px 0; line-height: 1.7;'>Implementing EMIS has led to significant energy and cost savings across various Canadian industries. For example, New Gold's New Afton Mine in British Columbia implemented an EMIS to monitor over 160 energy consumption data points, including 157 electrical sub-meters and 6 gas meters. This initiative enabled the mine to achieve ISO 50001 energy certification in 2014, marking it as the first mining facility in North America to do so. More references of EMIS implementations can be found in Energy management information systems - Natural Resources Canada</p><p style='margin: 18px 0; line-height: 1.7; padding: 15px; background-color: #e8f4fd; border-left: 4px solid #007BFF; border-radius: 4px;'>For your facility, which currently does not have an EMIS, it is recommended to implement a system that includes real-time monitoring and data collection, utility billing and data analytics, performance benchmarking, energy consumption forecasting, automated alerts and notifications, automated controls and optimization, energy performance reporting, and integration with production and facility systems. This comprehensive EMIS will provide the necessary tools to monitor, analyze, and manage energy consumption effectively, supporting the facility's energy management goals and driving continuous improvement.</p><h3 style='color:#495057; margin-top: 35px; margin-bottom: 18px;'>Selected Technical Objectives</h3><p style='margin: 15px 0; line-height: 1.7;'>During the site visit, the following features were selected:</p><ul style='margin: 20px 0 20px 30px; line-height: 1.6;'><li style='margin-bottom: 12px;'>Perform automated fault detection and diagnostics (FDD) for the HVAC system</li></ul><p style='margin: 25px 0 20px 0; line-height: 1.7; font-weight: 500;'>Based on the features, we propose the implementation of an EMIS system as outlined below.</p><h2 style='color:#007BFF; margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid #007BFF; padding-bottom: 8px;'>1. Data Integration</h2><div style='margin-bottom: 30px;'><h3 style='color:#495057; margin-bottom: 15px;'>1.1 Interval sub-meter data integration</h3><p style='margin: 15px 0; line-height: 1.7;'>The technology will integrate with new and existing meters and monitoring systems from an interval meter and/or meters with pulse outputs. Where it is necessary to take advantage of existing metering data, the technology will integrate with the following systems for whole facility meters and/or submeters:</p><table width="80%" style="
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin: 10px 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      "><tbody><tr style='background-color: #f8f9fa;'>
+              <th style="width:25%;border:1px solid #ccc;padding:4px;white-space:normal;word-wrap:break-word;word-break:break-all;">
+            Meter Name
+          </th>
+          <th style="width:25%;border:1px solid #ccc;padding:4px;white-space:normal;word-wrap:break-word;word-break:break-all;">
+            Parameter
+          </th>
+          <th style="width:25%;border:1px solid #ccc;padding:4px;white-space:normal;word-wrap:break-word;word-break:break-all;">
+            Intervals
+          </th>
+          <th style="width:25%;border:1px solid #ccc;padding:4px;white-space:normal;word-wrap:break-word;word-break:break-all;">
+            Comments
+          </th>
+            </tr><tr>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello</td>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello</td>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">Sub-hourly: 190 mins interval</td>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello</td>
+              </tr><tr>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello</td>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello</td>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">Monthly</td>
+                <td style="border:1px solid #ccc;padding:10px;white-space:normal;word-wrap:break-word;word-break:break-word;">hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellov</td>
+              </tr></tbody></table><ul style='margin: 20px 0 20px 30px; line-height: 1.6;'><li style='margin-bottom: 10px;'>Data should be available for analysis in real or near-real time through a continuous and automated data acquisition process.</li><li style='margin-bottom: 10px;'>The technology will have the capability to consolidate meter readings to create virtual meter points. In other words, it can add and subtract the readings from multiple meters at the same interval, to produce a calculated time series of energy use.</li><li style='margin-bottom: 10px;'>The technology will be able to upload and store a minimum history of 5 years of energy use or other data from standard spreadsheet or text file formats.</li><li style='margin-bottom: 10px;'>The technology will have the capacity to store at least 5 years of data, trended at intervals up to 15 minutes for analysis, reporting, and visualization.</li><li style='margin-bottom: 10px;'>The technology will have the ability to parse out data cluster displays into coincident time intervals ranging from 10 minutes to 1 year.</li></ul></div>
+        </body>
+      </html>
+    
