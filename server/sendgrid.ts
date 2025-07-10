@@ -41,7 +41,24 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 }
 
 export async function sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
-  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+  // Use the same URL detection logic as contractor invitations
+  let baseUrl = process.env.FRONTEND_URL;
+  
+  if (!baseUrl) {
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+      console.log(`[PASSWORD RESET URL] Using Replit dev domain: ${baseUrl}`);
+    } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+      console.log(`[PASSWORD RESET URL] Using Replit production domain: ${baseUrl}`);
+    } else {
+      baseUrl = 'http://localhost:5000';
+      console.log(`[PASSWORD RESET URL] Using local development domain: ${baseUrl}`);
+    }
+  } else {
+    console.log(`[PASSWORD RESET URL] Using configured FRONTEND_URL: ${baseUrl}`);
+  }
+  
   const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
   
   return sendEmail({
@@ -120,18 +137,24 @@ export async function sendContractorTeamInvitationEmail(params: ContractorTeamIn
   if (!baseUrl) {
     // Auto-detect environment based on Replit environment variables
     if (process.env.REPLIT_DEV_DOMAIN) {
-      // Replit development environment
+      // Replit development environment - use current domain
       baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+      console.log(`[EMAIL URL] Using Replit dev domain: ${baseUrl}`);
     } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
       // Replit production deployment
-      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+      console.log(`[EMAIL URL] Using Replit production domain: ${baseUrl}`);
     } else if (process.env.NODE_ENV === 'production') {
       // Generic production environment
       baseUrl = 'https://your-production-domain.com';
+      console.log(`[EMAIL URL] Using generic production domain: ${baseUrl}`);
     } else {
       // Local development
       baseUrl = 'http://localhost:5000';
+      console.log(`[EMAIL URL] Using local development domain: ${baseUrl}`);
     }
+  } else {
+    console.log(`[EMAIL URL] Using configured FRONTEND_URL: ${baseUrl}`);
   }
   
   const acceptUrl = `${baseUrl}/accept-contractor-invite/${invitationToken}`;

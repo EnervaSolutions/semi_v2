@@ -212,8 +212,23 @@ export function registerRoutes(app: Express) {
       // Set temporary password in database
       await dbStorage.setTemporaryPassword(email, tempPassword);
 
-      // Send email via SendGrid
+      // Send email via SendGrid with proper login URL
       const { sendEmail } = await import('./sendgrid');
+      
+      // Get the correct base URL for login links
+      let baseUrl = process.env.FRONTEND_URL;
+      if (!baseUrl) {
+        if (process.env.REPLIT_DEV_DOMAIN) {
+          baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+        } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+          baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+        } else {
+          baseUrl = 'http://localhost:5000';
+        }
+      }
+      
+      const loginUrl = `${baseUrl}/auth`;
+      console.log(`[FORGOT PASSWORD] Using login URL: ${loginUrl}`);
       
       const emailSent = await sendEmail({
         to: email,
@@ -224,7 +239,7 @@ export function registerRoutes(app: Express) {
             <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
               <div style="text-align: center; margin-bottom: 30px;">
                 <h1 style="color: #2563eb; margin: 0; font-size: 28px;">SEMI Program</h1>
-                <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 16px;">Sustainable Energy Management Initiative</p>
+                <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 16px;">Strategic Energy Management Initiative</p>
               </div>
               
               <h2 style="color: #333; margin-bottom: 20px;">Temporary Password Request</h2>
@@ -234,14 +249,20 @@ export function registerRoutes(app: Express) {
               
               <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 20px; margin: 25px 0;">
                 <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 18px;">Your Temporary Password</h3>
-                <p style="margin: 5px 0; color: #92400e; font-size: 18px;">
+                <p style="margin: 5px 0; color: #92400e; font-size: 20px; font-family: monospace;">
                   <strong>${tempPassword}</strong>
                 </p>
               </div>
               
-              <p style="color: #555; line-height: 1.6; margin-bottom: 15px;">
-                Please log in with this temporary password and you'll be prompted to set a new password.
+              <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
+                Use this temporary password to log in and you'll be prompted to set a new password.
               </p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${loginUrl}" style="background-color: #2563eb; color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 16px;">
+                  Log In to SEMI Program
+                </a>
+              </div>
               
               <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px; margin: 25px 0;">
                 <p style="margin: 0; color: #6b7280; font-size: 14px;">

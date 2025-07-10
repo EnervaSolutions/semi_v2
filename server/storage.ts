@@ -2847,6 +2847,21 @@ export class DatabaseStorage implements IStorage {
         try {
           const { sendEmail } = await import('./sendgrid');
           
+          // Get the correct base URL for login links
+          let baseUrl = process.env.FRONTEND_URL;
+          if (!baseUrl) {
+            if (process.env.REPLIT_DEV_DOMAIN) {
+              baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+            } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+              baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+            } else {
+              baseUrl = 'http://localhost:5000';
+            }
+          }
+          
+          const loginUrl = `${baseUrl}/auth`;
+          console.log(`[ADMIN USER EMAIL] Using login URL: ${loginUrl}`);
+          
           const emailSent = await sendEmail({
             to: user.email,
             from: process.env.SENDGRID_FROM_EMAIL || 'harsanjit.bhullar@enerva.ca',
@@ -2869,7 +2884,7 @@ export class DatabaseStorage implements IStorage {
                     <p style="margin: 5px 0; color: #374151;">
                       <strong>Email:</strong> ${user.email}
                     </p>
-                    <p style="margin: 5px 0; color: #374151;">
+                    <p style="margin: 5px 0; color: #374151; font-family: monospace; font-size: 16px;">
                       <strong>Temporary Password:</strong> ${userData.password}
                     </p>
                   </div>
@@ -2882,8 +2897,8 @@ export class DatabaseStorage implements IStorage {
                   </div>
                   
                   <div style="text-align: center; margin: 30px 0;">
-                    <a href="${process.env.FRONTEND_URL || 'https://janeway.replit.dev'}/auth" 
-                       style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
+                    <a href="${loginUrl}" 
+                       style="background-color: #2563eb; color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px;">
                       Log In to SEMI Program
                     </a>
                   </div>
