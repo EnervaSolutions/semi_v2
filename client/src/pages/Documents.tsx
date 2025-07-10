@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -154,14 +154,15 @@ export default function Documents() {
 
   const handleDeleteDocument = async (documentId: number) => {
     try {
-      await apiRequest('DELETE', `/api/documents/${documentId}`);
+      await apiRequest(`/api/documents/${documentId}`, 'DELETE');
       toast({
         title: "Document deleted",
         description: "The document has been successfully deleted.",
       });
-      // Refresh the page or invalidate queries as needed
-      window.location.reload();
+      // Invalidate queries to refresh the documents list
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
     } catch (error) {
+      console.error('Delete document error:', error);
       toast({
         title: "Delete failed",
         description: "There was an error deleting the document.",
