@@ -90,21 +90,30 @@ export function getBaseUrl(): string {
     return process.env.FRONTEND_URL;
   }
   
-  // 2. Check for Replit production deployment
+  // 2. Check for Replit production deployment (.replit.app)
   if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
     const url = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
     console.log(`[URL] Using Replit production domain: ${url}`);
     return url;
   }
   
-  // 3. Check for Replit development domain
+  // 3. Check for Replit development domain (replit.dev)
   if (process.env.REPLIT_DEV_DOMAIN) {
     const url = `https://${process.env.REPLIT_DEV_DOMAIN}`;
     console.log(`[URL] Using Replit dev domain: ${url}`);
     return url;
   }
   
-  // 4. Check for custom domain in production
+  // 4. Check for Render.com production environment
+  if (process.env.NODE_ENV === 'production' && process.env.RENDER) {
+    // For Render deployments, construct URL from service name
+    const serviceName = process.env.RENDER_SERVICE_NAME || 'semi-program';
+    const url = `https://${serviceName}.onrender.com`;
+    console.log(`[URL] Using Render production domain: ${url}`);
+    return url;
+  }
+  
+  // 5. Check for custom domain in production  
   if (process.env.NODE_ENV === 'production' && process.env.DOMAIN) {
     const url = `https://${process.env.DOMAIN}`;
     console.log(`[URL] Using custom production domain: ${url}`);

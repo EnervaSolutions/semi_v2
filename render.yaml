@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: semi-program
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: semi-database
+          property: connectionString
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://semi-program.onrender.com
+    autoDeploy: false
+
+databases:
+  - name: semi-database
+    databaseName: semi
+    user: semi_user
+    plan: free
