@@ -4946,16 +4946,66 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (submission) {
-      // Update application status to allow progression to next activity
-      await db
-        .update(applications)
-        .set({
-          status: 'approved',
-          updatedAt: new Date()
-        })
-        .where(eq(applications.id, submission.applicationId));
+      console.log(`[APPROVAL] Processing workflow progression for application ${submission.applicationId}`);
       
-      console.log(`[APPROVAL] Updated application ${submission.applicationId} status to 'approved'`);
+      // Get application details to determine next steps
+      const [application] = await db
+        .select()
+        .from(applications)
+        .where(eq(applications.id, submission.applicationId))
+        .limit(1);
+      
+      if (application) {
+        // Get all available templates for this activity type to determine next activity
+        const availableTemplates = await this.getActivityTemplates(application.activityType);
+        console.log(`[APPROVAL] Found ${availableTemplates.length} available templates for ${application.activityType}`);
+        
+        // Get all submitted activities for this application
+        const submittedActivities = await db
+          .select()
+          .from(activityTemplateSubmissions)
+          .where(
+            and(
+              eq(activityTemplateSubmissions.applicationId, submission.applicationId),
+              eq(activityTemplateSubmissions.status, 'submitted'),
+              eq(activityTemplateSubmissions.approvalStatus, 'approved')
+            )
+          );
+        
+        console.log(`[APPROVAL] Application has ${submittedActivities.length} approved submissions out of ${availableTemplates.length} total templates`);
+        
+        // Determine next status based on workflow progression
+        let newStatus = 'approved';
+        let statusDescription = 'Approved';
+        
+        if (submittedActivities.length < availableTemplates.length) {
+          // More activities available - application can progress to next activity
+          const nextTemplateIndex = submittedActivities.length;
+          const nextTemplate = availableTemplates[nextTemplateIndex];
+          
+          if (nextTemplate) {
+            newStatus = 'in_progress';
+            statusDescription = `${nextTemplate.name} Available`;
+            console.log(`[APPROVAL] Application can progress to next activity: ${nextTemplate.name}`);
+          }
+        } else {
+          // All activities completed and approved
+          newStatus = 'completed';
+          statusDescription = 'All Activities Approved';
+          console.log(`[APPROVAL] Application completed - all activities approved`);
+        }
+        
+        // Update application with new workflow status
+        await db
+          .update(applications)
+          .set({
+            status: newStatus,
+            updatedAt: new Date()
+          })
+          .where(eq(applications.id, submission.applicationId));
+        
+        console.log(`[APPROVAL] Updated application ${submission.applicationId} status to '${newStatus}' (${statusDescription})`);
+      }
     }
     
     return submission;
@@ -5031,16 +5081,28 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (submission) {
-      // Update application status to indicate need for revision
-      await db
-        .update(applications)
-        .set({
-          status: 'under_review',
-          updatedAt: new Date()
-        })
-        .where(eq(applications.id, submission.applicationId));
+      console.log(`[REJECTION] Processing rejection workflow for application ${submission.applicationId}`);
       
-      console.log(`[REJECTION] Application ${submission.applicationId} marked for revision - user must update and resubmit`);
+      // Get application details
+      const [application] = await db
+        .select()
+        .from(applications)
+        .where(eq(applications.id, submission.applicationId))
+        .limit(1);
+      
+      if (application) {
+        // Update application status to indicate rejection and need for revision
+        await db
+          .update(applications)
+          .set({
+            status: 'revision_required',
+            updatedAt: new Date()
+          })
+          .where(eq(applications.id, submission.applicationId));
+        
+        console.log(`[REJECTION] Application ${submission.applicationId} marked as 'revision_required' - user must modify and resubmit`);
+        console.log(`[REJECTION] Submission ${submissionId} reverted to 'draft' status for resubmission`);
+      }
     }
     
     return submission;
