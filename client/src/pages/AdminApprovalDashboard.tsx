@@ -51,7 +51,10 @@ export default function AdminApprovalDashboard() {
       });
     },
     onSuccess: () => {
+      // Refresh approval dashboard data and overall applications data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
       toast({
         title: "Submission Approved",
         description: "The submission has been approved successfully.",
@@ -73,10 +76,13 @@ export default function AdminApprovalDashboard() {
       });
     },
     onSuccess: () => {
+      // Refresh approval dashboard data and overall applications data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
       toast({
         title: "Submission Rejected",
-        description: "The submission has been rejected.",
+        description: "The submission has been rejected and reverted to draft status for resubmission.",
       });
     },
     onError: () => {

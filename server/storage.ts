@@ -2209,6 +2209,33 @@ export class DatabaseStorage implements IStorage {
     
     console.log(`[STORAGE] Proceeding with activityTemplateSubmissions insert...`);
     
+    // Check if this is a resubmission of a previously rejected application
+    if (submission.status === 'submitted') {
+      console.log(`[STORAGE] Checking for resubmission scenario...`);
+      
+      // Get current application status to see if it was rejected/revision_required
+      const [application] = await db
+        .select({ status: applications.status })
+        .from(applications)
+        .where(eq(applications.id, submission.applicationId))
+        .limit(1);
+        
+      if (application && (application.status === 'revision_required' || application.status === 'rejected')) {
+        console.log(`[STORAGE] Resubmission detected - application status is '${application.status}', resetting to 'submitted'`);
+        
+        // Reset application status to allow normal workflow progression
+        await db
+          .update(applications)
+          .set({
+            status: 'submitted',
+            updatedAt: new Date()
+          })
+          .where(eq(applications.id, submission.applicationId));
+          
+        console.log(`[STORAGE] Application ${submission.applicationId} status reset to 'submitted' for resubmission`);
+      }
+    }
+    
     const [created] = await db
       .insert(activityTemplateSubmissions)
       .values({
@@ -2218,7 +2245,8 @@ export class DatabaseStorage implements IStorage {
         status: submission.status || 'draft',
         submittedAt: submission.submittedAt,
         data: typeof submission.submissionData === 'string' ? JSON.parse(submission.submissionData) : (submission.submissionData || {}),
-        templateSnapshot: typeof submission.templateSnapshot === 'string' ? JSON.parse(submission.templateSnapshot) : (submission.templateSnapshot || {})
+        templateSnapshot: typeof submission.templateSnapshot === 'string' ? JSON.parse(submission.templateSnapshot) : (submission.templateSnapshot || {}),
+        approvalStatus: 'pending' // Reset approval status for new submission
       })
       .returning();
       
@@ -5081,6 +5109,8 @@ export class DatabaseStorage implements IStorage {
               updatedAt: new Date()
             })
             .where(eq(activityTemplateSubmissions.id, submissionId));
+            
+          console.log(`[REJECTION] Submission ${submissionId} status reverted to 'draft' for resubmission`);
         }
       } catch (err) {
         console.error(`[REJECTION] Error updating submission ${submissionId}:`, err);
@@ -5099,16 +5129,16 @@ export class DatabaseStorage implements IStorage {
         .limit(1);
       
       if (application) {
-        // Update application status to "rejected" for admin visibility and tracking
+        // Update application status to "revision_required" to indicate rejection but allow resubmission
         await db
           .update(applications)
           .set({
-            status: 'rejected',
+            status: 'revision_required',
             updatedAt: new Date()
           })
           .where(eq(applications.id, submission.applicationId));
         
-        console.log(`[REJECTION] Application ${submission.applicationId} marked as 'Rejected' status for admin tracking`);
+        console.log(`[REJECTION] Application ${submission.applicationId} marked as 'revision_required' status - user can resubmit`);
         console.log(`[REJECTION] Submission ${submissionId} reverted to 'draft' status - user can modify and resubmit`);
       }
     }

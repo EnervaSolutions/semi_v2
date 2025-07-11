@@ -276,8 +276,10 @@ export default function ApplicationDetails() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate all related queries to update the rejection status
       queryClient.invalidateQueries({ queryKey: ['/api/applications', id] });
       queryClient.invalidateQueries({ queryKey: ['/api/applications', id, 'submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] }); // Also refresh main applications list
       toast({ title: "Success", description: "Activity submitted successfully" });
       setShowConfirmDialog(false);
       setPendingSubmission(null);
@@ -471,6 +473,40 @@ export default function ApplicationDetails() {
             Back to Dashboard
           </Button>
         </Link>
+        
+        {/* Rejection Message */}
+        {(application.status === 'revision_required' || application.status === 'rejected') && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-red-900">Application Rejected</h3>
+                  <p className="text-red-800">
+                    Your application has been rejected and requires revision. Please review the feedback below, 
+                    make necessary changes, and resubmit your application.
+                  </p>
+                  {/* Show rejection notes from latest rejected submission */}
+                  {submissions
+                    .filter((s: any) => s.approvalStatus === 'rejected')
+                    .sort((a: any, b: any) => new Date(b.reviewedAt).getTime() - new Date(a.reviewedAt).getTime())
+                    .slice(0, 1)
+                    .map((rejection: any) => (
+                      <div key={rejection.id} className="mt-3 p-3 bg-white border border-red-200 rounded-lg">
+                        <p className="text-sm font-medium text-gray-900">Review Comments:</p>
+                        <p className="text-sm text-gray-700 mt-1">
+                          {rejection.reviewNotes || 'No specific comments provided.'}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Reviewed on {new Date(rejection.reviewedAt).toLocaleDateString()} by {rejection.reviewedBy || 'Admin'}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         <div className="space-y-6">
           {/* Facility Name - Primary Header */}
