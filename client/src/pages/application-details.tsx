@@ -127,6 +127,21 @@ export default function ApplicationDetails() {
   // Debug submissions
   console.log('Submissions data:', submissions);
 
+  // Query for contractor application permissions
+  const { data: contractorPermissionsResponse } = useQuery({
+    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${id}`],
+    enabled: !!user?.id && !!id && user?.role === 'contractor_team_member',
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+  
+  const contractorPermissions = contractorPermissionsResponse?.permissions || [];
+  
+  // Debug logging for permission system
+  console.log('[PERMISSION DEBUG] User:', user?.role, user?.id);
+  console.log('[PERMISSION DEBUG] Application ID:', id);
+  console.log('[PERMISSION DEBUG] Contractor Permissions Response:', contractorPermissionsResponse);
+  console.log('[PERMISSION DEBUG] Extracted Permissions:', contractorPermissions);
+
   // Start phase mutation
   const startPhaseMutation = useMutation({
     mutationFn: async ({ applicationId, phase }: { applicationId: number, phase: string }) => {
@@ -1138,21 +1153,6 @@ function TemplateSection({
       onSubmit(formData);
     }
   };
-
-  // Query for contractor application permissions
-  const { data: contractorPermissionsResponse } = useQuery({
-    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${id}`],
-    enabled: !!user?.id && !!id && user?.role === 'contractor_team_member',
-    staleTime: 1000 * 60 * 5 // 5 minutes
-  });
-  
-  const contractorPermissions = contractorPermissionsResponse?.permissions || [];
-  
-  // Debug logging for permission system
-  console.log('[PERMISSION DEBUG] User:', user?.role, user?.id);
-  console.log('[PERMISSION DEBUG] Application ID:', id);
-  console.log('[PERMISSION DEBUG] Contractor Permissions Response:', contractorPermissionsResponse);
-  console.log('[PERMISSION DEBUG] Extracted Permissions:', contractorPermissions);
 
   // Updated permission logic for new contractor workflow
   const isViewer = useMemo(() => {
