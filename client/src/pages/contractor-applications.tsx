@@ -12,6 +12,7 @@ import { Link } from "wouter";
 import { useState, useMemo } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import { hasContractorPermission, canManageContractorTeam, canEditApplicationPermissions } from "@/lib/contractor-permissions";
+import ContractorTeamAssignmentDialog from "@/components/ContractorTeamAssignmentDialog";
 
 interface ContractorUser {
   id: string;
@@ -65,14 +66,10 @@ export default function ContractorApplications() {
   const queryClient = useQueryClient();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<AssignedApplication | null>(null);
-  const [selectedTeamMember, setSelectedTeamMember] = useState("");
-  const [permissions, setPermissions] = useState<string[]>(["view"]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"assignedDate" | "createdAt" | "applicationId">("assignedDate");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [selectedTeamMembers, setSelectedTeamMembers] = useState<string[]>([]);
-  const [memberPermissions, setMemberPermissions] = useState<Record<string, string[]>>({});
 
   // Fetch current user
   const { data: user } = useQuery<ContractorUser>({
@@ -91,31 +88,7 @@ export default function ContractorApplications() {
     enabled: !!user?.id,
   });
 
-  // Assignment mutations
-  const assignMutation = useMutation({
-    mutationFn: async ({ applicationId, userId, permissions }: { applicationId: number; userId: string; permissions: string[] }) => {
-      return apiRequest(`/api/contractor/applications/${applicationId}/assign`, "POST", {
-        userId,
-        permissions
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
-      setSelectedTeamMember("");
-      setPermissions(["view"]);
-      toast({
-        title: "Success",
-        description: "Team member assigned successfully",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to assign team member",
-        variant: "destructive",
-      });
-    },
-  });
+  // Keep removeAssignmentMutation for trash icon functionality
 
   const removeAssignmentMutation = useMutation({
     mutationFn: async ({ applicationId, userId }: { applicationId: number; userId: string }) => {
@@ -508,187 +481,13 @@ export default function ContractorApplications() {
         </div>
       )}
 
-      {/* Enhanced Multiple Team Member Assignment Dialog */}
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Assign Team Members to Application</DialogTitle>
-            <DialogDescription>
-              Add multiple team members to {selectedApplication?.applicationId} with custom permissions
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6">
-            {/* Available Team Members */}
-            <div>
-              <label className="text-sm font-medium mb-3 block">Available Team Members</label>
-              <div className="space-y-3 max-h-60 overflow-y-auto border rounded-md p-3">
-                {teamMembers.filter(member => member.id !== user?.id).map((member) => {
-                  const isSelected = selectedTeamMembers.includes(member.id);
-                  const currentPermissions = memberPermissions[member.id] || ["view"];
-                  
-                  return (
-                    <div key={member.id} className={`p-3 border rounded-lg ${isSelected ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedTeamMembers([...selectedTeamMembers, member.id]);
-                                setMemberPermissions({
-                                  ...memberPermissions,
-                                  [member.id]: ["view"]
-                                });
-                              } else {
-                                setSelectedTeamMembers(selectedTeamMembers.filter(id => id !== member.id));
-                                const newPermissions = { ...memberPermissions };
-                                delete newPermissions[member.id];
-                                setMemberPermissions(newPermissions);
-                              }
-                            }}
-                          />
-                          <div>
-                            <div className="font-medium text-sm">
-                              {member.firstName} {member.lastName}
-                            </div>
-                            <div className="text-xs text-gray-600">{member.email}</div>
-                            <div className="text-xs text-gray-500">
-                              {member.role.replace('contractor_', '').replace('_', ' ')} • {member.permissionLevel}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {isSelected && (
-                          <div className="flex flex-col gap-2">
-                            <div className="text-xs font-medium text-gray-700">Permissions:</div>
-                            <div className="flex gap-2">
-                              <div className="flex items-center space-x-1">
-                                <Checkbox
-                                  id={`view-${member.id}`}
-                                  checked={currentPermissions.includes("view")}
-                                  onCheckedChange={(checked) => {
-                                    const newPermissions = checked
-                                      ? [...currentPermissions, "view"]
-                                      : currentPermissions.filter(p => p !== "view");
-                                    setMemberPermissions({
-                                      ...memberPermissions,
-                                      [member.id]: newPermissions
-                                    });
-                                  }}
-                                />
-                                <label htmlFor={`view-${member.id}`} className="text-xs">View</label>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Checkbox
-                                  id={`edit-${member.id}`}
-                                  checked={currentPermissions.includes("edit")}
-                                  onCheckedChange={(checked) => {
-                                    const newPermissions = checked
-                                      ? [...currentPermissions, "edit"]
-                                      : currentPermissions.filter(p => p !== "edit");
-                                    setMemberPermissions({
-                                      ...memberPermissions,
-                                      [member.id]: newPermissions
-                                    });
-                                  }}
-                                />
-                                <label htmlFor={`edit-${member.id}`} className="text-xs">Edit</label>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {teamMembers.filter(member => member.id !== user?.id).length === 0 && (
-                  <div className="text-center py-4 text-gray-500">
-                    No team members available. Add team members in Team Management first.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Selected Members Summary */}
-            {selectedTeamMembers.length > 0 && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">Selected Members ({selectedTeamMembers.length})</label>
-                <div className="space-y-2 p-3 bg-green-50 border border-green-200 rounded-md">
-                  {selectedTeamMembers.map(memberId => {
-                    const member = teamMembers.find(m => m.id === memberId);
-                    const permissions = memberPermissions[memberId] || ["view"];
-                    return (
-                      <div key={memberId} className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{member?.firstName} {member?.lastName}</span>
-                        <div className="flex gap-1">
-                          {permissions.map(perm => (
-                            <Badge key={perm} variant="secondary" className="text-xs">
-                              {perm}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setAssignDialogOpen(false);
-                setSelectedApplication(null);
-                setSelectedTeamMembers([]);
-                setMemberPermissions({});
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={async () => {
-                if (selectedApplication && selectedTeamMembers.length > 0) {
-                  try {
-                    // Assign each selected team member
-                    for (const memberId of selectedTeamMembers) {
-                      const permissions = memberPermissions[memberId] || ["view"];
-                      await assignMutation.mutateAsync({
-                        applicationId: selectedApplication.id,
-                        userId: memberId,
-                        permissions
-                      });
-                    }
-                    
-                    // Reset form
-                    setAssignDialogOpen(false);
-                    setSelectedApplication(null);
-                    setSelectedTeamMembers([]);
-                    setMemberPermissions({});
-                    
-                    toast({
-                      title: "Success",
-                      description: `${selectedTeamMembers.length} team member(s) assigned successfully`,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to assign team members",
-                      variant: "destructive",
-                    });
-                  }
-                }
-              }}
-              disabled={selectedTeamMembers.length === 0 || assignMutation.isPending}
-            >
-              {assignMutation.isPending ? "Assigning..." : `Assign ${selectedTeamMembers.length} Member(s)`}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Radio Button Team Assignment Dialog */}
+      <ContractorTeamAssignmentDialog
+        open={assignDialogOpen}
+        onOpenChange={setAssignDialogOpen}
+        applicationId={selectedApplication?.id?.toString()}
+        applicationTitle={selectedApplication?.applicationId}
+      />
     </div>
   );
 }
