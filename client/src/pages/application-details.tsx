@@ -1141,8 +1141,8 @@ function TemplateSection({
 
   // Query for contractor application permissions
   const { data: contractorPermissionsResponse } = useQuery({
-    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${applicationId}`],
-    enabled: !!user?.id && !!applicationId && user?.role === 'contractor_team_member',
+    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${id}`],
+    enabled: !!user?.id && !!id && user?.role === 'contractor_team_member',
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
   
@@ -1150,7 +1150,7 @@ function TemplateSection({
   
   // Debug logging for permission system
   console.log('[PERMISSION DEBUG] User:', user?.role, user?.id);
-  console.log('[PERMISSION DEBUG] Application ID:', applicationId);
+  console.log('[PERMISSION DEBUG] Application ID:', id);
   console.log('[PERMISSION DEBUG] Contractor Permissions Response:', contractorPermissionsResponse);
   console.log('[PERMISSION DEBUG] Extracted Permissions:', contractorPermissions);
 
