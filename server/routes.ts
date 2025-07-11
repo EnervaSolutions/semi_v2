@@ -3113,18 +3113,7 @@ export function registerRoutes(app: Express) {
     try {
       const user = req.user;
       
-      // Check if user has permission to submit templates
-      // System admins can submit regardless of permission level
-      // Other users need editor/manager/owner permission level
-      // Contractors can only save progress, not submit
-      const hasSubmitPermission = user.role === 'system_admin' ||
-                                   user.role === 'company_admin' ||
-                                   (user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel));
-      
-      if (!hasSubmitPermission) {
-        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, owners, and admins can submit templates." });
-      }
-      
+      // Extract request data first
       const {
         applicationId,
         activityTemplateId,
@@ -3133,6 +3122,29 @@ export function registerRoutes(app: Express) {
         templateSnapshot,
         status = 'draft'
       } = req.body;
+      
+      // Check if user has permission based on the action (save vs submit)
+      const isDraft = status === 'draft' || status === 'in_progress';
+      const isSubmission = status === 'submitted';
+      
+      // Anyone with edit permissions can save drafts/progress
+      const canSaveProgress = user.role === 'system_admin' ||
+                             user.role === 'company_admin' ||
+                             user.role?.startsWith('contractor_') ||
+                             (user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel));
+      
+      // Only company admins and team members can submit (not contractors)
+      const canSubmit = user.role === 'system_admin' ||
+                       user.role === 'company_admin' ||
+                       (user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel));
+      
+      if (isDraft && !canSaveProgress) {
+        return res.status(403).json({ message: "Insufficient permissions to save progress." });
+      }
+      
+      if (isSubmission && !canSubmit) {
+        return res.status(403).json({ message: "Insufficient permissions to submit templates. Only company admins and team members can submit." });
+      }
       
       console.log(`[SUBMISSION] === TEMPLATE SUBMISSION DEBUG ===`);
       console.log(`[SUBMISSION] User: ${user.email} (${user.role})`);
