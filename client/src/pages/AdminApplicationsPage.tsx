@@ -125,6 +125,27 @@ export default function AdminApplicationsPage() {
     }
   };
 
+  // Get detailed status for an application - matches application details page logic
+  const getDetailedStatusLabel = (application: any) => {
+    // Check for completion status
+    if (application?.status === 'approved' || application?.status === 'completed') {
+      return 'All Activities Approved';
+    }
+    
+    // Use backend-calculated detailed status when available
+    if (application && application.detailedStatus) {
+      return application.detailedStatus;
+    }
+    
+    // Use backend-calculated status label if available
+    if (application && application.detailedStatusLabel) {
+      return application.detailedStatusLabel;
+    }
+    
+    // Final fallback to basic status
+    return application?.status === 'draft' ? 'Draft' : 'In Progress';
+  };
+
   // Filter applications
   const filteredApplications = applications.filter((application: any) => {
     const matchesSearch = 
@@ -390,8 +411,8 @@ export default function AdminApplicationsPage() {
                         </Badge>
                       </td>
                       <td className="p-4">
-                        <Badge variant={getStatusVariant(application.detailedStatus || application.status)} className="text-xs">
-                          {application.detailedStatus || application.status.replace('_', ' ')}
+                        <Badge variant={getStatusVariant(getDetailedStatusLabel(application))} className="text-xs">
+                          {getDetailedStatusLabel(application)}
                         </Badge>
                       </td>
                       <td className="p-4">

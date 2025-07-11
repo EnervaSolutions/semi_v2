@@ -818,29 +818,115 @@ export default function ApplicationDetails() {
           </Card>
         </TabsContent>
 
-        {templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0)).map((template: any) => (
-          <TabsContent key={template.id} value={`template_${template.id}`} className="space-y-6">
-            <TemplateSection 
-              template={template}
-              application={application}
-              submissions={submissions}
-              onFileUpload={(files: FileList) => handleFileUpload(files, `template_${template.id}`)}
-              onSubmit={(formData: any) => {
-                setPendingSubmission({ phase: `template_${template.id}`, formData, templateId: template.id });
-                setShowConfirmDialog(true);
-              }}
-              onSave={(formData: any, templateId: number) => {
-                saveTemplateMutation.mutate({
-                  templateId: templateId,
-                  formData: formData
-                });
-              }}
-              canSubmit={canSubmitApplication}
-              uploading={uploadingFiles[`template_${template.id}`]}
-              user={user}
-            />
-          </TabsContent>
-        ))}
+        {templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0)).map((template: any, index: number) => {
+          const submission = submissions.find((s: any) => s.formTemplateId === template.id);
+          const isApproved = submission?.status === 'submitted' && submission?.approvalStatus === 'approved';
+          const isPending = submission?.status === 'submitted' && submission?.approvalStatus === 'pending';
+          const isRejected = submission?.status === 'submitted' && submission?.approvalStatus === 'rejected';
+          const sortedTemplates = templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          const isLastTemplate = index === sortedTemplates.length - 1;
+          const nextTemplate = sortedTemplates[index + 1];
+          
+          return (
+            <TabsContent key={template.id} value={`template_${template.id}`} className="space-y-6">
+              {/* Activity Status Messages */}
+              {isApproved && (
+                <Card className="border-green-200 bg-green-50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-green-900">Activity Approved!</h3>
+                        <p className="text-green-800">
+                          Your "{template.name}" activity has been approved by the system administrator.
+                        </p>
+                        {!isLastTemplate && nextTemplate && (
+                          <p className="text-green-800">
+                            You can now proceed to the next activity: <strong>"{nextTemplate.name}"</strong>
+                          </p>
+                        )}
+                        {isLastTemplate && (
+                          <p className="text-green-800">
+                            <strong>Congratulations!</strong> You have completed all required activities for this application.
+                          </p>
+                        )}
+                        {submission?.reviewedAt && (
+                          <p className="text-xs text-green-600 mt-2">
+                            Approved on {new Date(submission.reviewedAt).toLocaleDateString()} by {submission.reviewedBy || 'System Admin'}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {isPending && (
+                <Card className="border-yellow-200 bg-yellow-50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <Clock className="h-5 w-5 text-yellow-600 mt-0.5" />
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-yellow-900">Under Review</h3>
+                        <p className="text-yellow-800">
+                          Your "{template.name}" activity is currently being reviewed by the system administrator.
+                        </p>
+                        <p className="text-yellow-800">
+                          Please wait for approval before proceeding to the next activity.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {isRejected && (
+                <Card className="border-red-200 bg-red-50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-red-900">Activity Rejected</h3>
+                        <p className="text-red-800">
+                          Your "{template.name}" activity has been rejected and requires revision.
+                        </p>
+                        {submission?.reviewNotes && (
+                          <div className="mt-3 p-3 bg-white border border-red-200 rounded-lg">
+                            <p className="text-sm font-medium text-gray-900">Review Comments:</p>
+                            <p className="text-sm text-gray-700 mt-1">{submission.reviewNotes}</p>
+                          </div>
+                        )}
+                        <p className="text-red-800">
+                          Please address the feedback and resubmit this activity.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <TemplateSection 
+                template={template}
+                application={application}
+                submissions={submissions}
+                onFileUpload={(files: FileList) => handleFileUpload(files, `template_${template.id}`)}
+                onSubmit={(formData: any) => {
+                  setPendingSubmission({ phase: `template_${template.id}`, formData, templateId: template.id });
+                  setShowConfirmDialog(true);
+                }}
+                onSave={(formData: any, templateId: number) => {
+                  saveTemplateMutation.mutate({
+                    templateId: templateId,
+                    formData: formData
+                  });
+                }}
+                canSubmit={canSubmitApplication}
+                uploading={uploadingFiles[`template_${template.id}`]}
+                user={user}
+              />
+            </TabsContent>
+          );
+        })}
 
         <TabsContent value="documents" className="space-y-6">
           <DocumentsSection 
