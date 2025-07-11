@@ -61,7 +61,7 @@ export default function ContractorTeam() {
     email: "",
     firstName: "",
     lastName: "",
-    permissionLevel: "viewer"
+    permissionLevel: "editor"
   });
 
   // Fetch current user
@@ -99,7 +99,7 @@ export default function ContractorTeam() {
       }
       
       setIsInvitingMember(false);
-      setInvitationData({ email: "", firstName: "", lastName: "", permissionLevel: "viewer" });
+      setInvitationData({ email: "", firstName: "", lastName: "", permissionLevel: "editor" });
     },
     onError: (error: any) => {
       toast({ 
@@ -313,9 +313,8 @@ export default function ContractorTeam() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="viewer">Viewer - Can view applications and company information</SelectItem>
-                        <SelectItem value="editor">Editor - Can edit applications and company information</SelectItem>
-                        <SelectItem value="manager">Manager - Full access including team management</SelectItem>
+                        <SelectItem value="editor">Editor - Requires individual assignment to applications</SelectItem>
+                        <SelectItem value="manager">Manager - Full access to all applications and team management</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

@@ -1701,21 +1701,23 @@ export function registerRoutes(app: Express) {
       if (user.role && user.role.includes('contractor')) {
         console.log(`[CONTRACTOR APPLICATIONS] Contractor ${user.email} accessing applications for company ${user.companyId}`);
         
-        // Check contractor permission level
-        if (user.role === 'contractor_individual' || user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+        // Simplified contractor role system: 
+        // - Account owners and managers (permissionLevel 'manager') can see all company applications
+        // - Editors (permissionLevel 'editor') only see individually assigned applications
+        if (user.role === 'contractor_individual' || user.role === 'contractor_account_owner' || user.role === 'contractor_manager' || (user.role === 'contractor_team_member' && user.permissionLevel === 'manager')) {
           // Account owners and managers can see all company applications
           console.log(`[CONTRACTOR APPLICATIONS] Account owner/manager ${user.email} - showing all company applications`);
           const applications = await dbStorage.getContractorApplications(user.companyId);
           res.json(applications);
-        } else if (user.role === 'contractor_team_member') {
-          // Regular team members can only see applications specifically assigned to them
-          console.log(`[CONTRACTOR APPLICATIONS] Team member ${user.email} - showing only assigned applications`);
+        } else if (user.role === 'contractor_team_member' && user.permissionLevel === 'editor') {
+          // Editors can only see applications specifically assigned to them
+          console.log(`[CONTRACTOR APPLICATIONS] Editor ${user.email} - showing only individually assigned applications`);
           const applications = await dbStorage.getContractorUserAssignedApplications(user.id);
           res.json(applications);
         } else {
-          // Fallback for unknown contractor roles
-          console.log(`[CONTRACTOR APPLICATIONS] Unknown contractor role ${user.role} for ${user.email} - showing all company applications`);
-          const applications = await dbStorage.getContractorApplications(user.companyId);
+          // Fallback for unknown contractor roles - show individually assigned only
+          console.log(`[CONTRACTOR APPLICATIONS] Unknown contractor role/permission ${user.role}/${user.permissionLevel} for ${user.email} - showing individually assigned applications`);
+          const applications = await dbStorage.getContractorUserAssignedApplications(user.id);
           res.json(applications);
         }
       } else {
@@ -2146,6 +2148,42 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // POST /api/contractor/applications/:id/update-permissions - Update team member permissions for specific application
+  app.post('/api/contractor/applications/:applicationId/update-permissions', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { applicationId } = req.params;
+      const { userId, permissions } = req.body;
+      
+      console.log(`[CONTRACTOR PERMISSIONS] Updating permissions for user ${userId} on application ${applicationId} by ${user.id}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_individual' || 
+                                  user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can update permissions" });
+      }
+      
+      // Update permissions for this specific application assignment
+      await dbStorage.updateApplicationAssignmentPermissions(parseInt(applicationId), userId, permissions);
+      
+      console.log(`[CONTRACTOR PERMISSIONS] Successfully updated permissions for user ${userId} on application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Permissions updated successfully",
+        applicationId: parseInt(applicationId),
+        userId,
+        permissions
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR PERMISSIONS] Error updating permissions:", error);
+      res.status(500).json({ message: error.message || "Failed to update permissions" });
+    }
+  });
+
   // NEW CONTRACTOR TEAM ASSIGNMENT ENDPOINTS FOR INDIVIDUAL CONTRACTOR TEAM MEMBERS
   // POST /api/contractor/team-member/:userId/assign - Assign individual contractor team member to application
   app.post('/api/contractor/team-member/:userId/assign', requireAuth, async (req: any, res: Response) => {
@@ -2389,6 +2427,11 @@ export function registerRoutes(app: Express) {
       const contractorCompany = await dbStorage.getCompanyById(user.companyId);
       if (!contractorCompany) {
         return res.status(404).json({ message: "Contractor company not found" });
+      }
+
+      // Simplified contractor role system - only editor and manager roles allowed
+      if (permissionLevel !== 'editor' && permissionLevel !== 'manager') {
+        return res.status(400).json({ message: "Only editor and manager permission levels are allowed for contractors" });
       }
 
       // Create invitation record

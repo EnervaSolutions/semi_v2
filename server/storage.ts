@@ -4462,6 +4462,11 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Alias for the same method to match the new endpoint naming
+  async updateApplicationAssignmentPermissions(applicationId: number, userId: string, permissions: string[]): Promise<void> {
+    return this.updateContractorAssignmentPermissions(applicationId, userId, permissions);
+  }
+
   async searchContractors(filters: { activityType?: string; region?: string }): Promise<any[]> {
     const conditions = [eq(companies.isContractor, true)];
 
