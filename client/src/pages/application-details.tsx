@@ -909,6 +909,7 @@ export default function ApplicationDetails() {
                 template={template}
                 application={application}
                 submissions={submissions}
+                applicationId={id!}
                 onFileUpload={(files: FileList) => handleFileUpload(files, `template_${template.id}`)}
                 onSubmit={(formData: any) => {
                   setPendingSubmission({ phase: `template_${template.id}`, formData, templateId: template.id });
@@ -1012,6 +1013,7 @@ function TemplateSection({
   template, 
   application, 
   submissions, 
+  applicationId,
   onFileUpload, 
   onSubmit, 
   onSave,
@@ -1022,6 +1024,7 @@ function TemplateSection({
   template: any;
   application: any;
   submissions: any[];
+  applicationId: string;
   onFileUpload: (files: FileList) => void;
   onSubmit: (formData: any) => void;
   onSave: (formData: any, templateId: number) => void;
@@ -1134,11 +1137,13 @@ function TemplateSection({
   };
 
   // Query for contractor application permissions
-  const { data: contractorPermissions = [] } = useQuery({
-    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${id}`],
-    enabled: !!user?.id && !!id && user?.role === 'contractor_team_member',
+  const { data: contractorPermissionsResponse } = useQuery({
+    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${applicationId}`],
+    enabled: !!user?.id && !!applicationId && user?.role === 'contractor_team_member',
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
+  
+  const contractorPermissions = contractorPermissionsResponse?.permissions || [];
 
   // Updated permission logic for new contractor workflow
   const isViewer = useMemo(() => {
