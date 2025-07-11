@@ -21,7 +21,6 @@ import { AlertCircle, Download, Upload, FileText, CheckCircle, Clock, ArrowLeft,
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import ContractorAssignmentDialog from "@/components/ContractorAssignmentDialog";
-import ContractorTeamAssignmentDialog from "@/components/ContractorTeamAssignmentDialog";
 import { canCreateEdit, canContractorEdit, canContractorView } from "@/lib/permissions";
 
 
@@ -41,7 +40,6 @@ export default function ApplicationDetails() {
   const [phasesStarted, setPhasesStarted] = useState<{[key: string]: boolean}>({});
   const [copied, setCopied] = useState(false);
   const [showContractorAssignment, setShowContractorAssignment] = useState(false);
-  const [showContractorTeamAssignment, setShowContractorTeamAssignment] = useState(false);
 
   // Query for assigned contractors
   const { data: assignedContractors = [] } = useQuery({
@@ -624,20 +622,7 @@ export default function ApplicationDetails() {
                 </Button>
               )}
               
-              {/* Contractor Team Assignment Button - Only show for contractor managers */}
-              {(user?.role === 'contractor_account_owner' || 
-                user?.role === 'contractor_manager' || 
-                (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager')) && (
-                <Button
-                  onClick={() => setShowContractorTeamAssignment(true)}
-                  size="sm"
-                  variant="outline"
-                  className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-                >
-                  <Users className="h-4 w-4" />
-                  Assign Team Members
-                </Button>
-              )}
+
             </div>
           </div>
         </div>
@@ -1017,13 +1002,7 @@ export default function ApplicationDetails() {
         applicationTitle={application?.title || ''}
       />
       
-      {/* Contractor Team Assignment Dialog */}
-      <ContractorTeamAssignmentDialog
-        open={showContractorTeamAssignment}
-        onOpenChange={setShowContractorTeamAssignment}
-        applicationId={id}
-        applicationTitle={application?.title || application?.applicationId}
-      />
+
     </div>
   );
 }

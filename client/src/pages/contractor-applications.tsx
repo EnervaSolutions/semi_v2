@@ -87,7 +87,7 @@ export default function ContractorApplications() {
 
   // Fetch team members
   const { data: teamMembers = [] } = useQuery<ContractorUser[]>({
-    queryKey: ["/api/contractor/team-members"],
+    queryKey: ["/api/contractor/team"],
     enabled: !!user?.id,
   });
 
