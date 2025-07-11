@@ -942,6 +942,7 @@ export default function ApplicationDetails() {
                 canSubmit={canSubmitApplication}
                 uploading={uploadingFiles[`template_${template.id}`]}
                 user={user}
+                contractorPermissions={contractorPermissions}
               />
             </TabsContent>
           );
@@ -1037,7 +1038,8 @@ function TemplateSection({
   onSave,
   canSubmit, 
   uploading, 
-  user 
+  user,
+  contractorPermissions 
 }: {
   template: any;
   application: any;
@@ -1049,6 +1051,7 @@ function TemplateSection({
   canSubmit: boolean;
   uploading: boolean;
   user: any;
+  contractorPermissions: string[];
 }) {
   // Check if this template has been submitted for this specific application
   // Prioritize submitted submissions over draft ones, but for contractors use the most recent draft
