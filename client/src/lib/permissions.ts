@@ -110,6 +110,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     PERMISSIONS.UPLOAD_DOCUMENTS,
     PERMISSIONS.VIEW_DOCUMENTS,
     PERMISSIONS.DOWNLOAD_DOCUMENTS,
+    PERMISSIONS.MANAGE_CONTRACTORS,
     PERMISSIONS.VIEW_CONTRACTORS,
   ],
   
@@ -270,4 +271,27 @@ export function canContractorView(user: any, applicationPermissions: string[] = 
   }
   
   return false;
+}
+
+// Contractor team management permissions
+export function canManageContractorTeam(user: any): boolean {
+  if (!user?.role?.startsWith('contractor_')) {
+    return false;
+  }
+  
+  // Account owners and managers can manage teams
+  if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+    return true;
+  }
+  
+  // Team members with manager permission level can also manage teams
+  if (user.role === 'contractor_team_member' && user.permissionLevel === 'manager') {
+    return true;
+  }
+  
+  return false;
+}
+
+export function canEditApplicationPermissions(user: any): boolean {
+  return canManageContractorTeam(user);
 }

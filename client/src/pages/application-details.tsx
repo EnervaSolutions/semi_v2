@@ -352,14 +352,17 @@ export default function ApplicationDetails() {
   };
 
   // Enhanced permission checking for contractors
-  const canEditApplication = canCreateEdit(user);
+  const canEditApplication = canCreateEdit(user) || canContractorEdit(user, contractorPermissions);
   
   // Company admins and system admins can submit applications
   // Team members need editor permission or higher
-  // Contractors can only save progress, not submit
+  // Contractors with appropriate permissions can also submit
   const canSubmitApplication = (
     user?.role === 'company_admin' || 
     user?.role === 'system_admin' || 
+    user?.role === 'contractor_account_owner' ||
+    user?.role === 'contractor_manager' ||
+    (user?.role === 'contractor_team_member' && contractorPermissions.includes('edit')) ||
     canEditApplication
   );
 

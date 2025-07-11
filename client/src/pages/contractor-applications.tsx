@@ -11,7 +11,7 @@ import { CalendarDays, Building2, User, FileText, ExternalLink, Edit, UserPlus, 
 import { Link } from "wouter";
 import { useState, useMemo } from "react";
 import { apiRequest } from "@/lib/queryClient";
-import { hasContractorPermission, canManageContractorTeam, canEditApplicationPermissions } from "@/lib/contractor-permissions";
+import { canManageContractorTeam, canEditApplicationPermissions } from "@/lib/permissions";
 import ContractorTeamAssignmentDialog from "@/components/ContractorTeamAssignmentDialog";
 
 interface ContractorUser {
@@ -345,9 +345,13 @@ export default function ContractorApplications() {
                         <Users className="h-4 w-4 text-gray-400" />
                         <span className="text-gray-600">
                           Your Permissions: {
-                            (user?.role === 'contractor_individual' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager') 
-                              ? 'Account Owner (View & Edit Access)' 
-                              : (application.permissions ? application.permissions.join(', ') : 'View')
+                            user?.role === 'contractor_account_owner' || user?.role === 'contractor_individual'
+                              ? 'Account Owner (View & Edit Access)'
+                              : user?.role === 'contractor_manager'
+                              ? 'Manager (View & Edit Access)' 
+                              : (application.permissions && application.permissions.length > 0 
+                                ? (application.permissions.includes('edit') ? 'Edit' : 'View')
+                                : 'View')
                           }
                         </span>
                       </div>
@@ -400,11 +404,9 @@ export default function ContractorApplications() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <div className="flex gap-1">
-                                    {assignedUser.permissions.map((perm) => (
-                                      <Badge key={perm} variant="secondary" className="text-xs">
-                                        {perm}
-                                      </Badge>
-                                    ))}
+                                    <Badge variant="secondary" className="text-xs">
+                                      {assignedUser.permissions.includes('edit') ? 'Edit' : 'View'}
+                                    </Badge>
                                   </div>
                                   {canEditPermissions && (
                                     <>
@@ -414,7 +416,7 @@ export default function ContractorApplications() {
                                         onClick={() => {
                                           const currentPerms = assignedUser.permissions;
                                           const hasEdit = currentPerms.includes('edit');
-                                          const newPerms = hasEdit ? ['view'] : ['view', 'edit'];
+                                          const newPerms = hasEdit ? ['view'] : ['edit'];
                                           
                                           updatePermissionsMutation.mutate({
                                             applicationId: application.id,
@@ -465,7 +467,10 @@ export default function ContractorApplications() {
                       </Link>
                     </Button>
                     
-                    {hasContractorPermission(user, 'edit', { application }) && (
+                    {(user?.role === 'contractor_account_owner' || 
+                      user?.role === 'contractor_manager' || 
+                      (user?.role === 'contractor_team_member' && 
+                       application.permissions && application.permissions.includes('edit'))) && (
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/applications/${application.id}`}>
                           <Edit className="h-4 w-4 mr-2" />
