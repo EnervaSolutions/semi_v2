@@ -2008,7 +2008,13 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: "Contractor company not found" });
       }
 
-      console.log('[CONTRACTOR TEAM] User details:', { role: user.role, permissionLevel: user.permissionLevel, companyId: user.companyId });
+      console.log('[CONTRACTOR TEAM] User details:', { 
+        role: user.role, 
+        permissionLevel: user.permissionLevel, 
+        permissionLevelType: typeof user.permissionLevel,
+        companyId: user.companyId,
+        fullUser: JSON.stringify(user, null, 2)
+      });
 
       // Check if user is contractor account owner or manager (including contractor team members with manager permissions)
       const hasTeamManagementAccess = user.role === 'contractor_individual' || 
@@ -2018,11 +2024,17 @@ export function registerRoutes(app: Express) {
                                        (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
       
       console.log('[CONTRACTOR TEAM] Team management access check:', { hasTeamManagementAccess, 
+        userRole: user.role,
+        userPermissionLevel: user.permissionLevel,
         isContractorIndividual: user.role === 'contractor_individual',
         isContractorAccountOwner: user.role === 'contractor_account_owner', 
         isContractorManager: user.role === 'contractor_manager',
         isTeamMemberWithManager: user.role === 'team_member' && user.permissionLevel === 'manager',
-        isContractorTeamMemberWithManager: user.role === 'contractor_team_member' && user.permissionLevel === 'manager'
+        isContractorTeamMemberWithManager: user.role === 'contractor_team_member' && user.permissionLevel === 'manager',
+        roleCheck: user.role === 'contractor_team_member',
+        permissionCheck: user.permissionLevel === 'manager',
+        permissionLevelValue: user.permissionLevel,
+        permissionLevelType: typeof user.permissionLevel
       });
       
       if (!hasTeamManagementAccess) {
