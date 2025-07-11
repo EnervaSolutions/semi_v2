@@ -364,6 +364,11 @@ export default function ApplicationDetails() {
 
   // Template-driven status logic
   const getDetailedStatusLabel = () => {
+    // Check for completion status
+    if (application?.status === 'approved' || application?.status === 'completed') {
+      return 'All Activities Approved';
+    }
+    
     // Use backend-calculated detailed status when available
     if (application && (application as any).detailedStatus) {
       return (application as any).detailedStatus;
@@ -372,6 +377,25 @@ export default function ApplicationDetails() {
     // Fallback: Use backend-calculated status label if available
     if (application && (application as any).detailedStatusLabel) {
       return (application as any).detailedStatusLabel;
+    }
+    
+    // Check if we can calculate from submissions
+    if (templates && templates.length > 0 && submissions) {
+      const applicationSubmissions = submissions.filter((s: any) => s.applicationId === application.id);
+      const approvedActivities = applicationSubmissions.filter((s: any) => 
+        s.status === 'submitted' && s.approvalStatus === 'approved'
+      );
+      
+      if (approvedActivities.length === templates.length) {
+        return 'All Activities Approved';
+      } else if (approvedActivities.length > 0) {
+        return `${approvedActivities.length}/${templates.length} Activities Approved`;
+      }
+      
+      const submittedActivities = applicationSubmissions.filter((s: any) => s.status === 'submitted');
+      if (submittedActivities.length > 0) {
+        return `${submittedActivities.length} Activities Under Review`;
+      }
     }
     
     // Final fallback to basic status
@@ -398,18 +422,24 @@ export default function ApplicationDetails() {
       return true;
     }
     
+    // System admins can access all tabs
+    if (user?.role === 'system_admin') {
+      return true;
+    }
+    
     if (templateIndex === 0) return true; // First template is always accessible
     
-    // Check if previous template is completed
+    // Progressive unlocking: Check if previous template is completed AND approved
     const sortedTemplates = templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
     const previousTemplate = sortedTemplates?.[templateIndex - 1];
     if (!previousTemplate) return true;
     
-    // Check if the previous template has been submitted for this specific application
+    // Check if the previous template has been submitted AND approved for this specific application
     return submissions.some((s: any) => 
       s.formTemplateId === previousTemplate.id && 
       s.applicationId === application.id && 
-      s.status === 'submitted'
+      s.status === 'submitted' &&
+      s.approvalStatus === 'approved'
     );
   };
 
@@ -427,9 +457,25 @@ export default function ApplicationDetails() {
         
         // Check if user can access this template
         if (!canAccessTemplate(template, templateIndex)) {
+          const sortedTemplates = templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          const previousTemplate = sortedTemplates?.[templateIndex - 1];
+          const previousSubmission = submissions.find((s: any) => 
+            s.formTemplateId === previousTemplate?.id && 
+            s.applicationId === application.id
+          );
+          
+          let message = "Please complete the previous activity first.";
+          if (previousSubmission?.status === 'submitted' && previousSubmission?.approvalStatus === 'pending') {
+            message = `Please wait for "${previousTemplate?.name}" to be approved before accessing this activity.`;
+          } else if (previousSubmission?.status === 'submitted' && previousSubmission?.approvalStatus === 'rejected') {
+            message = `The previous activity "${previousTemplate?.name}" was rejected. Please address the feedback and resubmit before proceeding.`;
+          } else if (!previousSubmission || previousSubmission?.status !== 'submitted') {
+            message = `Please complete and submit "${previousTemplate?.name}" before accessing this activity.`;
+          }
+          
           toast({
-            title: "Access Restricted",
-            description: "Please complete the previous template first.",
+            title: "Activity Locked",
+            description: message,
             variant: "destructive"
           });
           setActiveTab('overview');
@@ -604,21 +650,58 @@ export default function ApplicationDetails() {
                 {/* Template Steps */}
                 {templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0)).map((template: any, index: number) => {
                   const applicationSubmissions = submissions.filter((s: any) => (s as any).applicationId === application.id);
-                  const isCompleted = applicationSubmissions.some((s: any) => 
-                    (s as any).formTemplateId === template.id && (s as any).status === 'submitted'
+                  const submission = applicationSubmissions.find((s: any) => 
+                    (s as any).formTemplateId === template.id
                   );
-                  const stepProgress = 30 + ((index + 1) * (70 / templates.length));
+                  
+                  const isSubmitted = submission && submission.status === 'submitted';
+                  const isApproved = isSubmitted && submission.approvalStatus === 'approved';
+                  const isRejected = isSubmitted && submission.approvalStatus === 'rejected';
+                  const isPending = isSubmitted && submission.approvalStatus === 'pending';
+                  const isAccessible = canAccessTemplate(template, index);
+                  
+                  let bgColor, textColor, icon, statusText;
+                  
+                  if (isApproved) {
+                    bgColor = 'bg-green-100';
+                    textColor = 'text-green-600';
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    statusText = 'Approved';
+                  } else if (isRejected) {
+                    bgColor = 'bg-red-100';
+                    textColor = 'text-red-600';
+                    icon = <AlertCircle className="h-4 w-4" />;
+                    statusText = 'Rejected';
+                  } else if (isPending) {
+                    bgColor = 'bg-yellow-100';
+                    textColor = 'text-yellow-600';
+                    icon = <Clock className="h-4 w-4" />;
+                    statusText = 'Under Review';
+                  } else if (isSubmitted) {
+                    bgColor = 'bg-blue-100';
+                    textColor = 'text-blue-600';
+                    icon = <CheckCircle className="h-4 w-4" />;
+                    statusText = 'Submitted';
+                  } else if (isAccessible) {
+                    bgColor = 'bg-gray-100';
+                    textColor = 'text-gray-400';
+                    icon = <Clock className="h-4 w-4" />;
+                    statusText = 'Available';
+                  } else {
+                    bgColor = 'bg-gray-50';
+                    textColor = 'text-gray-300';
+                    icon = <Clock className="h-4 w-4" />;
+                    statusText = 'Locked';
+                  }
                   
                   return (
                     <div key={template.id} className="flex flex-col items-center space-y-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        isCompleted ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                      }`}>
-                        {isCompleted ? <CheckCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${bgColor} ${textColor} ${!isAccessible ? 'opacity-50' : ''}`}>
+                        {icon}
                       </div>
                       <div className="text-xs text-center">
-                        <div className="font-medium">{template.name}</div>
-                        <div className="text-gray-500">{isCompleted ? 'Completed' : 'Pending'}</div>
+                        <div className={`font-medium ${!isAccessible ? 'text-gray-300' : ''}`}>{template.name}</div>
+                        <div className={`${!isAccessible ? 'text-gray-300' : 'text-gray-500'}`}>{statusText}</div>
                       </div>
                     </div>
                   );

@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   CheckCircle2, 
   XCircle, 
@@ -31,6 +33,12 @@ export default function AdminApprovalDashboard() {
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [rejectionDialog, setRejectionDialog] = useState<{open: boolean, submissionId: number | null, rejectionNotes: string}>({
+    open: false,
+    submissionId: null,
+    rejectionNotes: ""
+  });
+  const [loadingStates, setLoadingStates] = useState<{[key: number]: 'approving' | 'rejecting' | null}>({});
 
   // Fetch pending submissions
   const { data: pendingSubmissions = [], isLoading } = useQuery({
@@ -46,11 +54,13 @@ export default function AdminApprovalDashboard() {
   // Quick approve/reject mutations
   const approveMutation = useMutation({
     mutationFn: async (submissionId: number) => {
+      setLoadingStates(prev => ({ ...prev, [submissionId]: 'approving' }));
       return apiRequest(`/api/admin/submissions/${submissionId}/approve`, "POST", {
         reviewNotes: "Quick approval from dashboard"
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, submissionId) => {
+      setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
       // Refresh approval dashboard data and overall applications data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
@@ -60,7 +70,8 @@ export default function AdminApprovalDashboard() {
         description: "The submission has been approved successfully.",
       });
     },
-    onError: () => {
+    onError: (_, submissionId) => {
+      setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
       toast({
         title: "Error",
         description: "Failed to approve submission.",
@@ -70,12 +81,15 @@ export default function AdminApprovalDashboard() {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: async (submissionId: number) => {
+    mutationFn: async ({ submissionId, reviewNotes }: { submissionId: number, reviewNotes: string }) => {
+      setLoadingStates(prev => ({ ...prev, [submissionId]: 'rejecting' }));
       return apiRequest(`/api/admin/submissions/${submissionId}/reject`, "POST", {
-        reviewNotes: "Quick rejection from dashboard"
+        reviewNotes: reviewNotes || "Rejected from admin dashboard"
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, { submissionId }) => {
+      setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
+      setRejectionDialog({ open: false, submissionId: null, rejectionNotes: "" });
       // Refresh approval dashboard data and overall applications data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
@@ -85,7 +99,8 @@ export default function AdminApprovalDashboard() {
         description: "The submission has been rejected and reverted to draft status for resubmission.",
       });
     },
-    onError: () => {
+    onError: (_, { submissionId }) => {
+      setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
       toast({
         title: "Error",
         description: "Failed to reject submission.",
@@ -99,7 +114,20 @@ export default function AdminApprovalDashboard() {
   };
 
   const handleQuickReject = (submissionId: number) => {
-    rejectMutation.mutate(submissionId);
+    setRejectionDialog({
+      open: true,
+      submissionId,
+      rejectionNotes: ""
+    });
+  };
+
+  const handleConfirmReject = () => {
+    if (rejectionDialog.submissionId) {
+      rejectMutation.mutate({
+        submissionId: rejectionDialog.submissionId,
+        reviewNotes: rejectionDialog.rejectionNotes
+      });
+    }
   };
 
   // Filter submissions based on status and search term
@@ -296,21 +324,21 @@ export default function AdminApprovalDashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleQuickApprove(submission.id)}
-                          disabled={approveMutation.isPending}
+                          disabled={loadingStates[submission.id] === 'approving'}
                           className="flex-1 text-green-700 border-green-200 hover:bg-green-50"
                         >
                           <CheckCircle2 className="h-4 w-4 mr-1" />
-                          Approve
+                          {loadingStates[submission.id] === 'approving' ? 'Approving...' : 'Approve'}
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleQuickReject(submission.id)}
-                          disabled={rejectMutation.isPending}
+                          disabled={loadingStates[submission.id] === 'rejecting'}
                           className="flex-1 text-red-700 border-red-200 hover:bg-red-50"
                         >
                           <XCircle className="h-4 w-4 mr-1" />
-                          Reject
+                          {loadingStates[submission.id] === 'rejecting' ? 'Rejecting...' : 'Reject'}
                         </Button>
                       </div>
                     )}
@@ -405,21 +433,21 @@ export default function AdminApprovalDashboard() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleQuickApprove(submission.id)}
-                            disabled={approveMutation.isPending}
+                            disabled={loadingStates[submission.id] === 'approving'}
                             className="text-green-700 border-green-200 hover:bg-green-50"
                           >
                             <CheckCircle2 className="h-4 w-4 mr-1" />
-                            Approve
+                            {loadingStates[submission.id] === 'approving' ? 'Approving...' : 'Approve'}
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleQuickReject(submission.id)}
-                            disabled={rejectMutation.isPending}
+                            disabled={loadingStates[submission.id] === 'rejecting'}
                             className="text-red-700 border-red-200 hover:bg-red-50"
                           >
                             <XCircle className="h-4 w-4 mr-1" />
-                            Reject
+                            {loadingStates[submission.id] === 'rejecting' ? 'Rejecting...' : 'Reject'}
                           </Button>
                         </>
                       )}
@@ -438,6 +466,41 @@ export default function AdminApprovalDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Rejection Dialog */}
+      <Dialog open={rejectionDialog.open} onOpenChange={(open) => setRejectionDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reject Submission</DialogTitle>
+            <DialogDescription>
+              Please provide feedback for why this submission is being rejected. This will be shown to the user.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Enter rejection reason and feedback for the user..."
+              value={rejectionDialog.rejectionNotes}
+              onChange={(e) => setRejectionDialog(prev => ({ ...prev, rejectionNotes: e.target.value }))}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setRejectionDialog({ open: false, submissionId: null, rejectionNotes: "" })}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmReject}
+              disabled={!rejectionDialog.rejectionNotes.trim() || loadingStates[rejectionDialog.submissionId || 0] === 'rejecting'}
+            >
+              {loadingStates[rejectionDialog.submissionId || 0] === 'rejecting' ? 'Rejecting...' : 'Reject Submission'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

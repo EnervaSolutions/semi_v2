@@ -4711,11 +4711,23 @@ export class DatabaseStorage implements IStorage {
           isNotNull(activityTemplateSubmissions.approvalStatus)
         ));
       
-      // Combine both sets of submissions
+      // Combine both sets of submissions and deduplicate by applicationId + formTemplateId
       const allSubmissions = [...appSubmissions, ...activitySubmissions];
       
+      // Remove duplicates - prioritize activityTemplateSubmissions over applicationSubmissions
+      const uniqueSubmissions = new Map();
+      for (const submission of allSubmissions) {
+        const key = `${submission.applicationId}-${submission.formTemplateId}`;
+        const existing = uniqueSubmissions.get(key);
+        
+        // If no existing submission or current is from activityTemplateSubmissions (preferred), use it
+        if (!existing || submission.source === 'activityTemplateSubmissions') {
+          uniqueSubmissions.set(key, submission);
+        }
+      }
+      
       // Sort by submission date and limit
-      const submissions = allSubmissions
+      const submissions = Array.from(uniqueSubmissions.values())
         .sort((a, b) => {
           const dateA = new Date(a.submittedAt || a.createdAt);
           const dateB = new Date(b.submittedAt || b.createdAt);
