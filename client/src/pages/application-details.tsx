@@ -417,12 +417,7 @@ export default function ApplicationDetails() {
   // Handle tab changes and automatically mark phases as started
   // Helper function to check if a template can be accessed
   const canAccessTemplate = (template: any, templateIndex: number) => {
-    // Contractors can access all tabs regardless of submission status
-    if (user?.role?.startsWith('contractor_')) {
-      return true;
-    }
-    
-    // System admins can access all tabs
+    // System admins can access all tabs for oversight
     if (user?.role === 'system_admin') {
       return true;
     }
@@ -430,6 +425,7 @@ export default function ApplicationDetails() {
     if (templateIndex === 0) return true; // First template is always accessible
     
     // Progressive unlocking: Check if previous template is completed AND approved
+    // This applies to both regular users AND contractors
     const sortedTemplates = templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
     const previousTemplate = sortedTemplates?.[templateIndex - 1];
     if (!previousTemplate) return true;
@@ -528,26 +524,31 @@ export default function ApplicationDetails() {
                 <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
                 <div className="space-y-2">
                   <h3 className="font-semibold text-red-900">Application Rejected</h3>
-                  <p className="text-red-800">
-                    Your application has been rejected and requires revision. Please review the feedback below, 
-                    make necessary changes, and resubmit your application.
-                  </p>
-                  {/* Show rejection notes from latest rejected submission */}
+                  {/* Show rejection notes from latest rejected submission with activity name */}
                   {submissions
                     .filter((s: any) => s.approvalStatus === 'rejected')
                     .sort((a: any, b: any) => new Date(b.reviewedAt).getTime() - new Date(a.reviewedAt).getTime())
                     .slice(0, 1)
-                    .map((rejection: any) => (
-                      <div key={rejection.id} className="mt-3 p-3 bg-white border border-red-200 rounded-lg">
-                        <p className="text-sm font-medium text-gray-900">Review Comments:</p>
-                        <p className="text-sm text-gray-700 mt-1">
-                          {rejection.reviewNotes || 'No specific comments provided.'}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Reviewed on {new Date(rejection.reviewedAt).toLocaleDateString()} by {rejection.reviewedBy || 'Admin'}
-                        </p>
-                      </div>
-                    ))}
+                    .map((rejection: any) => {
+                      const rejectedTemplate = templates?.find((t: any) => t.id === rejection.formTemplateId);
+                      return (
+                        <div key={rejection.id}>
+                          <p className="text-red-800">
+                            Your "{rejectedTemplate?.name || 'activity'}" activity has been rejected and requires revision. 
+                            Please review the feedback below, make necessary changes, and resubmit.
+                          </p>
+                          <div className="mt-3 p-3 bg-white border border-red-200 rounded-lg">
+                            <p className="text-sm font-medium text-gray-900">Review Comments:</p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              {rejection.reviewNotes || 'No specific comments provided.'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-2">
+                              Reviewed on {new Date(rejection.reviewedAt).toLocaleDateString()} by {rejection.reviewedBy || 'Admin'}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </CardContent>
@@ -623,8 +624,61 @@ export default function ApplicationDetails() {
           </div>
         </div>
 
+        {/* Approved Message */}
+        {(() => {
+          const approvedSubmissions = submissions.filter((s: any) => 
+            s.status === 'submitted' && s.approvalStatus === 'approved'
+          );
+          const latestApproved = approvedSubmissions
+            .sort((a: any, b: any) => new Date(b.reviewedAt).getTime() - new Date(a.reviewedAt).getTime())[0];
+          
+          if (latestApproved) {
+            const approvedTemplate = templates?.find((t: any) => t.id === latestApproved.formTemplateId);
+            const allTemplatesApproved = templates?.every((template: any) => 
+              submissions.some((s: any) => 
+                s.formTemplateId === template.id && 
+                s.status === 'submitted' && 
+                s.approvalStatus === 'approved'
+              )
+            );
+            
+            return (
+              <Card className="mb-6 mt-8 border-green-200 bg-green-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div className="space-y-2">
+                      {allTemplatesApproved ? (
+                        <div>
+                          <h3 className="font-semibold text-green-900">All Activities Approved!</h3>
+                          <p className="text-green-800">
+                            <strong>Congratulations!</strong> You have completed all required activities for this application.
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <h3 className="font-semibold text-green-900">Activity Approved!</h3>
+                          <p className="text-green-800">
+                            Your "{approvedTemplate?.name}" activity has been approved by the system administrator.
+                          </p>
+                          {latestApproved.reviewedAt && (
+                            <p className="text-xs text-green-600 mt-2">
+                              Approved on {new Date(latestApproved.reviewedAt).toLocaleDateString()} by {latestApproved.reviewedBy || 'System Admin'}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          }
+          return null;
+        })()}
+
         {/* Progress Bar */}
-        <Card className="mb-4 mt-8">
+        <Card className="mb-4">
           <CardContent className="pt-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -829,81 +883,6 @@ export default function ApplicationDetails() {
           
           return (
             <TabsContent key={template.id} value={`template_${template.id}`} className="space-y-6">
-              {/* Activity Status Messages */}
-              {isApproved && (
-                <Card className="border-green-200 bg-green-50">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                      <div className="space-y-2">
-                        <h3 className="font-semibold text-green-900">Activity Approved!</h3>
-                        <p className="text-green-800">
-                          Your "{template.name}" activity has been approved by the system administrator.
-                        </p>
-                        {!isLastTemplate && nextTemplate && (
-                          <p className="text-green-800">
-                            You can now proceed to the next activity: <strong>"{nextTemplate.name}"</strong>
-                          </p>
-                        )}
-                        {isLastTemplate && (
-                          <p className="text-green-800">
-                            <strong>Congratulations!</strong> You have completed all required activities for this application.
-                          </p>
-                        )}
-                        {submission?.reviewedAt && (
-                          <p className="text-xs text-green-600 mt-2">
-                            Approved on {new Date(submission.reviewedAt).toLocaleDateString()} by {submission.reviewedBy || 'System Admin'}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {isPending && (
-                <Card className="border-yellow-200 bg-yellow-50">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3">
-                      <Clock className="h-5 w-5 text-yellow-600 mt-0.5" />
-                      <div className="space-y-2">
-                        <h3 className="font-semibold text-yellow-900">Under Review</h3>
-                        <p className="text-yellow-800">
-                          Your "{template.name}" activity is currently being reviewed by the system administrator.
-                        </p>
-                        <p className="text-yellow-800">
-                          Please wait for approval before proceeding to the next activity.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {isRejected && (
-                <Card className="border-red-200 bg-red-50">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                      <div className="space-y-2">
-                        <h3 className="font-semibold text-red-900">Activity Rejected</h3>
-                        <p className="text-red-800">
-                          Your "{template.name}" activity has been rejected and requires revision.
-                        </p>
-                        {submission?.reviewNotes && (
-                          <div className="mt-3 p-3 bg-white border border-red-200 rounded-lg">
-                            <p className="text-sm font-medium text-gray-900">Review Comments:</p>
-                            <p className="text-sm text-gray-700 mt-1">{submission.reviewNotes}</p>
-                          </div>
-                        )}
-                        <p className="text-red-800">
-                          Please address the feedback and resubmit this activity.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
               <TemplateSection 
                 template={template}
