@@ -132,7 +132,7 @@ export default function AdminApplicationsPage() {
       return 'All Activities Approved';
     }
     
-    // Use backend-calculated detailed status when available
+    // Use backend-calculated detailed status when available (this should match application details page)
     if (application && application.detailedStatus) {
       return application.detailedStatus;
     }
@@ -140,6 +140,18 @@ export default function AdminApplicationsPage() {
     // Use backend-calculated status label if available
     if (application && application.detailedStatusLabel) {
       return application.detailedStatusLabel;
+    }
+    
+    // Check if we have submittedTemplates data to calculate detailed status
+    if (application && application.submittedTemplates && application.totalTemplates) {
+      const submittedCount = application.submittedTemplates.length;
+      const totalCount = application.totalTemplates;
+      
+      if (submittedCount > 0) {
+        // Get the latest submitted template name
+        const latestTemplate = application.submittedTemplates[0]; // Should be sorted by backend
+        return `${latestTemplate} Submitted (${submittedCount}/${totalCount} activities)`;
+      }
     }
     
     // Final fallback to basic status

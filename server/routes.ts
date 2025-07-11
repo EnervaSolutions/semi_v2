@@ -1025,48 +1025,18 @@ export function registerRoutes(app: Express) {
       if (user.role !== 'system_admin') {
         return res.status(403).json({ message: "Access denied" });
       }
-      // Fetch all applications
+      // Fetch all applications - getAllApplications() already calculates detailed status correctly
       const applications = await dbStorage.getAllApplications();
-      // For each application, fetch its activity submissions and determine status
-      const enhancedApplications = await Promise.all(applications.map(async (app: any) => {
-        // Fetch all activity submissions for this application
-        const activitySubmissions = await dbStorage.getActivityTemplateSubmissions(app.id);
-        // Sort by submittedAt or createdAt to find the latest
-        const sorted = activitySubmissions
-          .filter(sub => sub.status === 'submitted' || sub.status === 'approved' || sub.status === 'completed')
-          .sort((a, b) => {
-            const aDate = a.submittedAt ? new Date(a.submittedAt) : new Date(a.createdAt);
-            const bDate = b.submittedAt ? new Date(b.submittedAt) : new Date(b.createdAt);
-            return bDate.getTime() - aDate.getTime();
-          });
-        let detailedStatus = 'Draft';
-        if (sorted.length > 0) {
-          // Use the status of the last submitted/completed/approved activity
-          const last = sorted[0];
-          if (last.status === 'approved') {
-            detailedStatus = `Approved: ${last.activityType || last.activityTemplateId || ''}`;
-          } else if (last.status === 'completed') {
-            detailedStatus = `Completed: ${last.activityType || last.activityTemplateId || ''}`;
-          } else if (last.status === 'submitted') {
-            detailedStatus = `Submitted: ${last.activityType || last.activityTemplateId || ''}`;
-          } else {
-            detailedStatus = last.status;
-          }
-        } else if (activitySubmissions.length > 0) {
-          // If there are drafts, show the latest draft
-          const lastDraft = activitySubmissions.sort((a, b) => {
-            const aDate = a.updatedAt ? new Date(a.updatedAt) : new Date(a.createdAt);
-            const bDate = b.updatedAt ? new Date(b.updatedAt) : new Date(b.createdAt);
-            return bDate.getTime() - aDate.getTime();
-          })[0];
-          detailedStatus = lastDraft.status === 'draft' ? 'Draft' : lastDraft.status;
-        }
-        // Only enable the next activity after explicit approval (not here)
+      // IMPORTANT: Keep the detailed status from getAllApplications() which includes activity names and counts
+      // like "post Submitted (1/2 activities)" instead of overriding with simple "Submitted: 1"
+      const enhancedApplications = applications.map((app: any) => {
+        // Use the detailed status from getAllApplications(), not a simple override
         return {
           ...app,
-          detailedStatus,
+          // Keep the existing detailedStatus calculated by getAllApplications()
+          detailedStatus: app.detailedStatus || app.status || 'Draft',
         };
-      }));
+      });
       res.json(enhancedApplications);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch applications" });
