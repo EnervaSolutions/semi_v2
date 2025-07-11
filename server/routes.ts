@@ -1334,12 +1334,14 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: "User must be associated with a company" });
       }
 
-      // Check if user has permission to create applications (editors, managers, owners, company_admin)
+      // Check if user has permission to create applications (editors, managers, owners, company_admin, contractors)
       const hasCreatePermission = user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel) ||
-                                   user.role === 'company_admin';
+                                   user.role === 'company_admin' ||
+                                   user.role === 'system_admin' ||
+                                   user.role?.startsWith('contractor_');
       
       if (!hasCreatePermission) {
-        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, and owners can create applications." });
+        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, owners, company admins, and contractors can create applications." });
       }
 
       console.log('[COMPANY APP CREATE] Creating application for company user with data:', req.body);
@@ -3116,11 +3118,11 @@ export function registerRoutes(app: Express) {
       // Other users need editor/manager/owner permission level or specific roles
       const hasSubmitPermission = user.role === 'system_admin' ||
                                    user.role === 'company_admin' ||
-                                   user.role.includes('contractor') ||
+                                   user.role?.startsWith('contractor_') ||
                                    (user.permissionLevel && ['editor', 'manager', 'owner'].includes(user.permissionLevel));
       
       if (!hasSubmitPermission) {
-        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, owners, and admins can submit templates." });
+        return res.status(403).json({ message: "Insufficient permissions. Only editors, managers, owners, admins, and contractors can submit templates." });
       }
       
       const {

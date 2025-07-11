@@ -203,7 +203,10 @@ export function canEditPermissions(user: any): boolean {
 }
 
 export function canCreateEdit(user: any): boolean {
-  return user?.role === 'company_admin' || hasPermissionLevel(user, 'editor');
+  return user?.role === 'company_admin' || 
+         user?.role === 'system_admin' || 
+         user?.role?.startsWith('contractor_') || 
+         hasPermissionLevel(user, 'editor');
 }
 
 export function canViewOnly(user: any): boolean {

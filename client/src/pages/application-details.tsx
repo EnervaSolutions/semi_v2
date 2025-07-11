@@ -1129,8 +1129,10 @@ function TemplateSection({
     }
   };
 
-  // Company admins and system admins should never be treated as viewers regardless of permission level
-  const isViewer = !['company_admin', 'system_admin'].includes(user?.role || '') && (user?.permissionLevel ?? 'viewer') === 'viewer';
+  // Company admins, system admins, and contractors should never be treated as viewers regardless of permission level
+  const isViewer = !['company_admin', 'system_admin'].includes(user?.role || '') && 
+                   !user?.role?.startsWith('contractor_') && 
+                   (user?.permissionLevel ?? 'viewer') === 'viewer';
   const renderField = (field: any) => {
     // Disable all fields for viewers, or if submitted
     const isDisabled = isViewer || isSubmitted;
