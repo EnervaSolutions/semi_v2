@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
-import { Users, UserPlus, Eye, Edit } from "lucide-react";
+import { Users, UserPlus, Trash2, User } from "lucide-react";
 
 interface ContractorTeamAssignmentDialogProps {
   open: boolean;
@@ -28,11 +28,10 @@ export default function ContractorTeamAssignmentDialog({
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['view']);
 
-  // Query for contractor team members
+  // Fetch team members
   const { data: teamMembers = [] } = useQuery({
-    queryKey: ['/api/contractor/team'],
-    enabled: !!user?.role?.startsWith('contractor_') && open,
-    staleTime: 1000 * 60 * 5
+    queryKey: ["/api/contractor/team"],
+    enabled: !!user?.id && open,
   });
 
   // Query for current assignments
@@ -42,59 +41,52 @@ export default function ContractorTeamAssignmentDialog({
     staleTime: 1000 * 60 * 5
   });
 
-  // Mutation for assigning team member
+  // Assignment mutations
   const assignMutation = useMutation({
-    mutationFn: async (data: { userId: string; permissions: string[] }) => {
-      return apiRequest(`/api/contractor/team-member/${data.userId}/assign`, {
-        method: 'POST',
-        body: {
-          applicationId: parseInt(applicationId!),
-          permissions: data.permissions
-        }
+    mutationFn: async ({ applicationId, userId, permissions }: { applicationId: number; userId: string; permissions: string[] }) => {
+      return apiRequest(`/api/contractor/applications/${applicationId}/assign`, "POST", {
+        userId,
+        permissions
       });
     },
     onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Team member assigned to application successfully",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
       queryClient.invalidateQueries({ queryKey: [`/api/applications/${applicationId}/contractor-team-assignments`] });
       setSelectedUserId('');
       setSelectedPermissions(['view']);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to assign team member",
-        variant: "destructive"
-      });
-    }
-  });
-
-  // Mutation for removing team member
-  const removeMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      return apiRequest(`/api/contractor/team-member/${userId}/unassign`, {
-        method: 'POST',
-        body: {
-          applicationId: parseInt(applicationId!)
-        }
-      });
-    },
-    onSuccess: () => {
       toast({
         title: "Success",
-        description: "Team member removed from application successfully",
+        description: "Team member assigned successfully",
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/applications/${applicationId}/contractor-team-assignments`] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast({
         title: "Error",
-        description: error.message || "Failed to remove team member",
-        variant: "destructive"
+        description: "Failed to assign team member",
+        variant: "destructive",
       });
-    }
+    },
+  });
+
+  const removeAssignmentMutation = useMutation({
+    mutationFn: async ({ applicationId, userId }: { applicationId: number; userId: string }) => {
+      return apiRequest(`/api/contractor/applications/${applicationId}/unassign`, "POST", { userId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/applications/${applicationId}/contractor-team-assignments`] });
+      toast({
+        title: "Success",
+        description: "Team member removed successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove team member",
+        variant: "destructive",
+      });
+    },
   });
 
   // Filter team members to only show contractor_team_member role
@@ -119,13 +111,17 @@ export default function ContractorTeamAssignmentDialog({
     }
 
     assignMutation.mutate({
+      applicationId: parseInt(applicationId!),
       userId: selectedUserId,
       permissions: selectedPermissions
     });
   };
 
   const handleRemove = (userId: string) => {
-    removeMutation.mutate(userId);
+    removeAssignmentMutation.mutate({
+      applicationId: parseInt(applicationId!),
+      userId: userId
+    });
   };
 
   const handlePermissionChange = (permission: string) => {
