@@ -3,7 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Eye, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +29,7 @@ export default function ContractorTeamAssignmentDialog({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['view']);
+  const [selectedPermission, setSelectedPermission] = useState<string>('view');
 
   // Fetch team members
   const { data: teamMembers = [] } = useQuery({
@@ -43,17 +46,17 @@ export default function ContractorTeamAssignmentDialog({
 
   // Assignment mutations
   const assignMutation = useMutation({
-    mutationFn: async ({ applicationId, userId, permissions }: { applicationId: number; userId: string; permissions: string[] }) => {
-      return apiRequest(`/api/contractor/applications/${applicationId}/assign`, "POST", {
-        userId,
-        permissions
+    mutationFn: async ({ applicationId, userId, permission }: { applicationId: number; userId: string; permission: string }) => {
+      return apiRequest(`/api/contractor/team-member/${userId}/assign`, "POST", {
+        applicationId,
+        permissions: [permission]
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
       queryClient.invalidateQueries({ queryKey: [`/api/applications/${applicationId}/contractor-team-assignments`] });
       setSelectedUserId('');
-      setSelectedPermissions(['view']);
+      setSelectedPermission('view');
       toast({
         title: "Success",
         description: "Team member assigned successfully",
@@ -70,7 +73,7 @@ export default function ContractorTeamAssignmentDialog({
 
   const removeAssignmentMutation = useMutation({
     mutationFn: async ({ applicationId, userId }: { applicationId: number; userId: string }) => {
-      return apiRequest(`/api/contractor/applications/${applicationId}/unassign`, "POST", { userId });
+      return apiRequest(`/api/contractor/team-member/${userId}/unassign`, "POST", { applicationId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
@@ -101,10 +104,10 @@ export default function ContractorTeamAssignmentDialog({
   );
 
   const handleAssign = () => {
-    if (!selectedUserId || selectedPermissions.length === 0) {
+    if (!selectedUserId || !selectedPermission) {
       toast({
         title: "Validation Error",
-        description: "Please select a team member and permissions",
+        description: "Please select a team member and permission level",
         variant: "destructive"
       });
       return;
@@ -113,7 +116,7 @@ export default function ContractorTeamAssignmentDialog({
     assignMutation.mutate({
       applicationId: parseInt(applicationId!),
       userId: selectedUserId,
-      permissions: selectedPermissions
+      permission: selectedPermission
     });
   };
 
@@ -125,11 +128,7 @@ export default function ContractorTeamAssignmentDialog({
   };
 
   const handlePermissionChange = (permission: string) => {
-    if (permission === 'view') {
-      setSelectedPermissions(['view']);
-    } else if (permission === 'edit') {
-      setSelectedPermissions(['view', 'edit']);
-    }
+    setSelectedPermission(permission);
   };
 
   return (
@@ -189,7 +188,7 @@ export default function ContractorTeamAssignmentDialog({
                       variant="outline"
                       size="sm"
                       onClick={() => handleRemove(assignment.assignedUserId)}
-                      disabled={removeMutation.isPending}
+                      disabled={removeAssignmentMutation.isPending}
                     >
                       Remove
                     </Button>
@@ -231,7 +230,7 @@ export default function ContractorTeamAssignmentDialog({
                     Permission Level
                   </label>
                   <Select 
-                    value={selectedPermissions.includes('edit') ? 'edit' : 'view'} 
+                    value={selectedPermission} 
                     onValueChange={handlePermissionChange}
                   >
                     <SelectTrigger>

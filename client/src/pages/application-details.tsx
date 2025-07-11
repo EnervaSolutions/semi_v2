@@ -1163,6 +1163,8 @@ function TemplateSection({
       
       // Team members need specific edit permissions for each application
       if (user.role === 'contractor_team_member') {
+        // If they have edit permission, they are NOT a viewer (can edit)
+        // If they only have view permission or no permission, they ARE a viewer (read-only)
         return !contractorPermissions.includes('edit');
       }
     }
