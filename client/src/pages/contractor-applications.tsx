@@ -348,10 +348,12 @@ export default function ContractorApplications() {
                             user?.role === 'contractor_account_owner' || user?.role === 'contractor_individual'
                               ? 'Account Owner (View & Edit Access)'
                               : user?.role === 'contractor_manager'
-                              ? 'Manager (View & Edit Access)' 
+                              ? 'Manager (View & Edit Access)'
+                              : (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager')
+                              ? 'Manager (View & Edit Access)'
                               : (application.permissions && application.permissions.length > 0 
-                                ? (application.permissions.includes('edit') ? 'Edit' : 'View')
-                                : 'View')
+                                ? (application.permissions.includes('edit') ? 'Edit Access' : 'View Only')
+                                : 'View Only')
                           }
                         </span>
                       </div>
