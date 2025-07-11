@@ -637,7 +637,7 @@ export default function ApplicationDetails() {
                   <div className="flex items-center gap-2">
                     <Badge 
                       variant={getDetailedStatusLabel() === 'Draft' ? 'secondary' : 'default'}
-                      className={`text-sm ${getDetailedStatusLabel().includes('Rejected') ? 'bg-red-100 text-red-800' : ''}`}
+                      className="text-sm"
                     >
                       {getDetailedStatusLabel()}
                     </Badge>
@@ -680,37 +680,6 @@ export default function ApplicationDetails() {
                   <p className="text-sm text-gray-900 font-mono">{application.applicationId}</p>
                 </div>
               </div>
-
-              {/* Rejection Message Display */}
-              {getDetailedStatusLabel().includes('Rejected') && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-800">Application Rejected</h4>
-                      <p className="text-sm text-red-700 mt-1">
-                        Your submission has been rejected by the administrator. Please review the feedback and make necessary changes before resubmitting.
-                      </p>
-                      {(() => {
-                        // Find the rejected submission to show review notes
-                        const rejectedSubmission = submissions.find((s: any) => s.approvalStatus === 'rejected');
-                        if (rejectedSubmission?.reviewNotes) {
-                          return (
-                            <div className="mt-2 p-2 bg-red-100 rounded border">
-                              <p className="text-xs font-medium text-red-800">Admin Feedback:</p>
-                              <p className="text-xs text-red-700">{rejectedSubmission.reviewNotes}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                      <p className="text-xs text-red-600 mt-2">
-                        Make your changes and submit again for review.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {user?.role?.startsWith('contractor_') && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">

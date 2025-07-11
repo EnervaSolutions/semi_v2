@@ -151,9 +151,6 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
       if (label.includes('Approved')) {
         return { label, color: 'bg-green-100 text-green-800' };
       }
-      if (label.includes('Rejected')) {
-        return { label, color: 'bg-red-100 text-red-800' };
-      }
       if (label.includes('Review')) {
         return { label, color: 'bg-yellow-100 text-yellow-800' };
       }
@@ -231,19 +228,9 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
     
     console.log(`Checking submission status for ${application.applicationId}: statusLabel="${statusLabel}", status="${application.status}"`);
     
-    // CRITICAL FIX: Rejected applications should show as "Not submitted" to allow resubmission
-    if (statusLabel && statusLabel.includes('Rejected')) {
-      return 'Not submitted';
-    }
-    
     // Check if the status indicates completion (all activities submitted)
     if (statusLabel && statusLabel.includes('Submitted') && !statusLabel.includes('Started')) {
       // If it's a final submission (like "PreActivity Submitted" or template name + "Submitted")
-      return 'Submitted';
-    }
-    
-    // Check for approval status
-    if (statusLabel && statusLabel.includes('Approved')) {
       return 'Submitted';
     }
     
@@ -253,7 +240,7 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
     }
     
     // For other statuses like approved, under review, etc.
-    if (['approved', 'under_review', 'needs_revision', 'in_progress'].includes(application.status)) {
+    if (['approved', 'under_review', 'rejected', 'needs_revision', 'in_progress'].includes(application.status)) {
       return 'Submitted';
     }
     
