@@ -226,31 +226,35 @@ export default function ContractorTeamAssignmentDialog({
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label className="text-sm font-medium mb-3 block">
                     Permission Level
                   </label>
-                  <Select 
+                  <RadioGroup 
                     value={selectedPermission} 
                     onValueChange={handlePermissionChange}
+                    className="space-y-3"
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="view">
-                        <div className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          View Only - Can view and download files
+                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="view" id="view" />
+                      <Label htmlFor="view" className="flex items-center gap-2 cursor-pointer flex-1">
+                        <Eye className="h-4 w-4 text-gray-600" />
+                        <div>
+                          <div className="font-medium">View Only</div>
+                          <div className="text-sm text-gray-500">Can view and download files</div>
                         </div>
-                      </SelectItem>
-                      <SelectItem value="edit">
-                        <div className="flex items-center gap-2">
-                          <Edit className="h-4 w-4" />
-                          Edit - Can edit application and submit changes
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                      <RadioGroupItem value="edit" id="edit" />
+                      <Label htmlFor="edit" className="flex items-center gap-2 cursor-pointer flex-1">
+                        <Edit className="h-4 w-4 text-gray-600" />
+                        <div>
+                          <div className="font-medium">Edit Access</div>
+                          <div className="text-sm text-gray-500">Can edit application and submit changes (includes view access)</div>
                         </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
               </div>
             )}

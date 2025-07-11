@@ -374,14 +374,17 @@ export default function ContractorApplications() {
                           Your Permissions: {
                             (user?.role === 'contractor_individual' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager') 
                               ? 'Account Owner (View & Edit Access)' 
-                              : application.permissions.join(', ')
+                              : (application.permissions ? application.permissions.join(', ') : 'View')
                           }
                         </span>
                       </div>
                     </div>
 
                     {/* Team Assignment Section */}
-                    {(user?.role === 'contractor_individual' || user?.role === 'contractor_account_owner') && (
+                    {(user?.role === 'contractor_individual' || 
+                      user?.role === 'contractor_account_owner' || 
+                      user?.role === 'contractor_manager' ||
+                      (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager')) && (
                       <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="font-medium text-blue-900 flex items-center gap-2">
