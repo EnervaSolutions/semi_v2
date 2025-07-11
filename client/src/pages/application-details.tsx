@@ -354,13 +354,14 @@ export default function ApplicationDetails() {
   // Enhanced permission checking for contractors
   const canEditApplication = canCreateEdit(user);
   
-  // Company admins and system admins can always submit regardless of permission level
+  // Company admins, system admins, and contractors can submit applications
   // Team members need editor permission or higher
   const canSubmitApplication = (
     user?.role === 'company_admin' || 
     user?.role === 'system_admin' || 
+    user?.role?.startsWith('contractor_') ||
     canEditApplication
-  ) && !user?.role?.startsWith('contractor_');
+  );
 
   // Template-driven status logic
   const getDetailedStatusLabel = () => {
@@ -641,6 +642,24 @@ export default function ApplicationDetails() {
                 s.approvalStatus === 'approved'
               )
             );
+            
+            // Check if next activity has been started (has any submission data)
+            if (!allTemplatesApproved) {
+              const sortedTemplates = templates?.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+              const approvedTemplateIndex = sortedTemplates?.findIndex((t: any) => t.id === latestApproved.formTemplateId);
+              const nextTemplate = sortedTemplates?.[approvedTemplateIndex + 1];
+              
+              if (nextTemplate) {
+                const nextActivityStarted = submissions.some((s: any) => 
+                  s.formTemplateId === nextTemplate.id && s.applicationId === application.id
+                );
+                
+                // Hide the approved message if the next activity has been started
+                if (nextActivityStarted) {
+                  return null;
+                }
+              }
+            }
             
             return (
               <Card className="mb-6 mt-8 border-green-200 bg-green-50">
@@ -1286,24 +1305,11 @@ function TemplateSection({
                 {uploading ? 'Saving...' : 'Save Progress'}
               </Button>
               
-              {/* Submit Button - Only for company admins/managers/system admins, not contractors */}
-              {!user?.role?.startsWith('contractor_') && ['company_admin', 'team_member', 'system_admin'].includes(user?.role || '') && canSubmit && (
+              {/* Submit Button - Available for all authorized users including contractors */}
+              {['company_admin', 'team_member', 'system_admin', 'contractor_account_owner', 'contractor_manager', 'contractor_team_member'].includes(user?.role || '') && canSubmit && (
                 <Button type="submit" disabled={uploading}>
                   {uploading ? 'Submitting...' : 'Submit'}
                 </Button>
-              )}
-              
-              {/* Contractor guidance text */}
-              {user?.role?.startsWith('contractor_') && (
-                <div className="text-sm text-blue-600 mt-2">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Info className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium">Contractor Mode</span>
-                    </div>
-                    <p>You can save your progress, but only the company admin can submit activities. The company will be notified when your work is ready for review.</p>
-                  </div>
-                </div>
               )}
             </div>
           )}

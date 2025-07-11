@@ -1043,80 +1043,105 @@ export class DatabaseStorage implements IStorage {
         
         let detailedStatus = 'draft';
         
-        // Determine workflow status based on actual submissions
+        // Enhanced workflow status based on approval state and next activity requirements
         if (submittedActivities.length > 0) {
-          // Sort submissions by submission time (most recent first)
-          const sortedSubmissions = submittedActivities.sort((a, b) => {
-            const timeA = new Date(a.submittedAt || a.createdAt || 0).getTime();
-            const timeB = new Date(b.submittedAt || b.createdAt || 0).getTime();
-            return timeB - timeA; // Most recent first
-          });
-          
-          // Get template names for submitted activities in chronological order
-          const templateNamesWithTime = await Promise.all(
-            sortedSubmissions.map(async (s) => {
-              // Try to get from form_templates first (admin created templates)
-              const formTemplate = await db
-                .select({ name: formTemplates.name })
-                .from(formTemplates)
-                .where(eq(formTemplates.id, s.formTemplateId))
-                .limit(1);
-              
-              if (formTemplate[0]) {
-                return {
-                  name: formTemplate[0].name,
-                  submittedAt: s.submittedAt || s.createdAt
-                };
-              }
-              
-              // Fallback to activity_templates (hardcoded templates)
-              const activityTemplate = await db
-                .select({ templateName: activityTemplates.templateName })
-                .from(activityTemplates)
-                .where(eq(activityTemplates.id, s.formTemplateId))
-                .limit(1);
-              
-              return {
-                name: activityTemplate[0]?.templateName || 'Activity',
-                submittedAt: s.submittedAt || s.createdAt
-              };
+          // Get all templates for this activity type in order
+          const allTemplates = await db
+            .select({ 
+              id: formTemplates.id,
+              name: formTemplates.name,
+              order: formTemplates.order
             })
+            .from(formTemplates)
+            .where(
+              and(
+                eq(formTemplates.activityType, app.activityType),
+                eq(formTemplates.isActive, true)
+              )
+            )
+            .orderBy(formTemplates.order);
+
+          const totalCount = allTemplates.length;
+          const submittedCount = submittedActivities.length;
+
+          // Check approval status of submitted activities
+          const approvedActivities = submissions.filter(s => 
+            s.status === 'submitted' && s.approvalStatus === 'approved'
           );
-          
-          const submittedTemplateNames = templateNamesWithTime.filter(t => t.name).map(t => t.name);
-          console.log(`[COMPANY APPS] Application ${app.applicationId} submitted templates (latest first): ${submittedTemplateNames.join(', ')}`);
-          
-          if (submittedTemplateNames.length > 0) {
-            // Show the most recent template submitted (first in sorted array)
-            const latestTemplate = submittedTemplateNames[0]; // First in sorted array is most recent
-            
-            // Get total number of available templates for this activity type to show fraction
-            const totalTemplates = await db
-              .select({ count: sql`count(*)` })
-              .from(formTemplates)
-              .where(
-                and(
-                  eq(formTemplates.activityType, app.activityType),
-                  eq(formTemplates.isActive, true)
-                )
-              );
-            
-            const totalCount = Number(totalTemplates[0]?.count) || submittedTemplateNames.length;
-            const submittedCount = submittedTemplateNames.length;
-            
-            if (submittedCount === 1 && totalCount === 1) {
-              // Single template and it's completed
-              detailedStatus = `${latestTemplate} Submitted`;
-            } else {
-              // Multiple templates or partially completed
-              detailedStatus = `${latestTemplate} Submitted (${submittedCount}/${totalCount} activities)`;
-            }
+          const approvedCount = approvedActivities.length;
+
+          // Get the latest submitted activity template name
+          const latestSubmission = submittedActivities
+            .sort((a, b) => {
+              const timeA = new Date(a.submittedAt || a.createdAt || 0).getTime();
+              const timeB = new Date(b.submittedAt || b.createdAt || 0).getTime();
+              return timeB - timeA;
+            })[0];
+
+          const latestTemplate = await db
+            .select({ name: formTemplates.name })
+            .from(formTemplates)
+            .where(eq(formTemplates.id, latestSubmission.formTemplateId))
+            .limit(1);
+
+          const latestTemplateName = latestTemplate[0]?.name || 'Activity';
+
+          // Determine status based on approval state
+          if (approvedCount === totalCount) {
+            // All activities are approved
+            detailedStatus = 'All Activities Approved';
+          } else if (approvedCount === submittedCount - 1 && submittedCount === totalCount) {
+            // All submitted, latest pending approval
+            detailedStatus = `${latestTemplateName} Submitted`;
+          } else if (approvedCount < submittedCount) {
+            // Some submitted but pending approval
+            detailedStatus = `${latestTemplateName} Submitted`;
           } else {
-            detailedStatus = `${submittedActivities.length} Activities Submitted`;
+            // Regular submission status
+            if (totalCount === 1) {
+              detailedStatus = `${latestTemplateName} Submitted`;
+            } else {
+              detailedStatus = `${latestTemplateName} Submitted (${submittedCount}/${totalCount} activities)`;
+            }
           }
         } else if (submissions.length > 0) {
-          // Has drafts/started activities but nothing submitted
-          detailedStatus = 'Activities Started';
+          // Has drafts - determine which activity is in progress
+          const draftSubmissions = submissions.filter(s => s.status === 'draft');
+          if (draftSubmissions.length > 0) {
+            // Get the template name for the draft
+            const draftTemplate = await db
+              .select({ name: formTemplates.name })
+              .from(formTemplates)
+              .where(eq(formTemplates.id, draftSubmissions[0].formTemplateId))
+              .limit(1);
+            
+            const templateName = draftTemplate[0]?.name || 'Activity';
+            detailedStatus = `${templateName} In Progress`;
+          } else {
+            detailedStatus = 'Activities Started';
+          }
+        } else {
+          // No submissions yet - determine next activity to start
+          const allTemplates = await db
+            .select({ 
+              name: formTemplates.name,
+              order: formTemplates.order
+            })
+            .from(formTemplates)
+            .where(
+              and(
+                eq(formTemplates.activityType, app.activityType),
+                eq(formTemplates.isActive, true)
+              )
+            )
+            .orderBy(formTemplates.order)
+            .limit(1);
+
+          if (allTemplates[0]) {
+            detailedStatus = `${allTemplates[0].name} In Progress`;
+          } else {
+            detailedStatus = 'Draft';
+          }
         }
         
         // Get assigned contractors for this application
