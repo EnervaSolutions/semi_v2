@@ -1043,8 +1043,49 @@ export class DatabaseStorage implements IStorage {
         
         let detailedStatus = 'draft';
         
-        // Determine workflow status based on actual submissions
-        if (submittedActivities.length > 0) {
+        // CRITICAL FIX: Check approval status first before submission status
+        // Priority: rejected > approved > submitted
+        const rejectedSubmissions = submissions.filter(s => s.approvalStatus === 'rejected');
+        const approvedSubmissions = submissions.filter(s => s.approvalStatus === 'approved');
+        
+        if (rejectedSubmissions.length > 0) {
+          // If any submission is rejected, application should show as rejected
+          const latestRejected = rejectedSubmissions.sort((a, b) => {
+            const timeA = new Date(a.reviewedAt || a.submittedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.reviewedAt || b.submittedAt || b.createdAt || 0).getTime();
+            return timeB - timeA; // Most recent first
+          })[0];
+          
+          // Get template name for rejected submission
+          const formTemplate = await db
+            .select({ name: formTemplates.name })
+            .from(formTemplates)
+            .where(eq(formTemplates.id, latestRejected.formTemplateId))
+            .limit(1);
+          
+          const templateName = formTemplate[0]?.name || 'Activity';
+          detailedStatus = `${templateName} Rejected`;
+          
+        } else if (approvedSubmissions.length > 0) {
+          // If any submission is approved, show approved status
+          const latestApproved = approvedSubmissions.sort((a, b) => {
+            const timeA = new Date(a.reviewedAt || a.submittedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.reviewedAt || b.submittedAt || b.createdAt || 0).getTime();
+            return timeB - timeA; // Most recent first
+          })[0];
+          
+          // Get template name for approved submission
+          const formTemplate = await db
+            .select({ name: formTemplates.name })
+            .from(formTemplates)
+            .where(eq(formTemplates.id, latestApproved.formTemplateId))
+            .limit(1);
+          
+          const templateName = formTemplate[0]?.name || 'Activity';
+          detailedStatus = `${templateName} Approved`;
+          
+        } else if (submittedActivities.length > 0) {
+          // Fall back to submission status if no approval/rejection
           // Sort submissions by submission time (most recent first)
           const sortedSubmissions = submittedActivities.sort((a, b) => {
             const timeA = new Date(a.submittedAt || a.createdAt || 0).getTime();
