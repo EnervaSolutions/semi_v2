@@ -3721,13 +3721,9 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`[USER APPLICATION REMOVAL] Removing user ${userId} from application ${applicationId}`);
       
-      // Set assignment as inactive instead of deleting (preserves history)
+      // Delete the assignment since the table doesn't have isActive/updatedAt columns
       await db
-        .update(applicationAssignments)
-        .set({
-          isActive: false,
-          updatedAt: new Date()
-        })
+        .delete(applicationAssignments)
         .where(
           and(
             eq(applicationAssignments.applicationId, applicationId),

@@ -1144,6 +1144,12 @@ function TemplateSection({
   });
   
   const contractorPermissions = contractorPermissionsResponse?.permissions || [];
+  
+  // Debug logging for permission system
+  console.log('[PERMISSION DEBUG] User:', user?.role, user?.id);
+  console.log('[PERMISSION DEBUG] Application ID:', applicationId);
+  console.log('[PERMISSION DEBUG] Contractor Permissions Response:', contractorPermissionsResponse);
+  console.log('[PERMISSION DEBUG] Extracted Permissions:', contractorPermissions);
 
   // Updated permission logic for new contractor workflow
   const isViewer = useMemo(() => {
@@ -1165,7 +1171,10 @@ function TemplateSection({
       if (user.role === 'contractor_team_member') {
         // If they have edit permission, they are NOT a viewer (can edit)
         // If they only have view permission or no permission, they ARE a viewer (read-only)
-        return !contractorPermissions.includes('edit');
+        const hasEditPermission = contractorPermissions.includes('edit');
+        console.log('[PERMISSION DEBUG] Contractor team member - has edit permission:', hasEditPermission);
+        console.log('[PERMISSION DEBUG] Is viewer result:', !hasEditPermission);
+        return !hasEditPermission;
       }
     }
     

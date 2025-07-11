@@ -2113,7 +2113,90 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // POST /api/contractor/applications/:id/unassign - Remove team member from application
+  // POST /api/contractor/team-member/:userId/assign - Assign team member to application
+  app.post('/api/contractor/team-member/:userId/assign', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      const { applicationId, permissions } = req.body;
+      
+      console.log(`[CONTRACTOR TEAM ASSIGNMENT] Assigning user ${userId} to application ${applicationId} by ${user.id}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_individual' || 
+                                  user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can assign team members" });
+      }
+      
+      // Verify the application exists and is accessible
+      const application = await dbStorage.getApplicationById(applicationId);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // Check if target user is in the same company
+      const targetUser = await dbStorage.getUser(userId);
+      if (!targetUser || targetUser.companyId !== user.companyId) {
+        return res.status(403).json({ message: "Can only assign team members from your company" });
+      }
+      
+      // Create team assignment record
+      await dbStorage.assignUserToApplication(applicationId, userId, permissions, user.id);
+      
+      console.log(`[CONTRACTOR TEAM ASSIGNMENT] Successfully assigned user ${userId} to application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Team member assigned to application successfully",
+        applicationId,
+        userId,
+        permissions
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR TEAM ASSIGNMENT] Error assigning team member to application:", error);
+      res.status(500).json({ message: error.message || "Failed to assign team member to application" });
+    }
+  });
+
+  // POST /api/contractor/team-member/:userId/unassign - Remove team member from application
+  app.post('/api/contractor/team-member/:userId/unassign', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      const { applicationId } = req.body;
+      
+      console.log(`[CONTRACTOR TEAM UNASSIGNMENT] Removing user ${userId} from application ${applicationId} by ${user.id}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_individual' || 
+                                  user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can unassign team members" });
+      }
+      
+      // Remove team assignment
+      await dbStorage.removeUserFromApplication(applicationId, userId);
+      
+      console.log(`[CONTRACTOR TEAM UNASSIGNMENT] Successfully removed user ${userId} from application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Team member removed from application successfully",
+        applicationId,
+        userId
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR TEAM UNASSIGNMENT] Error removing team member from application:", error);
+      res.status(500).json({ message: error.message || "Failed to remove team member from application" });
+    }
+  });
+
+  // POST /api/contractor/applications/:id/unassign - Remove team member from application (legacy endpoint)
   app.post('/api/contractor/applications/:applicationId/unassign', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
