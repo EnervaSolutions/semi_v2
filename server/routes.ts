@@ -1837,10 +1837,28 @@ export function registerRoutes(app: Express) {
         hasAccess = true;
       }
       // Contractors have access to applications assigned to their company
-      else if (user.role === 'contractor_individual' || user.role === 'contractor_account_owner' || user.role === 'contractor_manager' || user.role === 'contractor_team_member') {
+      else if (user.role === 'contractor_individual' || user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
         // Check if this application is assigned to the contractor's company
         const contractorApplications = await dbStorage.getContractorApplications(user.companyId);
         hasAccess = contractorApplications.some(app => app.id === applicationId);
+      }
+      // Special handling for contractor team members
+      else if (user.role === 'contractor_team_member') {
+        console.log(`[INDIVIDUAL APP ACCESS] Contractor team member ${user.email} with permission level ${user.permissionLevel} accessing application ${applicationId}`);
+        
+        // Managers have access to all company applications
+        if (user.permissionLevel === 'manager') {
+          const contractorApplications = await dbStorage.getContractorApplications(user.companyId);
+          console.log(`[INDIVIDUAL APP ACCESS] Found ${contractorApplications.length} contractor applications for company ${user.companyId}:`, contractorApplications.map(app => ({ id: app.id, applicationId: app.applicationId })));
+          hasAccess = contractorApplications.some(app => app.id === applicationId);
+          console.log(`[INDIVIDUAL APP ACCESS] Manager access result: ${hasAccess}`);
+        } else {
+          // Non-managers need individual assignment
+          const individualPermissions = await dbStorage.getContractorTeamMemberApplicationPermissions(applicationId, user.id);
+          console.log(`[INDIVIDUAL APP ACCESS] Individual permissions for user ${user.id} on application ${applicationId}:`, individualPermissions);
+          hasAccess = individualPermissions.length > 0;
+          console.log(`[INDIVIDUAL APP ACCESS] Individual assignment access result: ${hasAccess}`);
+        }
       }
       
       if (!hasAccess) {
