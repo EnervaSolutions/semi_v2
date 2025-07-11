@@ -21,7 +21,8 @@ import { AlertCircle, Download, Upload, FileText, CheckCircle, Clock, ArrowLeft,
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import ContractorAssignmentDialog from "@/components/ContractorAssignmentDialog";
-import { canCreateEdit } from "@/lib/permissions";
+import ContractorTeamAssignmentDialog from "@/components/ContractorTeamAssignmentDialog";
+import { canCreateEdit, canContractorEdit, canContractorView } from "@/lib/permissions";
 
 
 export default function ApplicationDetails() {
@@ -40,6 +41,7 @@ export default function ApplicationDetails() {
   const [phasesStarted, setPhasesStarted] = useState<{[key: string]: boolean}>({});
   const [copied, setCopied] = useState(false);
   const [showContractorAssignment, setShowContractorAssignment] = useState(false);
+  const [showContractorTeamAssignment, setShowContractorTeamAssignment] = useState(false);
 
   // Query for assigned contractors
   const { data: assignedContractors = [] } = useQuery({
@@ -621,6 +623,21 @@ export default function ApplicationDetails() {
                   {assignedContractors.length > 0 ? 'Manage Contractors' : 'Assign Contractor'}
                 </Button>
               )}
+              
+              {/* Contractor Team Assignment Button - Only show for contractor managers */}
+              {(user?.role === 'contractor_account_owner' || 
+                user?.role === 'contractor_manager' || 
+                (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager')) && (
+                <Button
+                  onClick={() => setShowContractorTeamAssignment(true)}
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  <Users className="h-4 w-4" />
+                  Assign Team Members
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -999,6 +1016,14 @@ export default function ApplicationDetails() {
         activityType={application?.activityType || ''}
         applicationTitle={application?.title || ''}
       />
+      
+      {/* Contractor Team Assignment Dialog */}
+      <ContractorTeamAssignmentDialog
+        open={showContractorTeamAssignment}
+        onOpenChange={setShowContractorTeamAssignment}
+        applicationId={id}
+        applicationTitle={application?.title || application?.applicationId}
+      />
     </div>
   );
 }
@@ -1129,10 +1154,38 @@ function TemplateSection({
     }
   };
 
-  // Company admins, system admins, and contractors should never be treated as viewers regardless of permission level
-  const isViewer = !['company_admin', 'system_admin'].includes(user?.role || '') && 
-                   !user?.role?.startsWith('contractor_') && 
-                   (user?.permissionLevel ?? 'viewer') === 'viewer';
+  // Query for contractor application permissions
+  const { data: contractorPermissions = [] } = useQuery({
+    queryKey: [`/api/contractor/team-member/${user?.id}/permissions/${id}`],
+    enabled: !!user?.id && !!id && user?.role === 'contractor_team_member',
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+
+  // Updated permission logic for new contractor workflow
+  const isViewer = useMemo(() => {
+    if (!user) return true;
+    
+    // Company admins and system admins always have full access
+    if (['company_admin', 'system_admin'].includes(user.role || '')) {
+      return false;
+    }
+    
+    // For contractors, check assignment-based permissions
+    if (user.role?.startsWith('contractor_')) {
+      // Account owners and managers can always edit
+      if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+        return false;
+      }
+      
+      // Team members need specific edit permissions for each application
+      if (user.role === 'contractor_team_member') {
+        return !contractorPermissions.includes('edit');
+      }
+    }
+    
+    // For regular team members, check permission level
+    return (user.permissionLevel ?? 'viewer') === 'viewer';
+  }, [user, contractorPermissions]);
   const renderField = (field: any) => {
     // Disable all fields for viewers, or if submitted
     const isDisabled = isViewer || isSubmitted;

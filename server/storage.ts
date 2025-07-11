@@ -19,6 +19,7 @@ import {
   systemAnnouncements,
   announcementAcknowledgments,
   companyApplicationAssignments,
+  contractorTeamApplicationAssignments,
   badges,
   companyBadges,
   recognitionContent,
@@ -3725,7 +3726,7 @@ export class DatabaseStorage implements IStorage {
         .update(applicationAssignments)
         .set({
           isActive: false,
-          removedAt: new Date()
+          updatedAt: new Date()
         })
         .where(
           and(
@@ -3738,6 +3739,139 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('[USER APPLICATION REMOVAL] Error removing user from application:', error);
       throw error;
+    }
+  }
+
+  // New contractor team member assignment methods
+  async assignContractorTeamMemberToApplication(
+    applicationId: number,
+    contractorCompanyId: number,
+    assignedUserId: string,
+    permissions: string[],
+    assignedBy: string
+  ): Promise<void> {
+    try {
+      console.log(`[CONTRACTOR TEAM ASSIGNMENT] Assigning contractor team member ${assignedUserId} to application ${applicationId}`);
+      
+      // Check if assignment already exists
+      const existingAssignment = await db
+        .select()
+        .from(contractorTeamApplicationAssignments)
+        .where(
+          and(
+            eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+            eq(contractorTeamApplicationAssignments.assignedUserId, assignedUserId)
+          )
+        );
+      
+      if (existingAssignment.length > 0) {
+        // Update existing assignment
+        await db
+          .update(contractorTeamApplicationAssignments)
+          .set({
+            permissions,
+            assignedBy,
+            assignedAt: new Date(),
+            isActive: true,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+              eq(contractorTeamApplicationAssignments.assignedUserId, assignedUserId)
+            )
+          );
+        console.log(`[CONTRACTOR TEAM ASSIGNMENT] Updated existing assignment`);
+      } else {
+        // Create new assignment
+        await db.insert(contractorTeamApplicationAssignments).values({
+          applicationId,
+          contractorCompanyId,
+          assignedUserId,
+          permissions,
+          assignedBy,
+          isActive: true
+        });
+        console.log(`[CONTRACTOR TEAM ASSIGNMENT] Created new assignment`);
+      }
+    } catch (error) {
+      console.error('[CONTRACTOR TEAM ASSIGNMENT] Error:', error);
+      throw error;
+    }
+  }
+
+  async removeContractorTeamMemberFromApplication(applicationId: number, assignedUserId: string): Promise<void> {
+    try {
+      console.log(`[CONTRACTOR TEAM REMOVAL] Removing contractor team member ${assignedUserId} from application ${applicationId}`);
+      
+      await db
+        .update(contractorTeamApplicationAssignments)
+        .set({
+          isActive: false,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+            eq(contractorTeamApplicationAssignments.assignedUserId, assignedUserId)
+          )
+        );
+      
+      console.log(`[CONTRACTOR TEAM REMOVAL] Successfully removed contractor team member`);
+    } catch (error) {
+      console.error('[CONTRACTOR TEAM REMOVAL] Error:', error);
+      throw error;
+    }
+  }
+
+  async getContractorTeamMemberApplicationPermissions(applicationId: number, userId: string): Promise<string[]> {
+    try {
+      const assignment = await db
+        .select({ permissions: contractorTeamApplicationAssignments.permissions })
+        .from(contractorTeamApplicationAssignments)
+        .where(
+          and(
+            eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+            eq(contractorTeamApplicationAssignments.assignedUserId, userId),
+            eq(contractorTeamApplicationAssignments.isActive, true)
+          )
+        );
+      
+      return assignment.length > 0 ? assignment[0].permissions || ["view"] : [];
+    } catch (error) {
+      console.error('[CONTRACTOR TEAM PERMISSIONS] Error:', error);
+      return [];
+    }
+  }
+
+  async getContractorTeamApplicationAssignments(applicationId: number): Promise<any[]> {
+    try {
+      const assignments = await db
+        .select({
+          id: contractorTeamApplicationAssignments.id,
+          assignedUserId: contractorTeamApplicationAssignments.assignedUserId,
+          permissions: contractorTeamApplicationAssignments.permissions,
+          assignedBy: contractorTeamApplicationAssignments.assignedBy,
+          assignedAt: contractorTeamApplicationAssignments.assignedAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          role: users.role,
+          permissionLevel: users.permissionLevel
+        })
+        .from(contractorTeamApplicationAssignments)
+        .innerJoin(users, eq(contractorTeamApplicationAssignments.assignedUserId, users.id))
+        .where(
+          and(
+            eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+            eq(contractorTeamApplicationAssignments.isActive, true)
+          )
+        );
+      
+      return assignments;
+    } catch (error) {
+      console.error('[CONTRACTOR TEAM ASSIGNMENTS] Error:', error);
+      return [];
     }
   }
 

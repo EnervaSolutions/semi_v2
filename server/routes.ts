@@ -2127,15 +2127,10 @@ export function registerRoutes(app: Express) {
                                   (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
       
       if (!hasAssignmentAccess) {
-        return res.status(403).json({ message: "Only contractor managers and account owners can remove team member assignments" });
+        return res.status(403).json({ message: "Only contractor managers and account owners can unassign team members" });
       }
       
-      // Validate required fields
-      if (!userId) {
-        return res.status(400).json({ message: "User ID is required" });
-      }
-      
-      // Remove team assignment record
+      // Remove team assignment
       await dbStorage.removeUserFromApplication(parseInt(applicationId), userId);
       
       console.log(`[CONTRACTOR UNASSIGNMENT] Successfully removed user ${userId} from application ${applicationId}`);
@@ -2148,6 +2143,160 @@ export function registerRoutes(app: Express) {
     } catch (error: any) {
       console.error("[CONTRACTOR UNASSIGNMENT] Error removing team member from application:", error);
       res.status(500).json({ message: error.message || "Failed to remove team member from application" });
+    }
+  });
+
+  // NEW CONTRACTOR TEAM ASSIGNMENT ENDPOINTS FOR INDIVIDUAL CONTRACTOR TEAM MEMBERS
+  // POST /api/contractor/team-member/:userId/assign - Assign individual contractor team member to application
+  app.post('/api/contractor/team-member/:userId/assign', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      const { applicationId, permissions } = req.body;
+      
+      console.log(`[CONTRACTOR TEAM ASSIGNMENT] Assigning contractor team member ${userId} to application ${applicationId}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can assign team members" });
+      }
+      
+      // Validate required fields
+      if (!applicationId || !permissions) {
+        return res.status(400).json({ message: "Application ID and permissions are required" });
+      }
+      
+      // Check if application exists
+      const application = await dbStorage.getApplicationById(parseInt(applicationId));
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // Check if target user is in the same company and is a contractor team member
+      const targetUser = await dbStorage.getUserById(userId);
+      if (!targetUser || targetUser.companyId !== user.companyId) {
+        return res.status(403).json({ message: "Can only assign team members from your company" });
+      }
+      
+      if (targetUser.role !== 'contractor_team_member') {
+        return res.status(403).json({ message: "Can only assign contractor team members" });
+      }
+      
+      // Create team assignment record
+      await dbStorage.assignContractorTeamMemberToApplication(
+        parseInt(applicationId), 
+        user.companyId, 
+        userId, 
+        permissions, 
+        user.id
+      );
+      
+      console.log(`[CONTRACTOR TEAM ASSIGNMENT] Successfully assigned contractor team member ${userId} to application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Contractor team member assigned to application successfully",
+        applicationId: parseInt(applicationId),
+        userId,
+        permissions
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR TEAM ASSIGNMENT] Error assigning contractor team member:", error);
+      res.status(500).json({ message: error.message || "Failed to assign contractor team member" });
+    }
+  });
+
+  // POST /api/contractor/team-member/:userId/unassign - Remove individual contractor team member from application
+  app.post('/api/contractor/team-member/:userId/unassign', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId } = req.params;
+      const { applicationId } = req.body;
+      
+      console.log(`[CONTRACTOR TEAM UNASSIGNMENT] Removing contractor team member ${userId} from application ${applicationId}`);
+      
+      // Check if user has contractor management permissions
+      const hasAssignmentAccess = user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAssignmentAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can unassign team members" });
+      }
+      
+      // Remove team assignment
+      await dbStorage.removeContractorTeamMemberFromApplication(parseInt(applicationId), userId);
+      
+      console.log(`[CONTRACTOR TEAM UNASSIGNMENT] Successfully removed contractor team member ${userId} from application ${applicationId}`);
+      res.json({ 
+        success: true, 
+        message: "Contractor team member removed from application successfully",
+        applicationId: parseInt(applicationId),
+        userId
+      });
+    } catch (error: any) {
+      console.error("[CONTRACTOR TEAM UNASSIGNMENT] Error removing contractor team member:", error);
+      res.status(500).json({ message: error.message || "Failed to remove contractor team member" });
+    }
+  });
+
+  // GET /api/contractor/team-member/:userId/permissions/:applicationId - Get contractor team member permissions for application
+  app.get('/api/contractor/team-member/:userId/permissions/:applicationId', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { userId, applicationId } = req.params;
+      
+      console.log(`[CONTRACTOR TEAM PERMISSIONS] Getting permissions for user ${userId} on application ${applicationId}`);
+      
+      // Check if user has contractor management permissions or is the user themselves
+      const hasPermissionAccess = user.role === 'contractor_account_owner' || 
+                                  user.role === 'contractor_manager' ||
+                                  (user.role === 'contractor_team_member' && user.permissionLevel === 'manager') ||
+                                  user.id === userId;
+      
+      if (!hasPermissionAccess) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // Get permissions
+      const permissions = await dbStorage.getContractorTeamMemberApplicationPermissions(parseInt(applicationId), userId);
+      
+      res.json({ permissions });
+    } catch (error: any) {
+      console.error("[CONTRACTOR TEAM PERMISSIONS] Error getting permissions:", error);
+      res.status(500).json({ message: error.message || "Failed to get permissions" });
+    }
+  });
+
+  // GET /api/applications/:applicationId/contractor-team-assignments - Get all contractor team assignments for application
+  app.get('/api/applications/:applicationId/contractor-team-assignments', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { applicationId } = req.params;
+      
+      console.log(`[CONTRACTOR TEAM ASSIGNMENTS] Getting team assignments for application ${applicationId}`);
+      
+      // Check if user has access to view assignments
+      const hasViewAccess = user.role === 'system_admin' || 
+                           user.role === 'company_admin' || 
+                           user.role === 'contractor_account_owner' || 
+                           user.role === 'contractor_manager' ||
+                           (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasViewAccess) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // Get assignments
+      const assignments = await dbStorage.getContractorTeamApplicationAssignments(parseInt(applicationId));
+      
+      res.json(assignments);
+    } catch (error: any) {
+      console.error("[CONTRACTOR TEAM ASSIGNMENTS] Error getting assignments:", error);
+      res.status(500).json({ message: error.message || "Failed to get assignments" });
     }
   });
 

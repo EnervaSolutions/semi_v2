@@ -118,11 +118,11 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     PERMISSIONS.VIEW_TEAM_MEMBERS,
     PERMISSIONS.VIEW_FACILITIES,
     PERMISSIONS.VIEW_APPLICATIONS,
-    PERMISSIONS.EDIT_APPLICATIONS,
-    PERMISSIONS.UPLOAD_DOCUMENTS,
     PERMISSIONS.VIEW_DOCUMENTS,
     PERMISSIONS.DOWNLOAD_DOCUMENTS,
     PERMISSIONS.VIEW_CONTRACTORS,
+    // Edit permissions will be granted per-application basis
+    // PERMISSIONS.EDIT_APPLICATIONS and PERMISSIONS.UPLOAD_DOCUMENTS removed - these are now assignment-specific
   ],
   
   system_admin: [
@@ -202,7 +202,8 @@ export function canEditPermissions(user: any): boolean {
 export function canCreateEdit(user: any): boolean {
   return user?.role === 'company_admin' || 
          user?.role === 'system_admin' || 
-         user?.role?.startsWith('contractor_') || 
+         user?.role === 'contractor_account_owner' ||
+         user?.role === 'contractor_manager' ||
          hasPermissionLevel(user, 'editor');
 }
 
@@ -233,3 +234,40 @@ export const PERMISSION_LEVEL_INFO = {
     color: 'purple',
   },
 };
+
+// New contractor-specific permission functions
+export function canContractorEdit(user: any, applicationPermissions: string[] = []): boolean {
+  if (!user?.role?.startsWith('contractor_')) {
+    return false;
+  }
+  
+  // Account owners and managers can always edit
+  if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+    return true;
+  }
+  
+  // Team members need specific edit permissions for each application
+  if (user.role === 'contractor_team_member') {
+    return applicationPermissions.includes('edit');
+  }
+  
+  return false;
+}
+
+export function canContractorView(user: any, applicationPermissions: string[] = []): boolean {
+  if (!user?.role?.startsWith('contractor_')) {
+    return false;
+  }
+  
+  // Account owners and managers can always view
+  if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+    return true;
+  }
+  
+  // Team members need view permissions (which should be default)
+  if (user.role === 'contractor_team_member') {
+    return applicationPermissions.includes('view') || applicationPermissions.includes('edit');
+  }
+  
+  return false;
+}

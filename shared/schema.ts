@@ -498,6 +498,22 @@ export const contractorCompanyAssignmentHistory = pgTable("contractor_company_as
   pk: primaryKey({ columns: [table.applicationId, table.contractorCompanyId] })
 }));
 
+// Individual contractor team member application assignments with specific permissions
+export const contractorTeamApplicationAssignments = pgTable("contractor_team_application_assignments", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id").notNull(),
+  contractorCompanyId: integer("contractor_company_id").notNull(),
+  assignedUserId: varchar("assigned_user_id").notNull(), // The contractor team member assigned
+  assignedBy: varchar("assigned_by").notNull(), // Who assigned them (contractor manager/account owner)
+  permissions: varchar("permissions").array().default(["view"]).notNull(), // ["view"] or ["view", "edit"]
+  assignedAt: timestamp("assigned_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  unique().on(table.applicationId, table.assignedUserId) // Each user can only be assigned once per application
+]);
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   company: one(companies, {

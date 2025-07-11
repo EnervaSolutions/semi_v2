@@ -271,6 +271,9 @@ export default function ContractorApplications() {
                 <SelectItem value="under_review">Under Review</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="needs_revision">Needs Revision</SelectItem>
+                <SelectItem value="revision_required">Revision Required</SelectItem>
               </SelectContent>
             </Select>
 
