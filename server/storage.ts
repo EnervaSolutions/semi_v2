@@ -4213,7 +4213,49 @@ export class DatabaseStorage implements IStorage {
         contractorMap.get(a.applicationId)!.push(a.contractorName);
       });
 
-      // Add assignedContractors to each application
+      // Get contractor team member assignments for these applications
+      const teamAssignments = await db
+        .select({
+          applicationId: contractorTeamApplicationAssignments.applicationId,
+          assignedUserId: contractorTeamApplicationAssignments.assignedUserId,
+          permissions: contractorTeamApplicationAssignments.permissions,
+          assignedBy: contractorTeamApplicationAssignments.assignedBy,
+          assignedAt: contractorTeamApplicationAssignments.assignedAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          role: users.role,
+          permissionLevel: users.permissionLevel
+        })
+        .from(contractorTeamApplicationAssignments)
+        .innerJoin(users, eq(contractorTeamApplicationAssignments.assignedUserId, users.id))
+        .where(
+          and(
+            inArray(contractorTeamApplicationAssignments.applicationId, appIds),
+            eq(contractorTeamApplicationAssignments.isActive, true)
+          )
+        );
+
+      // Build a map of applicationId -> array of assigned team members
+      const teamAssignmentMap = new Map<number, any[]>();
+      teamAssignments.forEach(assignment => {
+        if (!teamAssignmentMap.has(assignment.applicationId)) {
+          teamAssignmentMap.set(assignment.applicationId, []);
+        }
+        teamAssignmentMap.get(assignment.applicationId)!.push({
+          id: assignment.assignedUserId,
+          firstName: assignment.firstName,
+          lastName: assignment.lastName,
+          email: assignment.email,
+          role: assignment.role,
+          permissionLevel: assignment.permissionLevel,
+          permissions: assignment.permissions,
+          assignedBy: assignment.assignedBy,
+          assignedAt: assignment.assignedAt
+        });
+      });
+
+      // Add assignedContractors and assignedToUsers to each application
       const formattedApplications = applicationsQuery.map(app => ({
           id: app.appId,
           applicationId: app.appApplicationId,
@@ -4227,7 +4269,8 @@ export class DatabaseStorage implements IStorage {
           companyShortName: app.companyShortName,
           createdAt: app.appCreatedAt,
           updatedAt: app.appUpdatedAt,
-        assignedContractors: contractorMap.get(app.appId) || [],
+          assignedContractors: contractorMap.get(app.appId) || [],
+          assignedToUsers: teamAssignmentMap.get(app.appId) || [],
       }));
       return formattedApplications;
     } catch (error) {
