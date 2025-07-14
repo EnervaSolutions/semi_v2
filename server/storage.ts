@@ -4209,8 +4209,30 @@ export class DatabaseStorage implements IStorage {
         contractorMap.get(a.applicationId)!.push(a.contractorName);
       });
 
-      // Get contractor team member assignments for these applications
-      const teamAssignments = await db
+      // Get contractor team member assignments from both tables
+      // First, get from contractor-specific table
+      const contractorSpecificAssignments = await db
+        .select({
+          applicationId: contractorTeamApplicationAssignments.applicationId,
+          assignedUserId: contractorTeamApplicationAssignments.assignedUserId,
+          permissions: contractorTeamApplicationAssignments.permissions,
+          assignedBy: contractorTeamApplicationAssignments.assignedBy,
+          assignedAt: contractorTeamApplicationAssignments.assignedAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          role: users.role,
+          permissionLevel: users.permissionLevel,
+          source: sql<string>`'contractor_specific'`
+        })
+        .from(contractorTeamApplicationAssignments)
+        .innerJoin(users, eq(contractorTeamApplicationAssignments.assignedUserId, users.id))
+        .where(
+          inArray(contractorTeamApplicationAssignments.applicationId, appIds)
+        );
+
+      // Then, get from general table (for backwards compatibility)
+      const generalAssignments = await db
         .select({
           applicationId: applicationAssignments.applicationId,
           assignedUserId: applicationAssignments.userId,
@@ -4221,13 +4243,28 @@ export class DatabaseStorage implements IStorage {
           lastName: users.lastName,
           email: users.email,
           role: users.role,
-          permissionLevel: users.permissionLevel
+          permissionLevel: users.permissionLevel,
+          source: sql<string>`'general'`
         })
         .from(applicationAssignments)
         .innerJoin(users, eq(applicationAssignments.userId, users.id))
         .where(
-          inArray(applicationAssignments.applicationId, appIds)
+          and(
+            inArray(applicationAssignments.applicationId, appIds),
+            sql`${users.role}::text LIKE 'contractor%'`
+          )
         );
+
+      // Combine and deduplicate (prefer contractor-specific over general)
+      const teamAssignments = [...contractorSpecificAssignments];
+      generalAssignments.forEach(general => {
+        const hasContractorSpecific = contractorSpecificAssignments.some(cs => 
+          cs.applicationId === general.applicationId && cs.assignedUserId === general.assignedUserId
+        );
+        if (!hasContractorSpecific) {
+          teamAssignments.push(general);
+        }
+      });
 
       // Build a map of applicationId -> array of assigned team members
       const teamAssignmentMap = new Map<number, any[]>();
