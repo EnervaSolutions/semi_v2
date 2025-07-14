@@ -471,6 +471,7 @@ export default function ContractorApplications() {
                     
                     {(user?.role === 'contractor_account_owner' || 
                       user?.role === 'contractor_manager' || 
+                      (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager') ||
                       (user?.role === 'contractor_team_member' && 
                        application.permissions && application.permissions.includes('edit'))) && (
                       <Button variant="outline" size="sm" asChild>

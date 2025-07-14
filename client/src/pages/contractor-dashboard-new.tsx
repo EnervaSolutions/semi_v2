@@ -321,7 +321,8 @@ export default function ContractorDashboard() {
                             View
                           </Button>
                         </Link>
-                        {['contractor_account_owner', 'contractor_individual', 'contractor_manager'].includes(user?.role || '') && (
+                        {(['contractor_account_owner', 'contractor_individual', 'contractor_manager'].includes(user?.role || '') || 
+                         (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager')) && (
                           <Link href={`/applications/${application.id}`}>
                             <Button size="sm" variant="outline" className="h-7 px-2 text-xs">
                               <Edit className="h-3 w-3 mr-1" />
