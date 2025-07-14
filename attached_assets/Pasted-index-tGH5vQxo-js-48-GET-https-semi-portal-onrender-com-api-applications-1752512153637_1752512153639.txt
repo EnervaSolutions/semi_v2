@@ -1,0 +1,125 @@
+index-tGH5vQxo.js:48 
+        
+        
+       GET https://semi-portal.onrender.com/api/applications/1/contractor-team-assignments 403 (Forbidden)
+(anonymous) @ index-tGH5vQxo.js:48
+s @ index-tGH5vQxo.js:48
+x @ index-tGH5vQxo.js:48
+start @ index-tGH5vQxo.js:48
+fetch @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+batch @ index-tGH5vQxo.js:48
+refetchQueries @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+batch @ index-tGH5vQxo.js:48
+invalidateQueries @ index-tGH5vQxo.js:48
+onSuccess @ index-tGH5vQxo.js:860
+execute @ index-tGH5vQxo.js:48
+await in execute
+mutate @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+j @ index-tGH5vQxo.js:860
+nQ @ index-tGH5vQxo.js:37
+iQ @ index-tGH5vQxo.js:37
+sQ @ index-tGH5vQxo.js:37
+n3 @ index-tGH5vQxo.js:37
+TL @ index-tGH5vQxo.js:37
+(anonymous) @ index-tGH5vQxo.js:37
+r_ @ index-tGH5vQxo.js:40
+Z5 @ index-tGH5vQxo.js:37
+JN @ index-tGH5vQxo.js:37
+PT @ index-tGH5vQxo.js:37
+jQ @ index-tGH5vQxo.js:37Understand this errorAI
+index-tGH5vQxo.js:48 
+        
+        
+       GET https://semi-portal.onrender.com/api/applications/1/contractor-team-assignments 403 (Forbidden)
+(anonymous) @ index-tGH5vQxo.js:48
+s @ index-tGH5vQxo.js:48
+x @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+Promise.then
+(anonymous) @ index-tGH5vQxo.js:48
+Promise.catch
+x @ index-tGH5vQxo.js:48
+start @ index-tGH5vQxo.js:48
+fetch @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+batch @ index-tGH5vQxo.js:48
+refetchQueries @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+batch @ index-tGH5vQxo.js:48
+invalidateQueries @ index-tGH5vQxo.js:48
+onSuccess @ index-tGH5vQxo.js:860
+execute @ index-tGH5vQxo.js:48
+await in execute
+mutate @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+j @ index-tGH5vQxo.js:860
+nQ @ index-tGH5vQxo.js:37
+iQ @ index-tGH5vQxo.js:37
+sQ @ index-tGH5vQxo.js:37
+n3 @ index-tGH5vQxo.js:37
+TL @ index-tGH5vQxo.js:37
+(anonymous) @ index-tGH5vQxo.js:37
+r_ @ index-tGH5vQxo.js:40
+Z5 @ index-tGH5vQxo.js:37
+JN @ index-tGH5vQxo.js:37
+PT @ index-tGH5vQxo.js:37
+jQ @ index-tGH5vQxo.js:37Understand this errorAI
+index-tGH5vQxo.js:48 
+        
+        
+       GET https://semi-portal.onrender.com/api/applications/1/contractor-team-assignments 403 (Forbidden)
+(anonymous) @ index-tGH5vQxo.js:48
+s @ index-tGH5vQxo.js:48
+x @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+Promise.then
+(anonymous) @ index-tGH5vQxo.js:48
+Promise.catch
+x @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+Promise.then
+(anonymous) @ index-tGH5vQxo.js:48
+Promise.catch
+x @ index-tGH5vQxo.js:48
+start @ index-tGH5vQxo.js:48
+fetch @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+batch @ index-tGH5vQxo.js:48
+refetchQueries @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+batch @ index-tGH5vQxo.js:48
+invalidateQueries @ index-tGH5vQxo.js:48
+onSuccess @ index-tGH5vQxo.js:860
+execute @ index-tGH5vQxo.js:48
+await in execute
+mutate @ index-tGH5vQxo.js:48
+(anonymous) @ index-tGH5vQxo.js:48
+j @ index-tGH5vQxo.js:860
+nQ @ index-tGH5vQxo.js:37
+iQ @ index-tGH5vQxo.js:37
+sQ @ index-tGH5vQxo.js:37
+n3 @ index-tGH5vQxo.js:37
+TL @ index-tGH5vQxo.js:37
+(anonymous) @ index-tGH5vQxo.js:37
+r_ @ index-tGH5vQxo.js:40
+Z5 @ index-tGH5vQxo.js:37
+JN @ index-tGH5vQxo.js:37
+PT @ index-tGH5vQxo.js:37
+jQ @ index-tGH5vQxo.js:37Understand this errorAI
+index-tGH5vQxo.js:860 [CONTRACTOR APPLICATIONS] User: {id: 'SFxaXSHqml2DgpENaDiBT', email: 'test-contractor-manager@yopmail.com', firstName: 'pankaj', lastName: 'padmanabhan', role: 'contractor_individual', …}
+index-tGH5vQxo.js:860 [CONTRACTOR APPLICATIONS] Applications: [{…}]
+index-tGH5vQxo.js:860 [CONTRACTOR APPLICATIONS] Team members: (4) [{…}, {…}, {…}, {…}]
+index-tGH5vQxo.js:860 [CONTRACTOR APPLICATIONS] Can edit permissions: false
+index-tGH5vQxo.js:860 [CONTRACTOR TEAM DIALOG] Current assignments: []
+index-tGH5vQxo.js:860 [CONTRACTOR TEAM DIALOG] Application ID: 1
+index-tGH5vQxo.js:860 [CONTRACTOR TEAM DIALOG] Dialog open: true
+index-tGH5vQxo.js:48 
+        
+        
+       GET https://semi-portal.onrender.com/api/applications/1/contractor-team-assignments 403 (Forbidden)

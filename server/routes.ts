@@ -2348,6 +2348,7 @@ export async function registerRoutes(app: Express) {
       // Check if user has access to view assignments
       const hasViewAccess = user.role === 'system_admin' || 
                            user.role === 'company_admin' || 
+                           user.role === 'contractor_individual' ||
                            user.role === 'contractor_account_owner' || 
                            user.role === 'contractor_manager' ||
                            (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');

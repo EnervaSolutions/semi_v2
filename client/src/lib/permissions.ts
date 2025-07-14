@@ -242,8 +242,10 @@ export function canContractorEdit(user: any, applicationPermissions: string[] = 
     return false;
   }
   
-  // Account owners and managers can always edit
-  if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+  // Individual contractors, account owners and managers can always edit
+  if (user.role === 'contractor_individual' || 
+      user.role === 'contractor_account_owner' || 
+      user.role === 'contractor_manager') {
     return true;
   }
   
@@ -265,8 +267,10 @@ export function canContractorView(user: any, applicationPermissions: string[] = 
     return false;
   }
   
-  // Account owners and managers can always view
-  if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+  // Individual contractors, account owners and managers can always view
+  if (user.role === 'contractor_individual' || 
+      user.role === 'contractor_account_owner' || 
+      user.role === 'contractor_manager') {
     return true;
   }
   
@@ -289,8 +293,10 @@ export function canManageContractorTeam(user: any): boolean {
     return false;
   }
   
-  // Account owners and managers can manage teams
-  if (user.role === 'contractor_account_owner' || user.role === 'contractor_manager') {
+  // Individual contractors, account owners and managers can manage teams
+  if (user.role === 'contractor_individual' || 
+      user.role === 'contractor_account_owner' || 
+      user.role === 'contractor_manager') {
     return true;
   }
   
