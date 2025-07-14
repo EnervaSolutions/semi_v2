@@ -610,6 +610,16 @@ export default function ApplicationDetails() {
               >
                 {getDetailedStatusLabel()}
               </Badge>
+
+              {/* Permission Badge for Contractors */}
+              {user?.role?.startsWith('contractor_') && user.role === 'contractor_team_member' && user.permissionLevel !== 'manager' && (
+                <Badge 
+                  variant={contractorPermissions.includes('edit') ? 'default' : 'outline'}
+                  className={`text-sm ${contractorPermissions.includes('edit') ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}
+                >
+                  {contractorPermissions.includes('edit') ? 'Edit Access' : 'View Only'}
+                </Badge>
+              )}
             </div>
             
             {/* Right side - Contractor Assignment */}
@@ -1184,8 +1194,11 @@ function TemplateSection({
         
         // Other team members need specific edit permissions for each application
         const hasEditPermission = contractorPermissions.includes('edit');
-        console.log('[PERMISSION DEBUG] Contractor team member - has edit permission:', hasEditPermission);
-        console.log('[PERMISSION DEBUG] Is viewer result:', !hasEditPermission);
+        const hasViewPermission = contractorPermissions.includes('view');
+        console.log('[PERMISSION DEBUG] Contractor team member permissions:', contractorPermissions);
+        console.log('[PERMISSION DEBUG] Has edit permission:', hasEditPermission);
+        console.log('[PERMISSION DEBUG] Has view permission:', hasViewPermission);
+        console.log('[PERMISSION DEBUG] Is viewer result (read-only):', !hasEditPermission);
         return !hasEditPermission;
       }
     }
