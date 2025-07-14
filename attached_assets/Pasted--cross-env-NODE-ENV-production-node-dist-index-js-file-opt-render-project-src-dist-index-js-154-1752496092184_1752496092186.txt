@@ -1,0 +1,45 @@
+> cross-env NODE_ENV=production node dist/index.js
+file:///opt/render/project/src/dist/index.js:1548
+    throw new Error("SESSION_SECRET environment variable must be set in production");
+          ^
+Error: SESSION_SECRET environment variable must be set in production
+    at setupAuth (file:///opt/render/project/src/dist/index.js:1548:11)
+    at registerRoutes (file:///opt/render/project/src/dist/index.js:7215:3)
+    at file:///opt/render/project/src/dist/index.js:10751:24
+    at file:///opt/render/project/src/dist/index.js:10777:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+Node.js v22.14.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> cross-env NODE_ENV=production node dist/index.js
+file:///opt/render/project/src/dist/index.js:1548
+    throw new Error("SESSION_SECRET environment variable must be set in production");
+          ^
+Error: SESSION_SECRET environment variable must be set in production
+    at setupAuth (file:///opt/render/project/src/dist/index.js:1548:11)
+    at registerRoutes (file:///opt/render/project/src/dist/index.js:7215:3)
+    at file:///opt/render/project/src/dist/index.js:10751:24
+    at file:///opt/render/project/src/dist/index.js:10777:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+Node.js v22.14.0
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> cross-env NODE_ENV=production node dist/index.js
+file:///opt/render/project/src/dist/index.js:1548
+    throw new Error("SESSION_SECRET environment variable must be set in production");
+          ^
+Error: SESSION_SECRET environment variable must be set in production
+    at setupAuth (file:///opt/render/project/src/dist/index.js:1548:11)
+    at registerRoutes (file:///opt/render/project/src/dist/index.js:7215:3)
+    at file:///opt/render/project/src/dist/index.js:10751:24
+    at file:///opt/render/project/src/dist/index.js:10777:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+Node.js v22.14.0
