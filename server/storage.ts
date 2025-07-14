@@ -3822,7 +3822,10 @@ export class DatabaseStorage implements IStorage {
 
   async getContractorTeamMemberApplicationPermissions(applicationId: number, userId: string): Promise<string[]> {
     try {
-      const assignment = await db
+      console.log(`[CONTRACTOR TEAM PERMISSIONS] Looking for permissions for user ${userId} on application ${applicationId}`);
+      
+      // First check the contractor-specific table
+      const contractorAssignment = await db
         .select({ permissions: contractorTeamApplicationAssignments.permissions })
         .from(contractorTeamApplicationAssignments)
         .where(
@@ -3833,7 +3836,29 @@ export class DatabaseStorage implements IStorage {
           )
         );
       
-      return assignment.length > 0 ? assignment[0].permissions || ["view"] : [];
+      if (contractorAssignment.length > 0) {
+        console.log(`[CONTRACTOR TEAM PERMISSIONS] Found permissions in contractor-specific table:`, contractorAssignment[0].permissions);
+        return contractorAssignment[0].permissions || ["view"];
+      }
+      
+      // If not found, check the general application assignments table (for backwards compatibility)
+      const generalAssignment = await db
+        .select({ permissions: applicationAssignments.permissions })
+        .from(applicationAssignments)
+        .where(
+          and(
+            eq(applicationAssignments.applicationId, applicationId),
+            eq(applicationAssignments.userId, userId)
+          )
+        );
+      
+      if (generalAssignment.length > 0) {
+        console.log(`[CONTRACTOR TEAM PERMISSIONS] Found permissions in general assignments table:`, generalAssignment[0].permissions);
+        return generalAssignment[0].permissions || ["view"];
+      }
+      
+      console.log(`[CONTRACTOR TEAM PERMISSIONS] No permissions found for user ${userId} on application ${applicationId}`);
+      return [];
     } catch (error) {
       console.error('[CONTRACTOR TEAM PERMISSIONS] Error:', error);
       return [];
