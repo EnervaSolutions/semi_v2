@@ -4443,17 +4443,20 @@ export class DatabaseStorage implements IStorage {
 
   async updateContractorAssignmentPermissions(applicationId: number, userId: string, permissions: string[]): Promise<void> {
     try {
-      console.log(`Updating permissions for application ${applicationId} and user ${userId} to:`, permissions);
+      console.log(`[CONTRACTOR PERMISSIONS UPDATE] Updating permissions for application ${applicationId} and user ${userId} to:`, permissions);
       await db
-        .update(applicationAssignments)
-        .set({ permissions })
+        .update(contractorTeamApplicationAssignments)
+        .set({ 
+          permissions,
+          updatedAt: new Date()
+        })
         .where(and(
-          eq(applicationAssignments.applicationId, applicationId),
-          eq(applicationAssignments.userId, userId)
+          eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+          eq(contractorTeamApplicationAssignments.assignedUserId, userId)
         ));
-      console.log(`Successfully updated permissions for application ${applicationId} and user ${userId}`);
+      console.log(`[CONTRACTOR PERMISSIONS UPDATE] Successfully updated permissions for application ${applicationId} and user ${userId}`);
     } catch (error) {
-      console.error('Error updating contractor assignment permissions:', error);
+      console.error('[CONTRACTOR PERMISSIONS UPDATE] Error updating contractor assignment permissions:', error);
       throw error;
     }
   }
