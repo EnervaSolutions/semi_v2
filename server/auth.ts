@@ -64,7 +64,7 @@ async function comparePasswords(supplied: string, stored: string) {
   }
 }
 
-export function setupAuth(app: Express) {
+export async function setupAuth(app: Express) {
   // Production-ready session configuration
   if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
     throw new Error('SESSION_SECRET environment variable must be set in production');
@@ -86,59 +86,49 @@ export function setupAuth(app: Express) {
   if (process.env.DATABASE_URL) {
     const PgSession = connectPg(session);
     
-    // Custom session table initialization to avoid index conflicts
+    // Custom session table initialization using existing database connection
     const initializeSessionTable = async () => {
       try {
-        const { Pool } = await import('pg');
-        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        const { drizzle } = await import('drizzle-orm/neon-http');
+        const { neon } = await import('@neondatabase/serverless');
         
-        // Create table only if it doesn't exist
-        await pool.query(`
+        const sql = neon(process.env.DATABASE_URL!);
+        const db = drizzle(sql);
+        
+        // Create table with all constraints in one operation
+        await sql`
           CREATE TABLE IF NOT EXISTS "user_sessions" (
-            "sid" varchar NOT NULL COLLATE "default",
+            "sid" varchar NOT NULL PRIMARY KEY,
             "sess" json NOT NULL,
             "expire" timestamp(6) NOT NULL
           )
-        `);
+        `;
         
-        // Add primary key if it doesn't exist
-        await pool.query(`
-          DO $$ 
-          BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_sessions_pkey') THEN
-              ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_pkey" PRIMARY KEY ("sid");
-            END IF;
-          END $$;
-        `);
+        // Create index if it doesn't exist (separate operation for safety)
+        await sql`
+          CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "user_sessions" ("expire")
+        `;
         
-        // Create index only if it doesn't exist
-        await pool.query(`
-          DO $$ 
-          BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_session_expire') THEN
-              CREATE INDEX "IDX_session_expire" ON "user_sessions" ("expire");
-            END IF;
-          END $$;
-        `);
-        
-        await pool.end();
         console.log('[AUTH] Session table initialized successfully');
       } catch (error) {
         console.warn('[AUTH] Session table initialization warning:', error.message);
+        // Fallback: let connect-pg-simple handle table creation
+        return false;
       }
+      return true;
     };
     
     // Initialize table before creating session store
-    initializeSessionTable();
+    const tableCreated = await initializeSessionTable();
     
     sessionSettings.store = new PgSession({
       conString: process.env.DATABASE_URL,
       tableName: 'user_sessions',
-      createTableIfMissing: false, // We handle table creation manually above
+      createTableIfMissing: !tableCreated, // Use manual creation if successful, otherwise fallback
       pruneSessionInterval: 60 * 15, // Prune expired sessions every 15 minutes
       ttl: 7 * 24 * 60 * 60, // Session TTL in seconds (7 days)
       errorLog: (err) => {
-        // Only log non-existence errors (other errors are handled above)
+        // Only log significant errors, ignore common table existence issues
         if (!err.message.includes('already exists') && !err.message.includes('does not exist')) {
           console.error('[AUTH] Session store error:', err);
         }

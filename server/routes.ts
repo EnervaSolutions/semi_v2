@@ -34,8 +34,8 @@ const upload = multer({
   }
 });
 
-export function registerRoutes(app: Express) {
-  setupAuth(app);
+export async function registerRoutes(app: Express) {
+  await setupAuth(app);
   const server = createServer(app);
 
   // ============================================================================
