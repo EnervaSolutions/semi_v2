@@ -156,34 +156,16 @@ export default function ContractorTeamAssignmentDialog({
             ) : (
               <div className="space-y-2">
                 {currentAssignments.map((assignment: any) => (
-                  <div
-                    key={assignment.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
+                  <div key={assignment.assignedUserId} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
+                      <User className="h-4 w-4 text-gray-600" />
                       <div>
-                        <div className="font-medium">
-                          {assignment.firstName} {assignment.lastName}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {assignment.email}
-                        </div>
+                        <div className="font-medium">{assignment.firstName} {assignment.lastName}</div>
+                        <div className="text-sm text-gray-500">{assignment.email}</div>
                       </div>
-                      <div className="flex gap-1">
-                        {assignment.permissions?.map((permission: string) => (
-                          <Badge
-                            key={permission}
-                            variant={permission === 'edit' ? 'default' : 'secondary'}
-                            className="text-xs"
-                          >
-                            {permission === 'edit' ? (
-                              <><Edit className="h-3 w-3 mr-1" />Edit</>
-                            ) : (
-                              <><Eye className="h-3 w-3 mr-1" />View</>
-                            )}
-                          </Badge>
-                        ))}
-                      </div>
+                      <Badge variant={assignment.permissions?.includes('edit') ? 'default' : 'secondary'}>
+                        {assignment.permissions?.includes('edit') ? 'Edit Access' : 'View Only'}
+                      </Badge>
                     </div>
                     <Button
                       variant="outline"
@@ -191,7 +173,7 @@ export default function ContractorTeamAssignmentDialog({
                       onClick={() => handleRemove(assignment.assignedUserId)}
                       disabled={removeAssignmentMutation.isPending}
                     >
-                      Remove
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
