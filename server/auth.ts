@@ -88,9 +88,15 @@ export function setupAuth(app: Express) {
     sessionSettings.store = new PgSession({
       conString: process.env.DATABASE_URL,
       tableName: 'user_sessions',
-      createTableIfMissing: true,
+      createTableIfMissing: false, // Don't try to create table/indexes if they exist
       pruneSessionInterval: 60 * 15, // Prune expired sessions every 15 minutes
       ttl: 7 * 24 * 60 * 60, // Session TTL in seconds (7 days)
+      errorLog: (err) => {
+        // Ignore table/index exists errors in production
+        if (!err.message.includes('already exists')) {
+          console.error('[AUTH] Session store error:', err);
+        }
+      }
     });
     console.log('[AUTH] Using PostgreSQL session store for production');
   } else {
