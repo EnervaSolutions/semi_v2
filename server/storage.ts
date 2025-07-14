@@ -3867,7 +3867,10 @@ export class DatabaseStorage implements IStorage {
 
   async getContractorTeamApplicationAssignments(applicationId: number): Promise<any[]> {
     try {
-      const assignments = await db
+      console.log(`[CONTRACTOR TEAM ASSIGNMENTS] Getting assignments for application ${applicationId}`);
+      
+      // First check the contractor-specific table
+      const contractorSpecificAssignments = await db
         .select({
           id: contractorTeamApplicationAssignments.id,
           assignedUserId: contractorTeamApplicationAssignments.assignedUserId,
@@ -3878,7 +3881,8 @@ export class DatabaseStorage implements IStorage {
           lastName: users.lastName,
           email: users.email,
           role: users.role,
-          permissionLevel: users.permissionLevel
+          permissionLevel: users.permissionLevel,
+          source: sql<string>`'contractor_specific'`
         })
         .from(contractorTeamApplicationAssignments)
         .innerJoin(users, eq(contractorTeamApplicationAssignments.assignedUserId, users.id))
@@ -3888,8 +3892,44 @@ export class DatabaseStorage implements IStorage {
             eq(contractorTeamApplicationAssignments.isActive, true)
           )
         );
-      
-      return assignments;
+
+      // Then check the general assignments table for contractor users
+      const generalAssignments = await db
+        .select({
+          id: applicationAssignments.id,
+          assignedUserId: applicationAssignments.userId,
+          permissions: applicationAssignments.permissions,
+          assignedBy: applicationAssignments.assignedBy,
+          assignedAt: applicationAssignments.createdAt,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          role: users.role,
+          permissionLevel: users.permissionLevel,
+          source: sql<string>`'general'`
+        })
+        .from(applicationAssignments)
+        .innerJoin(users, eq(applicationAssignments.userId, users.id))
+        .where(
+          and(
+            eq(applicationAssignments.applicationId, applicationId),
+            sql`${users.role}::text LIKE 'contractor%'`
+          )
+        );
+
+      // Combine and deduplicate (prefer contractor-specific over general)
+      const allAssignments = [...contractorSpecificAssignments];
+      generalAssignments.forEach(general => {
+        const hasContractorSpecific = contractorSpecificAssignments.some(cs => 
+          cs.assignedUserId === general.assignedUserId
+        );
+        if (!hasContractorSpecific) {
+          allAssignments.push(general);
+        }
+      });
+
+      console.log(`[CONTRACTOR TEAM ASSIGNMENTS] Found ${allAssignments.length} total assignments for application ${applicationId}`);
+      return allAssignments;
     } catch (error) {
       console.error('[CONTRACTOR TEAM ASSIGNMENTS] Error:', error);
       return [];

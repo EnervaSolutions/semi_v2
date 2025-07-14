@@ -92,14 +92,15 @@ export default function ContractorTeamAssignmentDialog({
     },
   });
 
-  // Filter team members to only show contractor_team_member role
-  const contractorTeamMembers = teamMembers.filter((member: any) => 
-    member.role === 'contractor_team_member'
+  // Filter team members to only show contractor_team_member role with editor permission level
+  // Exclude managers and account owners as they already have permanent edit access
+  const contractorEditors = teamMembers.filter((member: any) => 
+    member.role === 'contractor_team_member' && member.permissionLevel === 'editor'
   );
 
-  // Get unassigned team members
-  const assignedUserIds = currentAssignments.map((assignment: any) => assignment.assignedUserId);
-  const unassignedMembers = contractorTeamMembers.filter((member: any) => 
+  // Get unassigned team members (editors only)
+  const assignedUserIds = currentAssignments.map((assignment: any) => assignment.assignedUserId || assignment.userId);
+  const unassignedMembers = contractorEditors.filter((member: any) => 
     !assignedUserIds.includes(member.id)
   );
 
