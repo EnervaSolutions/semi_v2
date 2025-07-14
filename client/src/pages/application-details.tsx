@@ -377,6 +377,7 @@ export default function ApplicationDetails() {
     user?.role === 'system_admin' || 
     user?.role === 'contractor_account_owner' ||
     user?.role === 'contractor_manager' ||
+    (user?.role === 'contractor_team_member' && user?.permissionLevel === 'manager') ||
     (user?.role === 'contractor_team_member' && contractorPermissions.includes('edit')) ||
     canEditApplication
   );
@@ -1175,8 +1176,13 @@ function TemplateSection({
       
       // Team members need specific edit permissions for each application
       if (user.role === 'contractor_team_member') {
-        // If they have edit permission, they are NOT a viewer (can edit)
-        // If they only have view permission or no permission, they ARE a viewer (read-only)
+        // Team members with manager permission level can edit all applications
+        if (user.permissionLevel === 'manager') {
+          console.log('[PERMISSION DEBUG] Contractor team member with manager permission - granting edit access');
+          return false;
+        }
+        
+        // Other team members need specific edit permissions for each application
         const hasEditPermission = contractorPermissions.includes('edit');
         console.log('[PERMISSION DEBUG] Contractor team member - has edit permission:', hasEditPermission);
         console.log('[PERMISSION DEBUG] Is viewer result:', !hasEditPermission);
