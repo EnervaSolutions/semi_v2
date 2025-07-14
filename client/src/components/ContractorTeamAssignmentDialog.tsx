@@ -73,7 +73,7 @@ export default function ContractorTeamAssignmentDialog({
 
   const removeAssignmentMutation = useMutation({
     mutationFn: async ({ applicationId, userId }: { applicationId: number; userId: string }) => {
-      return apiRequest(`/api/contractor/team-member/${userId}/unassign`, "POST", { applicationId });
+      return apiRequest(`/api/contractor/applications/${applicationId}/unassign`, "POST", { userId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
@@ -83,7 +83,8 @@ export default function ContractorTeamAssignmentDialog({
         description: "Team member removed successfully",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('[REMOVE ASSIGNMENT] Error:', error);
       toast({
         title: "Error",
         description: "Failed to remove team member",
