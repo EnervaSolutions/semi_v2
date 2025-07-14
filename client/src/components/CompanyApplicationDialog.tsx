@@ -201,14 +201,17 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
   };
 
   const isActivityEnabled = (activityType: string) => {
-    // FRA is always available
-    if (activityType === 'FRA') {
-      return true;
-    }
-    // For other activities, check if they're enabled for the selected facility
+    // No activities are available until a facility is selected
     if (!selectedFacilityId || !facilityActivities) {
       return false;
     }
+    
+    // FRA is always available for selected facilities
+    if (activityType === 'FRA') {
+      return true;
+    }
+    
+    // For other activities, check if they're enabled for the selected facility
     return facilityActivities.enabledActivities?.includes(activityType) ?? false;
   };
 
@@ -255,86 +258,7 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Activity Type Selection */}
-            <FormField
-              control={form.control}
-              name="activityType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Activity Type</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="grid grid-cols-1 gap-3"
-                    >
-                      {Object.entries(ACTIVITY_TYPES).map(([key, activity]) => {
-                        const canCreate = canCreateActivity(key);
-                        const atLimit = isActivityAtLimit(key);
-                        const needsFRA = requiresFRA(key);
-                        
-                        return (
-                          <div key={key}>
-                            <Label
-                              htmlFor={key}
-                              className={`relative flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                                !canCreate ? 'opacity-50 cursor-not-allowed' : ''
-                              }`}
-                            >
-                              <RadioGroupItem
-                                value={key}
-                                id={key}
-                                className="sr-only"
-                                disabled={!canCreate}
-                              />
-                              <div className="flex items-center space-x-4 w-full">
-                                {getActivityIcon(key)}
-                                <div className="flex-1">
-                                  <h4 className="font-medium text-gray-900">
-                                    {activity.name}
-                                  </h4>
-                                  <p className="text-sm text-gray-500">{activity.description}</p>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {needsFRA && (
-                                      <Badge variant="outline">
-                                        Requires completed FRA
-                                      </Badge>
-                                    )}
-                                    {atLimit && (
-                                      <Badge variant="destructive">
-                                        At application limit
-                                      </Badge>
-                                    )}
-                                    {!isActivityEnabled(key) && !atLimit && (
-                                      <Badge variant="secondary">
-                                        Not enabled for facility
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {!canCreate && <Lock className="h-4 w-4 text-gray-400" />}
-                                  <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${
-                                    field.value === key ? 'border-primary bg-primary' : 'border-gray-300'
-                                  }`}>
-                                    {field.value === key && (
-                                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        );
-                      })}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Facility Selection */}
+            {/* Facility Selection - Must be selected first */}
             <FormField
               control={form.control}
               name="facilityId"
@@ -375,6 +299,93 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
                         ))}
                       </SelectContent>
                     </Select>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Activity Type Selection - Only enabled after facility selection */}
+            <FormField
+              control={form.control}
+              name="activityType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Activity Type</FormLabel>
+                  {!selectedFacilityId ? (
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <p className="text-sm text-gray-600">
+                        Please select a facility first to see available activity types.
+                      </p>
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="grid grid-cols-1 gap-3"
+                      >
+                        {Object.entries(ACTIVITY_TYPES).map(([key, activity]) => {
+                          const canCreate = canCreateActivity(key);
+                          const atLimit = isActivityAtLimit(key);
+                          const needsFRA = requiresFRA(key);
+                          
+                          return (
+                            <div key={key}>
+                              <Label
+                                htmlFor={key}
+                                className={`relative flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
+                                  !canCreate ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                              >
+                                <RadioGroupItem
+                                  value={key}
+                                  id={key}
+                                  className="sr-only"
+                                  disabled={!canCreate}
+                                />
+                                <div className="flex items-center space-x-4 w-full">
+                                  {getActivityIcon(key)}
+                                  <div className="flex-1">
+                                    <h4 className="font-medium text-gray-900">
+                                      {activity.name}
+                                    </h4>
+                                    <p className="text-sm text-gray-500">{activity.description}</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {needsFRA && (
+                                        <Badge variant="outline">
+                                          Requires completed FRA
+                                        </Badge>
+                                      )}
+                                      {atLimit && (
+                                        <Badge variant="destructive">
+                                          At application limit
+                                        </Badge>
+                                      )}
+                                      {!isActivityEnabled(key) && !atLimit && (
+                                        <Badge variant="secondary">
+                                          Not enabled for facility
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    {!canCreate && <Lock className="h-4 w-4 text-gray-400" />}
+                                    <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${
+                                      field.value === key ? 'border-primary bg-primary' : 'border-gray-300'
+                                    }`}>
+                                      {field.value === key && (
+                                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </Label>
+                            </div>
+                          );
+                        })}
+                      </RadioGroup>
+                    </FormControl>
                   )}
                   <FormMessage />
                 </FormItem>
