@@ -199,7 +199,15 @@ export default function AuthPage() {
       howHeardAboutOther: "",
       acceptTerms: false,
       acceptBusinessInfo: false,
-      acceptContact: false
+      acceptContact: false,
+      
+      // Contractor-specific defaults
+      serviceRegions: [],
+      supportedActivities: [],
+      capitalRetrofitTechnologies: [],
+      codeOfConductAgreed: false,
+      gstWcbInsuranceConfirmed: false,
+      contractorCompanyExists: ""
     }
   });
 
@@ -282,7 +290,13 @@ export default function AuthPage() {
           acceptBusinessInfo: data.acceptBusinessInfo,
           acceptContact: data.acceptContact,
           codeOfConductAgreed: data.codeOfConductAgreed,
-          gstWcbInsuranceConfirmed: data.gstWcbInsuranceConfirmed
+          gstWcbInsuranceConfirmed: data.gstWcbInsuranceConfirmed,
+          
+          // Backend expected field names
+          hasCodeOfConductAgreement: data.codeOfConductAgreed,
+          hasPrivacyPolicyAgreement: data.acceptBusinessInfo,
+          hasTermsOfServiceAgreement: data.acceptTerms,
+          hasDataSharingAgreement: data.acceptContact
         };
       }
       
@@ -664,6 +678,27 @@ export default function AuthPage() {
       
       if (missingFields.length > 0) {
         console.log("❌ Team member validation failed, missing fields:", missingFields);
+        toast({
+          title: "Registration failed",
+          description: "Please complete all required fields",
+          variant: "destructive"
+        });
+        return;
+      }
+    } else if (data.role === "contractor_individual") {
+      // For contractors, validate required contractor fields
+      const contractorRequiredFields = ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'role'];
+      const missingFields = contractorRequiredFields.filter(field => !data[field as keyof RegisterData]);
+      
+      // Check contractor-specific fields if creating new company
+      if (data.contractorCompanyExists === "no") {
+        const contractorCompanyFields = ['companyName', 'streetAddress', 'city', 'province', 'country'];
+        const missingCompanyFields = contractorCompanyFields.filter(field => !data[field as keyof RegisterData]);
+        missingFields.push(...missingCompanyFields);
+      }
+      
+      if (missingFields.length > 0) {
+        console.log("❌ Contractor validation failed, missing fields:", missingFields);
         toast({
           title: "Registration failed",
           description: "Please complete all required fields",
