@@ -4212,21 +4212,21 @@ export class DatabaseStorage implements IStorage {
       // Get contractor team member assignments for these applications
       const teamAssignments = await db
         .select({
-          applicationId: applicationAssignments.applicationId,
-          assignedUserId: applicationAssignments.userId,
-          permissions: applicationAssignments.permissions,
-          assignedBy: applicationAssignments.assignedBy,
-          assignedAt: applicationAssignments.createdAt,
+          applicationId: contractorTeamApplicationAssignments.applicationId,
+          assignedUserId: contractorTeamApplicationAssignments.assignedUserId,
+          permissions: contractorTeamApplicationAssignments.permissions,
+          assignedBy: contractorTeamApplicationAssignments.assignedBy,
+          assignedAt: contractorTeamApplicationAssignments.assignedAt,
           firstName: users.firstName,
           lastName: users.lastName,
           email: users.email,
           role: users.role,
           permissionLevel: users.permissionLevel
         })
-        .from(applicationAssignments)
-        .innerJoin(users, eq(applicationAssignments.userId, users.id))
+        .from(contractorTeamApplicationAssignments)
+        .innerJoin(users, eq(contractorTeamApplicationAssignments.assignedUserId, users.id))
         .where(
-          inArray(applicationAssignments.applicationId, appIds)
+          inArray(contractorTeamApplicationAssignments.applicationId, appIds)
         );
 
       // Build a map of applicationId -> array of assigned team members
