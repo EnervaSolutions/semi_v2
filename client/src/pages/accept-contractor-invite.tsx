@@ -46,32 +46,28 @@ export default function AcceptContractorInvite() {
 
   // Fetch invitation details
   useEffect(() => {
-    if (token) {
-      // In a real implementation, you'd fetch invitation details from an API
-      // For now, we'll create a placeholder
-      setInvitationDetails({
-        id: 1,
-        email: 'contractor@example.com',
-        firstName: 'John',
-        lastName: 'Contractor',
-        permissionLevel: 'viewer',
-        companyId: 2,
-        invitationToken: token,
-        status: 'pending',
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date().toISOString(),
-        company: {
-          name: 'Example Contractor Company',
-          shortName: 'EXCON'
-        },
-        invitedBy: {
-          firstName: 'Jane',
-          lastName: 'Manager',
-          email: 'manager@example.com'
-        }
-      });
-    }
-  }, [token]);
+    const fetchInvitationDetails = async () => {
+      if (!token) return;
+      
+      try {
+        console.log('[CONTRACTOR INVITE] Fetching invitation details for token:', token);
+        const response = await apiRequest(`/api/contractor-invitations/${token}`, 'GET');
+        const details = await response.json();
+        
+        console.log('[CONTRACTOR INVITE] Invitation details:', details);
+        setInvitationDetails(details);
+      } catch (error) {
+        console.error('[CONTRACTOR INVITE] Error fetching invitation details:', error);
+        toast({
+          title: "Error",
+          description: "Could not load invitation details. The invitation may be invalid or expired.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    fetchInvitationDetails();
+  }, [token, toast]);
 
   const validatePassword = (pwd: string): string[] => {
     const errors: string[] = [];

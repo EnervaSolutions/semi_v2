@@ -3050,10 +3050,24 @@ export async function registerRoutes(app: Express) {
   });
 
   // ============================================================================
-  // CRITICAL ACTIVITY SETTINGS UPDATE ENDPOINT
+  // ACTIVITY SETTINGS ENDPOINTS
   // ============================================================================ 
   // DO NOT REMOVE - Required for application limits management functionality
-  // This endpoint allows system admins to update activity settings including limits
+  
+  // GET activity settings - For admin panel and application limits
+  app.get('/api/activity-settings', requireAuth, async (req: any, res: Response) => {
+    try {
+      console.log('[ACTIVITY SETTINGS] Fetching activity settings');
+      const settings = await dbStorage.getActivitySettings();
+      console.log(`[ACTIVITY SETTINGS] Found ${settings.length} activity settings`);
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching activity settings:", error);
+      res.status(500).json({ message: "Failed to fetch activity settings" });
+    }
+  });
+
+  // PATCH activity settings - Update activity limits and settings
   app.patch('/api/admin/activity-settings/:activityType', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
@@ -3109,6 +3123,28 @@ export async function registerRoutes(app: Express) {
     } catch (error) {
       console.error("Error updating contractor assignment settings:", error);
       res.status(500).json({ message: error.message || "Failed to update contractor assignment settings" });
+    }
+  });
+
+  // ============================================================================
+  // CONTRACTOR INVITATION DETAILS ENDPOINT
+  // ============================================================================
+  // GET contractor invitation details by token for password reset page
+  app.get('/api/contractor-invitations/:token', async (req: Request, res: Response) => {
+    try {
+      const { token } = req.params;
+      console.log(`[CONTRACTOR INVITE] Fetching invitation details for token: ${token}`);
+      
+      const invitation = await dbStorage.getTeamInvitationByToken(token);
+      if (!invitation) {
+        return res.status(404).json({ message: "Invitation not found or expired" });
+      }
+      
+      console.log(`[CONTRACTOR INVITE] Found invitation:`, invitation);
+      res.json(invitation);
+    } catch (error) {
+      console.error("[CONTRACTOR INVITE] Error fetching invitation details:", error);
+      res.status(500).json({ message: "Failed to fetch invitation details" });
     }
   });
 

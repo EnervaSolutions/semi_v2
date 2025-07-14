@@ -4757,12 +4757,46 @@ export class DatabaseStorage implements IStorage {
     return invitation;
   }
 
-  async getTeamInvitationByToken(token: string): Promise<TeamInvitation | undefined> {
-    const [invitation] = await db
-      .select()
-      .from(teamInvitations)
-      .where(eq(teamInvitations.invitationToken, token));
-    return invitation;
+  async getTeamInvitationByToken(token: string): Promise<any> {
+    try {
+      console.log(`[STORAGE] Fetching invitation details for token: ${token}`);
+      
+      const invitationData = await db
+        .select({
+          invitation: teamInvitations,
+          company: companies,
+          invitedBy: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+            role: users.role
+          }
+        })
+        .from(teamInvitations)
+        .leftJoin(companies, eq(teamInvitations.companyId, companies.id))
+        .leftJoin(users, eq(teamInvitations.invitedByUserId, users.id))
+        .where(eq(teamInvitations.invitationToken, token))
+        .limit(1);
+
+      if (invitationData.length === 0) {
+        console.log(`[STORAGE] No invitation found for token: ${token}`);
+        return undefined;
+      }
+
+      const result = invitationData[0];
+      const formattedResult = {
+        ...result.invitation,
+        company: result.company,
+        invitedBy: result.invitedBy
+      };
+
+      console.log(`[STORAGE] Found invitation for ${result.invitation.email} at company ${result.company?.name}`);
+      return formattedResult;
+    } catch (error) {
+      console.error(`[STORAGE] Error fetching invitation by token:`, error);
+      throw error;
+    }
   }
 
   async getTeamInvitationByEmail(email: string, companyId: number): Promise<TeamInvitation | undefined> {

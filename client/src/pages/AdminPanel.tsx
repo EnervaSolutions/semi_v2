@@ -44,14 +44,11 @@ export default function AdminPanel({ defaultTab }: AdminPanelProps) {
 
 
 
-  // Hardcoded activity settings to ensure they display in correct order
-  const activitySettings = [
-    { activityType: 'FRA', isEnabled: true, maxApplications: 1, description: 'Activity 1 - Facility Readiness Assessment (FRA)' },
-    { activityType: 'EAA', isEnabled: true, maxApplications: 2, description: 'Activity 2 - Energy Assessments and Audits (EAA)' },
-    { activityType: 'SEM', isEnabled: true, maxApplications: 1, description: 'Activity 3 - Strategic Energy Manager (SEM)' },
-    { activityType: 'EMIS', isEnabled: true, maxApplications: null, description: 'Activity 4 - Energy Management Information Systems (EMIS)' },
-    { activityType: 'CR', isEnabled: true, maxApplications: 3, description: 'Activity 5 - Capital Retrofits (CR)' }
-  ];
+  // Fetch real activity settings from API
+  const { data: activitySettings = [], isLoading: settingsLoading } = useQuery({
+    queryKey: ["/api/activity-settings"],
+    enabled: user?.role === 'system_admin',
+  });
 
   const updateActivitySettingMutation = useMutation({
     mutationFn: async ({ activityType, isEnabled }: { activityType: string; isEnabled: boolean }) => {
