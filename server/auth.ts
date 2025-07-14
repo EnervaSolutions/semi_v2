@@ -170,7 +170,7 @@ export async function setupAuth(app: Express) {
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: "User already exists with this email" });
+        return res.status(400).json({ message: "User with this email already exists" });
       }
 
       // ========================================
@@ -222,7 +222,15 @@ export async function setupAuth(app: Express) {
         role: assignedRole
       };
 
-      let user = await storage.upsertUser(userData);
+      let user;
+      try {
+        user = await storage.upsertUser(userData);
+      } catch (error: any) {
+        if (error.message.includes('User with this email already exists')) {
+          return res.status(400).json({ message: "User with this email already exists" });
+        }
+        throw error;
+      }
 
       // Check if email was already verified in session (from popup verification)
       const emailVerified = (req.session as any)?.emailVerified;
