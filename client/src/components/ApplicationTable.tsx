@@ -20,8 +20,6 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
-import { canContractorEdit } from '@/lib/permissions';
-import { useQuery } from '@tanstack/react-query';
 
 interface Application {
   id: number;
@@ -76,11 +74,6 @@ const DEFAULT_COLUMNS: ColumnVisibility = {
 };
 
 export function ApplicationTable({ applications, showColumnSelector = false, compact = false, columnVisibility: propColumnVisibility }: ApplicationTableProps) {
-  // Get current user for permission checks
-  const { data: user } = useQuery({
-    queryKey: ['/api/auth/user'],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(DEFAULT_COLUMNS);
 
   // For compact mode (dashboard), override column visibility
@@ -489,12 +482,10 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
                       <Eye className="mr-2 h-4 w-4" />
                       View Details
                     </DropdownMenuItem>
-                    {user && canContractorEdit(user, application.permissions || []) && (
-                      <DropdownMenuItem onClick={() => window.location.href = `/applications/${application.id}`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Application
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem onClick={() => window.location.href = `/applications/${application.id}`}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Application
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigator.clipboard.writeText(application.applicationId)}>
                       Copy Application ID
