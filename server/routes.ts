@@ -1711,10 +1711,8 @@ export function registerRoutes(app: Express) {
           res.json(applications);
         } else if (user.role === 'contractor_team_member' && user.permissionLevel === 'editor') {
           // Editors can only see applications specifically assigned to them
-          console.log(`[CONTRACTOR APPLICATIONS] Editor ${user.email} (${user.id}) - showing only individually assigned applications`);
-          console.log(`[CONTRACTOR APPLICATIONS] Editor role check: role=${user.role}, permissionLevel=${user.permissionLevel}`);
+          console.log(`[CONTRACTOR APPLICATIONS] Editor ${user.email} - showing only individually assigned applications`);
           const applications = await dbStorage.getContractorUserAssignedApplications(user.id);
-          console.log(`[CONTRACTOR APPLICATIONS] Editor ${user.email} returned ${applications.length} individually assigned applications`);
           res.json(applications);
         } else {
           // Fallback for unknown contractor roles - show individually assigned only

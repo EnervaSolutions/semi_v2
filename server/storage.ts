@@ -4371,7 +4371,16 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // REMOVED DUPLICATE METHOD - using the one below with proper return structure
+  async getContractorTeamMembers(companyId: number): Promise<User[]> {
+    const teamMembers = await db
+      .select()
+      .from(users)
+      .where(and(
+        eq(users.companyId, companyId),
+        inArray(users.role, ['contractor_individual', 'contractor_team_member'])
+      ));
+    return teamMembers;
+  }
 
 
 
@@ -4386,15 +4395,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   async assignApplicationToContractor(assignment: any): Promise<any> {
-    console.log(`[ASSIGNMENT] DEPRECATED METHOD - Use assignContractorTeamMemberToApplication instead`);
-    // This method is deprecated - redirect to the proper assignment method
-    return this.assignContractorTeamMemberToApplication(
-      assignment.applicationId,
-      assignment.contractorCompanyId,
-      assignment.userId,
-      assignment.permissions || ["view"],
-      assignment.assignedBy
-    );
+    // First, create the individual assignment
+    const [created] = await db
+      .insert(applicationAssignments)
+      .values({
+        applicationId: assignment.applicationId,
+        userId: assignment.userId,
+        assignedBy: assignment.assignedBy,
+        permissions: assignment.permissions || ["view"]
+      })
+      .returning();
+
+    // Get the contractor's company ID
+    const user = await db
+      .select({ companyId: users.companyId })
+      .from(users)
+      .where(eq(users.id, assignment.userId))
+      .limit(1);
+
+    if (user.length > 0 && user[0].companyId) {
+      // Create or update the historical tracking record for company-level assignment
+      try {
+        await db.execute(sql`
+          INSERT INTO contractor_company_assignment_history (application_id, contractor_company_id, assigned_by, assigned_at)
+          VALUES (${assignment.applicationId}, ${user[0].companyId}, ${assignment.assignedBy}, ${new Date()})
+          ON CONFLICT (application_id, contractor_company_id) 
+          DO UPDATE SET assigned_by = EXCLUDED.assigned_by, assigned_at = EXCLUDED.assigned_at
+        `);
+        
+        console.log(`[ASSIGNMENT] Created historical tracking for application ${assignment.applicationId} to company ${user[0].companyId}`);
+      } catch (error) {
+        console.error('Error creating historical tracking:', error);
+        // Don't fail the assignment if historical tracking fails
+      }
+    }
+
+    return created;
   }
 
   async removeContractorAssignment(applicationId: number, userId: string): Promise<void> {
@@ -4548,7 +4584,6 @@ export class DatabaseStorage implements IStorage {
 
 
   async getContractorTeamMembers(companyId: number) {
-    console.log(`[CONTRACTOR TEAM MEMBERS] Getting team members for company ${companyId}`);
     const members = await db
       .select({
         id: users.id,
@@ -4562,15 +4597,31 @@ export class DatabaseStorage implements IStorage {
       .from(users)
       .where(and(
         eq(users.companyId, companyId),
-        inArray(users.role, ['contractor_individual', 'contractor_team_member', 'contractor_account_owner', 'contractor_manager']),
-        eq(users.isActive, true)
+        inArray(users.role, ['contractor_individual', 'contractor_team_member'])
       ));
 
-    console.log(`[CONTRACTOR TEAM MEMBERS] Found ${members.length} team members:`, members.map(m => ({ id: m.id, email: m.email, role: m.role })));
     return members;
   }
 
-  // REMOVED DUPLICATE METHOD - using the one above with contractorId parameter
+  async updateContractorServices(companyId: number, data: { serviceRegions: string[]; supportedActivities: string[]; capitalRetrofitTechnologies?: string[] }) {
+    const updateData: any = {
+      serviceRegions: data.serviceRegions,
+      supportedActivities: data.supportedActivities,
+      updatedAt: new Date()
+    };
+
+    if (data.capitalRetrofitTechnologies !== undefined) {
+      updateData.capitalRetrofitTechnologies = data.capitalRetrofitTechnologies;
+    }
+
+    const [updated] = await db
+      .update(companies)
+      .set(updateData)
+      .where(eq(companies.id, companyId))
+      .returning();
+
+    return updated;
+  }
 
   async createContractorInvitation(data: {
     email: string;

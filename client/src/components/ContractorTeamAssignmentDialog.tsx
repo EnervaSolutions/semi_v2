@@ -92,9 +92,9 @@ export default function ContractorTeamAssignmentDialog({
     },
   });
 
-  // Filter team members to only show contractor team member roles (excluding account owners/managers)
+  // Filter team members to only show contractor_team_member role
   const contractorTeamMembers = teamMembers.filter((member: any) => 
-    member.role === 'contractor_team_member' && member.isActive
+    member.role === 'contractor_team_member'
   );
 
   // Get unassigned team members
@@ -102,12 +102,6 @@ export default function ContractorTeamAssignmentDialog({
   const unassignedMembers = contractorTeamMembers.filter((member: any) => 
     !assignedUserIds.includes(member.id)
   );
-
-  console.log(`[CONTRACTOR TEAM ASSIGNMENT] Total team members: ${teamMembers.length}`);
-  console.log(`[CONTRACTOR TEAM ASSIGNMENT] Contractor team members: ${contractorTeamMembers.length}`);
-  console.log(`[CONTRACTOR TEAM ASSIGNMENT] Current assignments: ${currentAssignments.length}`);
-  console.log(`[CONTRACTOR TEAM ASSIGNMENT] Assigned user IDs:`, assignedUserIds);
-  console.log(`[CONTRACTOR TEAM ASSIGNMENT] Unassigned members: ${unassignedMembers.length}`);
 
   const handleAssign = () => {
     if (!selectedUserId || !selectedPermission) {
