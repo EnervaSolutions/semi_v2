@@ -270,7 +270,12 @@ export function canContractorView(user: any, applicationPermissions: string[] = 
     return true;
   }
   
-  // Team members need view permissions (which should be default)
+  // Team members with manager permission level can view all applications
+  if (user.role === 'contractor_team_member' && user.permissionLevel === 'manager') {
+    return true;
+  }
+  
+  // Other team members need view permissions (which should be default)
   if (user.role === 'contractor_team_member') {
     return applicationPermissions.includes('view') || applicationPermissions.includes('edit');
   }
