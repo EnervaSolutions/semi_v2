@@ -85,15 +85,63 @@ export function setupAuth(app: Express) {
   // Production PostgreSQL session storage configuration
   if (process.env.DATABASE_URL) {
     const PgSession = connectPg(session);
+    
+    // Custom session table initialization to avoid index conflicts
+    const initializeSessionTable = async () => {
+      try {
+        const { Pool } = await import('pg');
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        
+        // Create table only if it doesn't exist
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS "user_sessions" (
+            "sid" varchar NOT NULL COLLATE "default",
+            "sess" json NOT NULL,
+            "expire" timestamp(6) NOT NULL
+          )
+        `);
+        
+        // Add primary key if it doesn't exist
+        await pool.query(`
+          DO $$ 
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_sessions_pkey') THEN
+              ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_pkey" PRIMARY KEY ("sid");
+            END IF;
+          END $$;
+        `);
+        
+        // Create index only if it doesn't exist
+        await pool.query(`
+          DO $$ 
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'IDX_session_expire') THEN
+              CREATE INDEX "IDX_session_expire" ON "user_sessions" ("expire");
+            END IF;
+          END $$;
+        `);
+        
+        await pool.end();
+        console.log('[AUTH] Session table initialized successfully');
+      } catch (error) {
+        console.warn('[AUTH] Session table initialization warning:', error.message);
+      }
+    };
+    
+    // Initialize table before creating session store
+    initializeSessionTable();
+    
     sessionSettings.store = new PgSession({
       conString: process.env.DATABASE_URL,
       tableName: 'user_sessions',
-      createTableIfMissing: true, // Auto-create table in production
+      createTableIfMissing: false, // We handle table creation manually above
       pruneSessionInterval: 60 * 15, // Prune expired sessions every 15 minutes
       ttl: 7 * 24 * 60 * 60, // Session TTL in seconds (7 days)
       errorLog: (err) => {
-        // Log session errors for debugging
-        console.error('[AUTH] Session store error:', err);
+        // Only log non-existence errors (other errors are handled above)
+        if (!err.message.includes('already exists') && !err.message.includes('does not exist')) {
+          console.error('[AUTH] Session store error:', err);
+        }
       }
     });
     console.log('[AUTH] Using PostgreSQL session store for production');
