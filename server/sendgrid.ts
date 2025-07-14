@@ -51,6 +51,10 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
     } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
       baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
       console.log(`[PASSWORD RESET URL] Using Replit production domain: ${baseUrl}`);
+    } else if (process.env.NODE_ENV === 'production') {
+      // Generic production environment - use Render deployment URL
+      baseUrl = 'https://semi-portal.onrender.com';
+      console.log(`[PASSWORD RESET URL] Using production domain: ${baseUrl}`);
     } else {
       baseUrl = 'http://localhost:5000';
       console.log(`[PASSWORD RESET URL] Using local development domain: ${baseUrl}`);
@@ -315,7 +319,28 @@ export async function sendOriginalTeamInvitationEmail(params: OriginalTeamInvita
     customMessage
   } = params;
 
-  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5000';
+  // Use the same URL detection logic as other email functions
+  let baseUrl = process.env.FRONTEND_URL;
+  
+  if (!baseUrl) {
+    if (process.env.REPLIT_DEV_DOMAIN) {
+      baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+      console.log(`[TEAM INVITATION URL] Using Replit dev domain: ${baseUrl}`);
+    } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+      console.log(`[TEAM INVITATION URL] Using Replit production domain: ${baseUrl}`);
+    } else if (process.env.NODE_ENV === 'production') {
+      // Generic production environment - use Render deployment URL
+      baseUrl = 'https://semi-portal.onrender.com';
+      console.log(`[TEAM INVITATION URL] Using production domain: ${baseUrl}`);
+    } else {
+      baseUrl = 'http://localhost:5000';
+      console.log(`[TEAM INVITATION URL] Using local development domain: ${baseUrl}`);
+    }
+  } else {
+    console.log(`[TEAM INVITATION URL] Using configured FRONTEND_URL: ${baseUrl}`);
+  }
+  
   const loginUrl = `${baseUrl}/auth`;
   
   const roleDisplayNames: Record<string, string> = {

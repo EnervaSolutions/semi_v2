@@ -2996,6 +2996,9 @@ export class DatabaseStorage implements IStorage {
               baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
             } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
               baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
+            } else if (process.env.NODE_ENV === 'production') {
+              // Generic production environment - use Render deployment URL
+              baseUrl = 'https://semi-portal.onrender.com';
             } else {
               baseUrl = 'http://localhost:5000';
             }
