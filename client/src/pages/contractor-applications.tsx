@@ -115,9 +115,11 @@ export default function ContractorApplications() {
       return apiRequest(`/api/contractor/applications/${applicationId}/update-permissions`, 'POST', { userId, permissions });
     },
     onSuccess: () => {
+      // Force refetch of applications data to update UI immediately
       queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.refetchQueries({ queryKey: ['/api/applications'] });
       toast({
-        title: "Permissions updated",
+        title: "Permissions updated", 
         description: "Team member permissions have been updated.",
       });
     },

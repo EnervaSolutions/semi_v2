@@ -4282,15 +4282,20 @@ export class DatabaseStorage implements IStorage {
       // Get applications specifically assigned to this individual contractor user
       const userAssignments = await db
         .select({
-          assignmentId: applicationAssignments.id,
-          applicationId: applicationAssignments.applicationId,
-          userId: applicationAssignments.userId,
-          assignedBy: applicationAssignments.assignedBy,
-          assignedDate: applicationAssignments.createdAt,
-          permissions: applicationAssignments.permissions,
+          assignmentId: contractorTeamApplicationAssignments.id,
+          applicationId: contractorTeamApplicationAssignments.applicationId,
+          userId: contractorTeamApplicationAssignments.assignedUserId,
+          assignedBy: contractorTeamApplicationAssignments.assignedBy,
+          assignedDate: contractorTeamApplicationAssignments.assignedAt,
+          permissions: contractorTeamApplicationAssignments.permissions,
         })
-        .from(applicationAssignments)
-        .where(eq(applicationAssignments.userId, userId));
+        .from(contractorTeamApplicationAssignments)
+        .where(
+          and(
+            eq(contractorTeamApplicationAssignments.assignedUserId, userId),
+            eq(contractorTeamApplicationAssignments.isActive, true)
+          )
+        );
 
       console.log(`[STORAGE] Found ${userAssignments.length} individual assignments for user ${userId}`);
 
