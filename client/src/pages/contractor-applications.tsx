@@ -393,12 +393,8 @@ export default function ContractorApplications() {
                                 assignedUser.id !== user?.id || 
                                 !['contractor_individual', 'contractor_account_owner', 'contractor_manager'].includes(user?.role || '')
                               )
-                              // Remove duplicates based on user ID
-                              .filter((assignedUser, index, array) => 
-                                array.findIndex(u => u.id === assignedUser.id) === index
-                              )
-                              .map((assignedUser, index) => (
-                              <div key={`app-${application.id}-user-${assignedUser.id}-idx-${index}`} className="flex items-center justify-between bg-white rounded-md p-3 border border-blue-200">
+                              .map((assignedUser) => (
+                              <div key={assignedUser.id} className="flex items-center justify-between bg-white rounded-md p-3 border border-blue-200">
                                 <div className="flex items-center gap-3">
                                   <User className="h-4 w-4 text-blue-600" />
                                   <div>
