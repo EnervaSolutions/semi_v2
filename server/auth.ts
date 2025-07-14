@@ -65,16 +65,40 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Production-ready session configuration
+  if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
+    throw new Error('SESSION_SECRET environment variable must be set in production');
+  }
+
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
+    secret: process.env.SESSION_SECRET || "dev-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   };
+
+  // Production PostgreSQL session storage configuration
+  if (process.env.DATABASE_URL) {
+    const PgSession = connectPg(session);
+    sessionSettings.store = new PgSession({
+      conString: process.env.DATABASE_URL,
+      tableName: 'user_sessions',
+      createTableIfMissing: true,
+      pruneSessionInterval: 60 * 15, // Prune expired sessions every 15 minutes
+      ttl: 7 * 24 * 60 * 60, // Session TTL in seconds (7 days)
+    });
+    console.log('[AUTH] Using PostgreSQL session store for production');
+  } else {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('DATABASE_URL must be set in production for session storage');
+    }
+    console.log('[AUTH] Using memory session store (development only)');
+  }
 
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));

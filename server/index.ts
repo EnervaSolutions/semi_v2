@@ -47,24 +47,28 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  // Production vs Development setup
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  if (!isProduction) {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Production-ready port configuration for Render deployment
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
-  const host = process.env.PORT ? "0.0.0.0" : "127.0.0.1";
+  const host = isProduction ? "0.0.0.0" : "127.0.0.1";
+  
   server.listen({
     port,
     host
   }, () => {
-    log(`serving on port ${port}`);
+    log(`SEMI application serving on ${isProduction ? 'production' : 'development'} at ${host}:${port}`);
+    if (isProduction) {
+      console.log('✅ Production mode: Static files served, PostgreSQL sessions enabled');
+    } else {
+      console.log('🛠️  Development mode: Vite HMR enabled');
+    }
   });
 })();

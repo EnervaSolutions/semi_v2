@@ -1,4 +1,4 @@
-import { type Express, type Request, Response } from "express";
+import express, { type Express, type Request, Response } from "express";
 import { storage as dbStorage } from "./storage";
 import { requireAuth, setupAuth } from "./auth";
 import { createServer } from "http";
@@ -39,48 +39,65 @@ export function registerRoutes(app: Express) {
   const server = createServer(app);
 
   // ============================================================================
-  // CRITICAL: DIRECT FILE SERVING FOR UPLOADS TO BYPASS VITE MIDDLEWARE
+  // PRODUCTION-READY FILE SERVING FOR UPLOADS AND DOCUMENTS
   // ============================================================================
-  // Serve uploaded files directly through API endpoint to bypass Vite interference
-  app.get('/uploads/:filename', (req, res) => {
-    const filename = req.params.filename;
-    const filePath = path.join(process.cwd(), 'uploads', filename);
-    
-    console.log(`[UPLOADS] Direct file request: ${filename}, path: ${filePath}`);
-    
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      console.log(`[UPLOADS] File not found: ${filePath}`);
-      return res.status(404).json({ message: 'File not found' });
+  // Serve uploaded files with proper production support
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
+  
+  // Ensure uploads directory exists
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  
+  // Serve uploads directory with proper production settings
+  app.use('/uploads', (req, res, next) => {
+    console.log(`[UPLOADS] Serving file: ${req.path}`);
+    next();
+  }, express.static(uploadsDir, {
+    maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      const ext = path.extname(filePath).toLowerCase();
+      let contentType = 'application/octet-stream';
+      
+      switch (ext) {
+        case '.png':
+          contentType = 'image/png';
+          break;
+        case '.jpg':
+        case '.jpeg':
+          contentType = 'image/jpeg';
+          break;
+        case '.gif':
+          contentType = 'image/gif';
+          break;
+        case '.webp':
+          contentType = 'image/webp';
+          break;
+        case '.svg':
+          contentType = 'image/svg+xml';
+          break;
+        case '.pdf':
+          contentType = 'application/pdf';
+          break;
+        case '.doc':
+        case '.docx':
+          contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          break;
+        case '.xls':
+        case '.xlsx':
+          contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          break;
+        case '.zip':
+          contentType = 'application/zip';
+          break;
+        default:
+          contentType = 'application/octet-stream';
+      }
+      res.setHeader('Content-Type', contentType);
     }
-    
-    // Get file stats for content-type detection
-    const ext = path.extname(filename).toLowerCase();
-    let contentType = 'application/octet-stream';
-    
-    switch (ext) {
-      case '.png':
-        contentType = 'image/png';
-        break;
-      case '.jpg':
-      case '.jpeg':
-        contentType = 'image/jpeg';
-        break;
-      case '.gif':
-        contentType = 'image/gif';
-        break;
-      case '.webp':
-        contentType = 'image/webp';
-        break;
-      case '.svg':
-        contentType = 'image/svg+xml';
-        break;
-    }
-    
-    console.log(`[UPLOADS] Serving ${filename} as ${contentType}`);
-    res.setHeader('Content-Type', contentType);
-    res.sendFile(filePath);
-  });
+  }));
 
   // ============================================================================
   // CRITICAL: API ROUTE PROTECTION FROM VITE MIDDLEWARE INTERFERENCE
