@@ -247,7 +247,12 @@ export function canContractorEdit(user: any, applicationPermissions: string[] = 
     return true;
   }
   
-  // Team members need specific edit permissions for each application
+  // Team members with manager permission level can edit all applications
+  if (user.role === 'contractor_team_member' && user.permissionLevel === 'manager') {
+    return true;
+  }
+  
+  // Other team members need specific edit permissions for each application
   if (user.role === 'contractor_team_member') {
     return applicationPermissions.includes('edit');
   }

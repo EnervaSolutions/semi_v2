@@ -482,12 +482,10 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
                       <Eye className="mr-2 h-4 w-4" />
                       View Details
                     </DropdownMenuItem>
-                    {(application.status === 'draft' || application.status === 'needs_revision') && (
-                      <DropdownMenuItem onClick={() => window.location.href = `/applications/${application.id}`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Application
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem onClick={() => window.location.href = `/applications/${application.id}`}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Application
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigator.clipboard.writeText(application.applicationId)}>
                       Copy Application ID
