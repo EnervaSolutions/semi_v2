@@ -5724,9 +5724,16 @@ export class DatabaseStorage implements IStorage {
 
   // System Announcements Management
   async createSystemAnnouncement(announcement: InsertSystemAnnouncement): Promise<SystemAnnouncement> {
+    // Convert date strings to Date objects for proper database insertion
+    const processedAnnouncement = {
+      ...announcement,
+      scheduledStart: announcement.scheduledStart ? new Date(announcement.scheduledStart) : null,
+      scheduledEnd: announcement.scheduledEnd ? new Date(announcement.scheduledEnd) : null,
+    };
+
     const [newAnnouncement] = await db
       .insert(systemAnnouncements)
-      .values(announcement)
+      .values(processedAnnouncement)
       .returning();
     return newAnnouncement;
   }
@@ -5771,9 +5778,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateSystemAnnouncement(id: number, updates: Partial<InsertSystemAnnouncement>): Promise<SystemAnnouncement> {
+    // Convert date strings to Date objects for proper database update
+    const processedUpdates = {
+      ...updates,
+      scheduledStart: updates.scheduledStart ? new Date(updates.scheduledStart) : updates.scheduledStart,
+      scheduledEnd: updates.scheduledEnd ? new Date(updates.scheduledEnd) : updates.scheduledEnd,
+      updatedAt: new Date()
+    };
+
     const [updatedAnnouncement] = await db
       .update(systemAnnouncements)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(processedUpdates)
       .where(eq(systemAnnouncements.id, id))
       .returning();
     return updatedAnnouncement;
