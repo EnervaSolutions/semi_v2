@@ -98,10 +98,23 @@ export async function setupAuth(app: Express) {
         // Create table with all constraints in one operation
         await sql`
           CREATE TABLE IF NOT EXISTS "user_sessions" (
-            "sid" varchar NOT NULL PRIMARY KEY,
+            "sid" varchar NOT NULL,
             "sess" json NOT NULL,
             "expire" timestamp(6) NOT NULL
           )
+        `;
+        
+        // Add primary key constraint if it doesn't exist
+        await sql`
+          DO $$
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint 
+              WHERE conname = 'user_sessions_pkey'
+            ) THEN
+              ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_pkey" PRIMARY KEY ("sid");
+            END IF;
+          END $$
         `;
         
         // Create index if it doesn't exist (separate operation for safety)

@@ -50,7 +50,7 @@ interface AssignedApplication {
     firstName: string;
     lastName: string;
     email: string;
-    permissions: string[];
+    permissions: string[] | string;
   }[];
   // Legacy single user support
   assignedToUser?: {
@@ -133,6 +133,12 @@ export default function ContractorApplications() {
   // Check permissions
   const canManageTeam = user && canManageContractorTeam(user);
   const canEditPermissions = user && canEditApplicationPermissions(user);
+
+  // Debug logging
+  console.log('[CONTRACTOR APPLICATIONS] User:', user);
+  console.log('[CONTRACTOR APPLICATIONS] Applications:', applications);
+  console.log('[CONTRACTOR APPLICATIONS] Team members:', teamMembers);
+  console.log('[CONTRACTOR APPLICATIONS] Can edit permissions:', canEditPermissions);
 
   // Filter and sort applications
   const filteredAndSortedApplications = useMemo(() => {
@@ -407,7 +413,10 @@ export default function ContractorApplications() {
                                 <div className="flex items-center gap-2">
                                   <div className="flex gap-1">
                                     <Badge variant="secondary" className="text-xs">
-                                      {assignedUser.permissions.includes('edit') ? 'Edit' : 'View'}
+                                      {Array.isArray(assignedUser.permissions) ? 
+                                        (assignedUser.permissions.includes('edit') ? 'Edit' : 'View') :
+                                        (assignedUser.permissions === 'edit' ? 'Edit' : 'View')
+                                      }
                                     </Badge>
                                   </div>
                                   {canEditPermissions && (
@@ -417,7 +426,9 @@ export default function ContractorApplications() {
                                         size="sm"
                                         onClick={() => {
                                           const currentPerms = assignedUser.permissions;
-                                          const hasEdit = currentPerms.includes('edit');
+                                          const hasEdit = Array.isArray(currentPerms) ? 
+                                            currentPerms.includes('edit') : 
+                                            currentPerms === 'edit';
                                           const newPerms = hasEdit ? ['view'] : ['edit'];
                                           
                                           updatePermissionsMutation.mutate({
@@ -428,7 +439,10 @@ export default function ContractorApplications() {
                                         }}
                                         className="h-7 px-2 text-xs"
                                       >
-                                        {assignedUser.permissions.includes('edit') ? 'Remove Edit' : 'Add Edit'}
+                                        {Array.isArray(assignedUser.permissions) ? 
+                                          (assignedUser.permissions.includes('edit') ? 'Remove Edit' : 'Add Edit') :
+                                          (assignedUser.permissions === 'edit' ? 'Remove Edit' : 'Add Edit')
+                                        }
                                       </Button>
                                       <Button
                                         variant="outline"

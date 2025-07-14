@@ -38,11 +38,17 @@ export default function ContractorTeamAssignmentDialog({
   });
 
   // Query for current assignments
-  const { data: currentAssignments = [] } = useQuery({
+  const { data: currentAssignments = [], isLoading: assignmentsLoading } = useQuery({
     queryKey: [`/api/applications/${applicationId}/contractor-team-assignments`],
     enabled: !!applicationId && open,
-    staleTime: 1000 * 60 * 5
+    staleTime: 1000 * 60 * 5,
+    retry: 3,
   });
+
+  // Debug logging
+  console.log('[CONTRACTOR TEAM DIALOG] Current assignments:', currentAssignments);
+  console.log('[CONTRACTOR TEAM DIALOG] Application ID:', applicationId);
+  console.log('[CONTRACTOR TEAM DIALOG] Dialog open:', open);
 
   // Assignment mutations
   const assignMutation = useMutation({
@@ -151,33 +157,52 @@ export default function ContractorTeamAssignmentDialog({
         <div className="space-y-6">
           {/* Current Assignments */}
           <div>
-            <h3 className="font-medium mb-3">Current Assignments</h3>
-            {currentAssignments.length === 0 ? (
-              <p className="text-sm text-gray-500 italic">No team members assigned yet</p>
+            <h3 className="font-medium mb-3 flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Current Team Assignments
+            </h3>
+            {assignmentsLoading ? (
+              <div className="text-sm text-gray-500 italic">Loading assignments...</div>
+            ) : currentAssignments.length === 0 ? (
+              <div className="text-center py-4 text-sm text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                No team members assigned to this application yet
+              </div>
             ) : (
               <div className="space-y-2">
-                {currentAssignments.map((assignment: any) => (
-                  <div key={assignment.assignedUserId} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <User className="h-4 w-4 text-gray-600" />
-                      <div>
-                        <div className="font-medium">{assignment.firstName} {assignment.lastName}</div>
-                        <div className="text-sm text-gray-500">{assignment.email}</div>
+                {currentAssignments.map((assignment: any) => {
+                  const userId = assignment.assignedUserId || assignment.userId || assignment.id;
+                  const permissions = assignment.permissions || [];
+                  const hasEditAccess = Array.isArray(permissions) ? permissions.includes('edit') : permissions === 'edit';
+                  
+                  return (
+                    <div key={userId} className="flex items-center justify-between p-3 border rounded-lg bg-white">
+                      <div className="flex items-center gap-3">
+                        <User className="h-8 w-8 p-2 bg-blue-100 rounded-full text-blue-600" />
+                        <div>
+                          <div className="font-medium">{assignment.firstName} {assignment.lastName}</div>
+                          <div className="text-sm text-gray-500">{assignment.email}</div>
+                          {assignment.role && (
+                            <div className="text-xs text-gray-400">{assignment.role}</div>
+                          )}
+                        </div>
                       </div>
-                      <Badge variant={assignment.permissions?.includes('edit') ? 'default' : 'secondary'}>
-                        {assignment.permissions?.includes('edit') ? 'Edit Access' : 'View Only'}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={hasEditAccess ? 'default' : 'secondary'}>
+                          {hasEditAccess ? 'Edit Access' : 'View Only'}
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemove(userId)}
+                          disabled={removeAssignmentMutation.isPending}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRemove(assignment.assignedUserId)}
-                      disabled={removeAssignmentMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
