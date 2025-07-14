@@ -181,7 +181,7 @@ export function NotificationBell() {
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-sm font-medium leading-tight">
+                          <h4 className="text-sm font-medium leading-tight break-words">
                             {announcement.title}
                           </h4>
                           <Badge 
@@ -195,19 +195,23 @@ export function NotificationBell() {
                             {announcement.severity}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed break-words overflow-wrap-anywhere">
                           {announcement.message}
                         </p>
                         <div className="flex items-center justify-between mt-2">
-                          <time className="text-xs text-muted-foreground">
+                          <time className="text-xs text-muted-foreground flex-shrink-0">
                             {format(new Date(announcement.createdAt), "MMM d, HH:mm")}
                           </time>
                           {announcement.requiresAcknowledgment && (
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-6 text-xs px-2"
-                              onClick={() => acknowledgeAnnouncementMutation.mutate(announcement.id)}
+                              className="h-6 text-xs px-2 flex-shrink-0 ml-2"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                acknowledgeAnnouncementMutation.mutate(announcement.id);
+                              }}
                               disabled={acknowledgeAnnouncementMutation.isPending}
                             >
                               {acknowledgeAnnouncementMutation.isPending ? "..." : "Acknowledge"}
