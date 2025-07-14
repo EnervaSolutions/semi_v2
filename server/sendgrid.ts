@@ -145,9 +145,9 @@ export async function sendContractorTeamInvitationEmail(params: ContractorTeamIn
       baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.app`;
       console.log(`[EMAIL URL] Using Replit production domain: ${baseUrl}`);
     } else if (process.env.NODE_ENV === 'production') {
-      // Generic production environment
-      baseUrl = 'https://your-production-domain.com';
-      console.log(`[EMAIL URL] Using generic production domain: ${baseUrl}`);
+      // Generic production environment - use Render deployment URL
+      baseUrl = 'https://semi-portal.onrender.com';
+      console.log(`[EMAIL URL] Using production domain: ${baseUrl}`);
     } else {
       // Local development
       baseUrl = 'http://localhost:5000';
