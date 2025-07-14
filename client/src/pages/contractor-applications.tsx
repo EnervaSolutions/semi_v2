@@ -393,8 +393,8 @@ export default function ContractorApplications() {
                                 assignedUser.id !== user?.id || 
                                 !['contractor_individual', 'contractor_account_owner', 'contractor_manager'].includes(user?.role || '')
                               )
-                              .map((assignedUser) => (
-                              <div key={assignedUser.id} className="flex items-center justify-between bg-white rounded-md p-3 border border-blue-200">
+                              .map((assignedUser, index) => (
+                              <div key={`${assignedUser.id}-${application.id}-${index}`} className="flex items-center justify-between bg-white rounded-md p-3 border border-blue-200">
                                 <div className="flex items-center gap-3">
                                   <User className="h-4 w-4 text-blue-600" />
                                   <div>

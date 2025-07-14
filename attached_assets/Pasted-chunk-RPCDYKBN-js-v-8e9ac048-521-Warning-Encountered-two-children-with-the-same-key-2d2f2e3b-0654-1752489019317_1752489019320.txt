@@ -1,0 +1,23 @@
+chunk-RPCDYKBN.js?v=8e9ac048:521 Warning: Encountered two children with the same key, `2d2f2e3b-0654-4437-b8e4-dcb6612d311e`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at div
+    at div
+    at div
+    at div
+    at _c9 (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at ContractorApplications (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/src/pages/contractor-applications.tsx:33:21)
+    at Route (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e9ac048:265:16)
+    at Switch (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e9ac048:321:17)
+    at main
+    at div
+    at div
+    at Layout (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/src/components/Layout.tsx:22:34)
+    at Router (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/src/App.tsx?v=gaW2ICQN2uBU3RrfassTO:86:48)
+    at Provider (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8e9ac048:38:15)
+    at TooltipProvider (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8e9ac048:64:5)
+    at QueryClientProvider (https://4b757b73-6809-4fdf-82d9-094a86843910-00-e3s0przgsd4x.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8e9ac048:2805:3)
+    at App
