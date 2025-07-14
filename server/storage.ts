@@ -4212,21 +4212,24 @@ export class DatabaseStorage implements IStorage {
       // Get contractor team member assignments for these applications
       const teamAssignments = await db
         .select({
-          applicationId: applicationAssignments.applicationId,
-          assignedUserId: applicationAssignments.userId,
-          permissions: applicationAssignments.permissions,
-          assignedBy: applicationAssignments.assignedBy,
-          assignedAt: applicationAssignments.createdAt,
+          applicationId: contractorTeamApplicationAssignments.applicationId,
+          assignedUserId: contractorTeamApplicationAssignments.assignedUserId,
+          permissions: contractorTeamApplicationAssignments.permissions,
+          assignedBy: contractorTeamApplicationAssignments.assignedBy,
+          assignedAt: contractorTeamApplicationAssignments.assignedAt,
           firstName: users.firstName,
           lastName: users.lastName,
           email: users.email,
           role: users.role,
           permissionLevel: users.permissionLevel
         })
-        .from(applicationAssignments)
-        .innerJoin(users, eq(applicationAssignments.userId, users.id))
+        .from(contractorTeamApplicationAssignments)
+        .innerJoin(users, eq(contractorTeamApplicationAssignments.assignedUserId, users.id))
         .where(
-          inArray(applicationAssignments.applicationId, appIds)
+          and(
+            inArray(contractorTeamApplicationAssignments.applicationId, appIds),
+            eq(contractorTeamApplicationAssignments.isActive, true)
+          )
         );
 
       // Build a map of applicationId -> array of assigned team members
@@ -4443,20 +4446,20 @@ export class DatabaseStorage implements IStorage {
 
   async updateContractorAssignmentPermissions(applicationId: number, userId: string, permissions: string[]): Promise<void> {
     try {
-      console.log(`[CONTRACTOR PERMISSIONS UPDATE] Updating permissions for application ${applicationId} and user ${userId} to:`, permissions);
-      await db
+      console.log(`[STORAGE] Updating contractor team assignment permissions for application ${applicationId} and user ${userId} to:`, permissions);
+      
+      // Update in contractorTeamApplicationAssignments table
+      const result = await db
         .update(contractorTeamApplicationAssignments)
-        .set({ 
-          permissions,
-          updatedAt: new Date()
-        })
+        .set({ permissions, updatedAt: new Date() })
         .where(and(
           eq(contractorTeamApplicationAssignments.applicationId, applicationId),
           eq(contractorTeamApplicationAssignments.assignedUserId, userId)
         ));
-      console.log(`[CONTRACTOR PERMISSIONS UPDATE] Successfully updated permissions for application ${applicationId} and user ${userId}`);
+      
+      console.log(`[STORAGE] Successfully updated contractor team assignment permissions for application ${applicationId} and user ${userId}`);
     } catch (error) {
-      console.error('[CONTRACTOR PERMISSIONS UPDATE] Error updating contractor assignment permissions:', error);
+      console.error('[STORAGE] Error updating contractor assignment permissions:', error);
       throw error;
     }
   }
