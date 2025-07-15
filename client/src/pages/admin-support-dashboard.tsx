@@ -467,7 +467,7 @@ export default function AdminSupportDashboard() {
                               priority
                             })}
                           >
-                            <SelectTrigger className="w-24 h-6 text-xs">
+                            <SelectTrigger className="w-auto min-w-[100px] h-6 text-xs whitespace-nowrap">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
