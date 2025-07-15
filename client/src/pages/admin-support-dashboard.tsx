@@ -81,10 +81,13 @@ export default function AdminSupportDashboard() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
 
-  // Fetch all messages for admin dashboard
+  // Fetch all messages for admin dashboard with real-time polling
   const { data: allMessages = [], isLoading } = useQuery({
     queryKey: ["/api/admin/messages"],
     enabled: user?.role === 'system_admin',
+    refetchInterval: 3000, // Refresh every 3 seconds for real-time updates
+    refetchIntervalInBackground: true, // Continue polling when tab is not active
+    staleTime: 0, // Consider data immediately stale to ensure fresh data
   });
 
   // Group messages into ticket threads
@@ -132,7 +135,7 @@ export default function AdminSupportDashboard() {
     onSuccess: () => {
       setReplyText("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/messages"] });
-      // Force refetch to update the UI immediately
+      // Force immediate refetch for real-time updates
       queryClient.refetchQueries({ queryKey: ["/api/admin/messages"] });
       toast({
         title: "Reply sent",

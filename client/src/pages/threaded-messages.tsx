@@ -74,7 +74,7 @@ export default function ThreadedMessages() {
     enabled: !!user && user.role !== 'system_admin',
   });
 
-  // Fetch messages with optimized refresh strategy
+  // Fetch messages with real-time polling
   const {
     data: messages = [],
     isLoading,
@@ -83,8 +83,9 @@ export default function ThreadedMessages() {
   } = useQuery({
     queryKey: ["/api/messages"],
     enabled: !!user,
-    staleTime: 30000, // 30 seconds - reasonable freshness without excessive calls
-    refetchOnWindowFocus: false, // Don't refetch on focus to reduce calls
+    refetchInterval: 3000, // Refresh every 3 seconds for real-time updates
+    refetchIntervalInBackground: true, // Continue polling when tab is not active
+    staleTime: 0, // Consider data immediately stale to ensure fresh data
     refetchOnMount: true,
     refetchOnReconnect: true,
   });
@@ -148,6 +149,8 @@ export default function ThreadedMessages() {
       // Clear form immediately and show ticket number
       setNewMessage({ subject: "", message: "", applicationId: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      // Force immediate refetch for real-time updates
+      queryClient.refetchQueries({ queryKey: ["/api/messages"] });
       toast({
         title: "Message sent successfully",
         description: `Ticket #${data.ticketNumber || 'N/A'} created. Reference this number when contacting support.`,
@@ -170,6 +173,8 @@ export default function ThreadedMessages() {
     onSuccess: () => {
       setReplyText("");
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      // Force immediate refetch for real-time updates
+      queryClient.refetchQueries({ queryKey: ["/api/messages"] });
       toast({
         title: "Reply sent",
         description: "Your reply has been sent successfully.",
@@ -191,6 +196,8 @@ export default function ThreadedMessages() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      // Force immediate refetch for real-time updates
+      queryClient.refetchQueries({ queryKey: ["/api/messages"] });
       toast({
         title: "Thread marked as resolved",
         description: "The entire message thread has been marked as resolved.",

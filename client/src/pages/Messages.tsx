@@ -34,6 +34,9 @@ export default function Messages() {
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: ["/api/messages"],
+    refetchInterval: 3000, // Refresh every 3 seconds for real-time updates
+    refetchIntervalInBackground: true, // Continue polling when tab is not active
+    staleTime: 0, // Consider data immediately stale to ensure fresh data
   });
 
   const { data: applications = [] } = useQuery<Application[]>({
