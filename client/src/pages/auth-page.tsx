@@ -383,10 +383,25 @@ export default function AuthPage() {
           title: "Login successful",
           description: "Welcome back!"
         });
+        
         // Invalidate auth query to update authentication state
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-        // Force a page reload to properly update auth state
-        window.location.href = "/";
+        
+        // Add a small delay to ensure auth state is updated, then redirect
+        setTimeout(() => {
+          // Redirect to appropriate dashboard based on user role
+          if (data.user?.role === 'system_admin') {
+            window.location.href = "/admin";
+          } else if (data.user?.role === 'contractor_individual' || 
+                     data.user?.role === 'contractor_team_member' || 
+                     data.user?.role === 'contractor_account_owner' || 
+                     data.user?.role === 'contractor_manager') {
+            window.location.href = "/contractor-dashboard";
+          } else {
+            // For company_admin, team_member, and other roles
+            window.location.href = "/dashboard";
+          }
+        }, 100); // Small delay to ensure auth state is updated
       }
     },
     onError: (error: Error) => {
