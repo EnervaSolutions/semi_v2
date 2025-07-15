@@ -19,6 +19,7 @@ import type { Message, Application } from "@shared/schema";
 const messageSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
+  priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
   applicationId: z.string().optional(),
   parentMessageId: z.number().optional(),
   ticketNumber: z.string().optional(),
@@ -48,6 +49,7 @@ export default function Messages() {
     defaultValues: {
       subject: "",
       message: "",
+      priority: "normal",
       applicationId: "",
     },
   });
@@ -57,6 +59,7 @@ export default function Messages() {
     defaultValues: {
       subject: "",
       message: "",
+      priority: "normal",
       applicationId: "",
     },
   });
@@ -210,31 +213,57 @@ export default function Messages() {
                   )}
                 />
                 
-                <FormField
-                  control={form.control}
-                  name="applicationId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Related Application (Optional)</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an application" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">No specific application</SelectItem>
-                          {applications.map((app) => (
-                            <SelectItem key={app.id} value={app.id.toString()}>
-                              {app.applicationId} - {app.title}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Priority</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">🟢 Low</SelectItem>
+                            <SelectItem value="normal">🟡 Normal</SelectItem>
+                            <SelectItem value="high">🟠 High</SelectItem>
+                            <SelectItem value="urgent">🔴 Urgent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="applicationId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Related Application (Optional)</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an application" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">No specific application</SelectItem>
+                            {applications.map((app) => (
+                              <SelectItem key={app.id} value={app.id.toString()}>
+                                {app.applicationId} - {app.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -313,10 +342,12 @@ export default function Messages() {
                   <div className="text-sm text-gray-500 flex items-center flex-wrap gap-2">
                     <span className="font-mono">Ticket: {ticketNumber}</span>
                     <Badge 
-                      variant={latestMessage.priority === 'high' ? 'destructive' : latestMessage.priority === 'normal' ? 'default' : 'secondary'}
+                      variant={latestMessage.priority === 'urgent' ? 'destructive' : latestMessage.priority === 'high' ? 'destructive' : latestMessage.priority === 'normal' ? 'default' : 'secondary'}
                       className="text-xs"
                     >
-                      {latestMessage.priority || 'normal'}
+                      {latestMessage.priority === 'urgent' ? '🔴 Urgent' : 
+                       latestMessage.priority === 'high' ? '🟠 High' : 
+                       latestMessage.priority === 'low' ? '🟢 Low' : '🟡 Normal'}
                     </Badge>
                     {latestMessage.isResolved && (
                       <Badge variant="secondary" className="text-xs">

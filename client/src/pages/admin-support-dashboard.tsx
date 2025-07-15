@@ -471,9 +471,10 @@ export default function AdminSupportDashboard() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="normal">Normal</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
+                              <SelectItem value="low">🟢 Low</SelectItem>
+                              <SelectItem value="normal">🟡 Normal</SelectItem>
+                              <SelectItem value="high">🟠 High</SelectItem>
+                              <SelectItem value="urgent">🔴 Urgent</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -495,7 +496,7 @@ export default function AdminSupportDashboard() {
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col h-full">
                     {/* Messages - Scrollable container with fixed height */}
-                    <div className="flex-1 overflow-y-auto space-y-3 max-h-[calc(100vh-300px)] pr-2">
+                    <div className="flex-1 overflow-y-auto space-y-3 max-h-[calc(100vh-400px)] pr-2">
                       {selectedTicket.messages
                         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                         .map((message) => (
