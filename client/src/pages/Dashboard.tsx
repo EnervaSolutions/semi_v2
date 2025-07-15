@@ -75,10 +75,11 @@ export default function Dashboard() {
 
   // Debug activity settings loading
   console.log('Dashboard activity settings debug:', {
-    user: !!user,
+    user: user ? `${user.email} (${user.role}/${user.permissionLevel})` : 'none',
     activitySettingsLoading,
     activitySettingsError,
-    activitySettings: activitySettings?.length || 0
+    activitySettings: activitySettings?.length || 0,
+    canCreateEdit: user ? canCreateEdit(user) : false
   });
 
   // Helper function to get enabled activities for a facility
