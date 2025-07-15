@@ -4682,6 +4682,93 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // ============================================================================
+  // CRITICAL MESSAGES API ENDPOINTS
+  // ============================================================================
+  // Support chat/messaging system for user-admin communication
+  // DO NOT REMOVE - Required for support functionality
+
+  // Get messages for current user
+  app.get('/api/messages', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      console.log(`[MESSAGES API] Fetching messages for user: ${user.email} (${user.role})`);
+      
+      let messages: any[];
+      
+      if (user.role === 'system_admin') {
+        // System admins can see all messages
+        console.log('[MESSAGES API] Fetching all messages for system admin');
+        messages = await dbStorage.getAllMessagesWithContext();
+      } else {
+        // Regular users see only their own messages
+        console.log(`[MESSAGES API] Fetching messages for user ID: ${user.id}`);
+        messages = await dbStorage.getMessagesByUser(user.id);
+      }
+      
+      console.log(`[MESSAGES API] Found ${messages.length} messages for user ${user.email}`);
+      res.json(messages);
+    } catch (error: any) {
+      console.error('[MESSAGES API] Error fetching messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  // Create new message
+  app.post('/api/messages', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { subject, message, applicationId } = req.body;
+      
+      console.log(`[MESSAGES API] Creating message from user: ${user.email}`);
+      console.log(`[MESSAGES API] Message data:`, { subject, messageLength: message?.length, applicationId });
+      
+      if (!subject || !message) {
+        return res.status(400).json({ message: 'Subject and message are required' });
+      }
+
+      const messageData = {
+        fromUserId: user.id,
+        toUserId: null, // null means message to admin
+        subject: subject.trim(),
+        message: message.trim(),
+        applicationId: applicationId || null,
+        isAdminMessage: false,
+        isRead: false
+      };
+
+      const createdMessage = await dbStorage.createMessage(messageData);
+      console.log(`[MESSAGES API] Message created successfully with ID: ${createdMessage.id}`);
+      
+      res.status(201).json(createdMessage);
+    } catch (error: any) {
+      console.error('[MESSAGES API] Error creating message:', error);
+      res.status(500).json({ message: 'Failed to create message' });
+    }
+  });
+
+  // Mark message as read (admin functionality)
+  app.patch('/api/messages/:id/read', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const messageId = parseInt(req.params.id);
+      
+      if (user.role !== 'system_admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      console.log(`[MESSAGES API] Marking message ${messageId} as read by admin: ${user.email}`);
+      
+      await dbStorage.markMessageAsRead(messageId, user.id);
+      console.log(`[MESSAGES API] Message ${messageId} marked as read`);
+      
+      res.json({ message: 'Message marked as read' });
+    } catch (error: any) {
+      console.error('[MESSAGES API] Error marking message as read:', error);
+      res.status(500).json({ message: 'Failed to mark message as read' });
+    }
+  });
+
   return server;
 }
 

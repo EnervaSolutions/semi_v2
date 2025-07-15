@@ -2773,6 +2773,67 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.id, messageId));
   }
 
+  async getMessagesByUser(userId: string): Promise<any[]> {
+    return await db
+      .select({
+        id: messages.id,
+        fromUserId: messages.fromUserId,
+        toUserId: messages.toUserId,
+        subject: messages.subject,
+        message: messages.message,
+        isRead: messages.isRead,
+        isAdminMessage: messages.isAdminMessage,
+        isResolved: messages.isResolved,
+        isArchived: messages.isArchived,
+        isDeleted: messages.isDeleted,
+        status: messages.status,
+        priority: messages.priority,
+        ticketNumber: messages.ticketNumber,
+        parentMessageId: messages.parentMessageId,
+        applicationId: messages.applicationId,
+        createdAt: messages.createdAt,
+        updatedAt: messages.updatedAt,
+        fromUser: {
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          companyId: users.companyId,
+          role: users.role,
+        },
+        company: {
+          id: companies.id,
+          name: companies.name,
+          shortName: companies.shortName,
+          phone: companies.phone,
+          address: companies.address,
+        },
+        application: {
+          id: applications.id,
+          applicationId: applications.applicationId,
+          title: applications.title,
+          status: applications.status,
+          activityType: applications.activityType,
+          facilityName: facilities.name,
+        }
+      })
+      .from(messages)
+      .leftJoin(users, eq(messages.fromUserId, users.id))
+      .leftJoin(companies, eq(users.companyId, companies.id))
+      .leftJoin(applications, eq(messages.applicationId, applications.id))
+      .leftJoin(facilities, eq(applications.facilityId, facilities.id))
+      .where(
+        and(
+          eq(messages.isDeleted, false),
+          or(
+            eq(messages.fromUserId, userId),
+            eq(messages.toUserId, userId)
+          )
+        )
+      )
+      .orderBy(desc(messages.createdAt));
+  }
+
   async getAllMessagesWithContext(): Promise<any[]> {
     return await db
       .select({
