@@ -221,6 +221,9 @@ export async function setupAuth(app: Express) {
       
       const assignedRole = isCompanyOwner ? "company_admin" as const : 
                           isTeamMember ? "team_member" as const :
+                          // For contractors, prioritize userType which contains the frontend's corrected role determination
+                          userType === "contractor_account_owner" ? "contractor_account_owner" as const :
+                          userType === "contractor_individual" ? "contractor_individual" as const :
                           (userRole === "contractor_individual" || userType === "contractor") ? "contractor_individual" as const :
                           userRole === "contractor_account_owner" ? "contractor_account_owner" as const : "team_member" as const;
 
@@ -453,7 +456,7 @@ export async function setupAuth(app: Express) {
         // Update user with contractor company association
         user = await storage.updateUser(user.id, {
           companyId: contractorCompany.id,
-          role: "contractor_individual" as const
+          role: "contractor_account_owner" as const  // Fixed: Should be account owner when registering own company
         });
 
         console.log(`[CONTRACTOR REGISTRATION] Created contractor company: ${contractorCompany.id} for user: ${user.id}`);
