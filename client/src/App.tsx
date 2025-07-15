@@ -172,6 +172,7 @@ function Router() {
         <Route path="/admin/submission-review/:submissionId" component={AdminSubmissionReview} />
         <Route path="/admin/applications" component={AdminApplicationsPage} />
         <Route path="/admin/application-details/:id" component={AdminApplicationDetails} />
+        <Route path="/admin/support" component={AdminSupportDashboard} />
         <Route path="/admin/ghost-ids" component={AdminGhostIdsPage} />
         <Route path="/recognition" component={RecognitionPage} />
         <Route path="/profile" component={Profile} />

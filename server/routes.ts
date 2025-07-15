@@ -4769,6 +4769,29 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Get all messages for admin dashboard (system_admin only)
+  app.get('/api/admin/messages', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      
+      // Only system admins can access all messages
+      if (user.role !== 'system_admin') {
+        return res.status(403).json({ message: 'Access denied - admin only' });
+      }
+
+      console.log(`[ADMIN MESSAGES API] Fetching all messages for admin: ${user.email}`);
+
+      const messages = await dbStorage.getAllMessagesForAdmin();
+      
+      console.log(`[ADMIN MESSAGES API] Found ${messages.length} messages for admin dashboard`);
+
+      res.json(messages);
+    } catch (error: any) {
+      console.error('Error fetching admin messages:', error);
+      res.status(500).json({ message: 'Error fetching admin messages', error: error.message });
+    }
+  });
+
   return server;
 }
 

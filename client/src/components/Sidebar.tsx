@@ -16,6 +16,7 @@ import {
   Download,
   Wrench,
   MessageSquare,
+  MessageCircle,
   Trash2,
   Bell,
   Archive,
@@ -37,6 +38,7 @@ const iconMap = {
   Download,
   Wrench,
   MessageSquare,
+  MessageCircle,
   Trash2,
   Bell,
   Archive,
@@ -167,6 +169,12 @@ export default function Sidebar() {
       name: "Companies", 
       href: "/admin/companies",
       icon: "Building",
+      roles: ["system_admin"]
+    },
+    {
+      name: "Support Messages",
+      href: "/admin/support",
+      icon: "MessageCircle",
       roles: ["system_admin"]
     },
     {

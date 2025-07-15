@@ -2901,6 +2901,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.ticketNumber, ticketNumber));
   }
 
+  // Admin-specific method to get all messages with full context
+  async getAllMessagesForAdmin(): Promise<any[]> {
+    console.log('[STORAGE] getAllMessagesForAdmin called');
+    
+    // Use the existing getAllMessagesWithContext method
+    const messages = await this.getAllMessagesWithContext();
+    
+    console.log(`[STORAGE] Found ${messages.length} messages for admin dashboard`);
+    
+    return messages;
+  }
+
   // ============================================================================
   // CRITICAL ADMIN COMPANY CREATION METHOD
   // ============================================================================
