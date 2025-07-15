@@ -116,7 +116,13 @@ export default function Messages() {
   };
 
   const onReply = (data: MessageForm) => {
-    replyMutation.mutate(data);
+    // Ensure we use the original ticket number for threading
+    const replyData = {
+      ...data,
+      ticketNumber: replyToMessage?.ticketNumber || data.ticketNumber,
+      parentMessageId: replyToMessage?.id || data.parentMessageId,
+    };
+    replyMutation.mutate(replyData);
   };
 
   const startReply = (message: Message) => {

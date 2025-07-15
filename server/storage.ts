@@ -2523,8 +2523,49 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMessage(messageData: InsertMessage): Promise<Message> {
-    // Use provided ticket number for replies, or generate new one for original messages
-    const ticketNumber = messageData.ticketNumber || await this.generateTicketNumber();
+    let ticketNumber = messageData.ticketNumber;
+    
+    console.log(`[STORAGE] CreateMessage called with ticketNumber: ${ticketNumber}, subject: "${messageData.subject}"`);
+    
+    // If ticket number is provided (from reply), use it directly
+    if (ticketNumber) {
+      console.log(`[STORAGE] Using provided ticket number: ${ticketNumber}`);
+    } else {
+      // For replies, detect if subject starts with "Re: " and find existing ticket
+      if (messageData.subject && messageData.subject.startsWith("Re: ")) {
+        // Extract original subject by removing "Re: " prefix
+        const originalSubject = messageData.subject.replace(/^Re:\s*/, '');
+        console.log(`[STORAGE] Looking for existing ticket with subject: "${originalSubject}"`);
+        
+        // Find existing message with the original subject
+        const existingMessages = await db
+          .select({
+            ticketNumber: messages.ticketNumber,
+            subject: messages.subject
+          })
+          .from(messages)
+          .where(
+            and(
+              eq(messages.fromUserId, messageData.fromUserId),
+              eq(messages.subject, originalSubject)
+            )
+          )
+          .limit(1);
+        
+        if (existingMessages.length > 0) {
+          ticketNumber = existingMessages[0].ticketNumber;
+          console.log(`[STORAGE] Found existing ticket: ${ticketNumber} for reply`);
+        } else {
+          console.log(`[STORAGE] No existing ticket found for "${originalSubject}", creating new ticket`);
+        }
+      }
+      
+      // Generate new ticket number if no existing ticket found
+      if (!ticketNumber) {
+        ticketNumber = await this.generateTicketNumber();
+        console.log(`[STORAGE] Generated new ticket: ${ticketNumber}`);
+      }
+    }
     
     const [created] = await db
       .insert(messages)
@@ -2535,6 +2576,8 @@ export class DatabaseStorage implements IStorage {
         priority: 'normal'
       })
       .returning();
+    
+    console.log(`[STORAGE] Message created with ticket: ${created.ticketNumber}`);
     return created;
   }
 
