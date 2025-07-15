@@ -262,8 +262,19 @@ export default function AuthPage() {
 
       // Add contractor-specific data
       if (data.role === "contractor_individual") {
+        // Determine actual role based on contractor company selection
+        let actualRole = "contractor_individual";
+        if (data.contractorCompanyExists === "no") {
+          // User is creating a new contracting company, they should be account owner
+          actualRole = "contractor_account_owner";
+        } else if (data.contractorCompanyExists === "yes") {
+          // User is joining existing company, they should be individual
+          actualRole = "contractor_individual";
+        }
+        
         backendData = {
           ...backendData,
+          userType: actualRole, // Override the role based on company selection
           // Contractor company info
           contractorCompanyExists: data.contractorCompanyExists,
           companyName: data.companyName,

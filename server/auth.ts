@@ -220,7 +220,8 @@ export async function setupAuth(app: Express) {
       
       const assignedRole = isCompanyOwner ? "company_admin" as const : 
                           isTeamMember ? "team_member" as const :
-                          (userRole === "contractor_individual" || userType === "contractor") ? "contractor_individual" as const : "team_member" as const;
+                          (userRole === "contractor_individual" || userType === "contractor") ? "contractor_individual" as const :
+                          userRole === "contractor_account_owner" ? "contractor_account_owner" as const : "team_member" as const;
 
       const userData = {
         id: userId,
@@ -308,7 +309,7 @@ export async function setupAuth(app: Express) {
       }
 
       // Handle contractor registration
-      if (userRole === "contractor_individual") {
+      if (userRole === "contractor_individual" || userRole === "contractor_account_owner") {
         console.log("[CONTRACTOR REGISTRATION] Processing contractor registration for:", email);
         console.log("[CONTRACTOR REGISTRATION] Request body fields:", {
           companyName, streetAddress, city, province, country, postalCode,
@@ -767,7 +768,7 @@ export async function setupAuth(app: Express) {
         message: "Email verified successfully! Welcome to SEMI Program Portal.",
         user: verifiedUser,
         verified: true,
-        redirectTo: verifiedUser?.role === "contractor_individual" ? "/contractor-dashboard" : "/"
+        redirectTo: (verifiedUser?.role === "contractor_individual" || verifiedUser?.role === "contractor_account_owner") ? "/contractor-dashboard" : "/"
       });
     } catch (error) {
       console.error("Email verification error:", error);
