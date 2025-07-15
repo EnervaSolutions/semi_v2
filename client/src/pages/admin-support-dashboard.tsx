@@ -178,8 +178,8 @@ export default function AdminSupportDashboard() {
     const matchesSearch = !searchQuery || 
       ticket.ticketNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.company.name.toLowerCase().includes(searchQuery.toLowerCase());
+      ticket.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.company?.name?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || 
       (statusFilter === "open" && !ticket.isResolved) ||
@@ -196,7 +196,7 @@ export default function AdminSupportDashboard() {
     replyMutation.mutate({
       subject: `Re: ${selectedTicket.subject}`,
       message: replyText,
-      toUserId: selectedTicket.user.id,
+      toUserId: selectedTicket.user?.id,
       ticketNumber: selectedTicket.ticketNumber,
       applicationId: selectedTicket.application?.id,
     });
@@ -323,11 +323,11 @@ export default function AdminSupportDashboard() {
                         <div className="text-xs text-muted-foreground space-y-1">
                           <div className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            <span>{ticket.user.firstName} {ticket.user.lastName}</span>
+                            <span>{ticket.user?.firstName || 'Unknown'} {ticket.user?.lastName || 'User'}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Building2 className="h-3 w-3" />
-                            <span>{ticket.company.name}</span>
+                            <span>{ticket.company?.name || 'Unknown Company'}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
@@ -357,14 +357,14 @@ export default function AdminSupportDashboard() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <User className="h-4 w-4" />
-                        <span className="font-medium">{selectedTicket.user.firstName} {selectedTicket.user.lastName}</span>
+                        <span className="font-medium">{selectedTicket.user?.firstName || 'Unknown'} {selectedTicket.user?.lastName || 'User'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Mail className="h-4 w-4" />
-                        <span>{selectedTicket.user.email}</span>
+                        <span>{selectedTicket.user?.email || 'Unknown Email'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Badge variant="outline" className="text-xs">{selectedTicket.user.role}</Badge>
+                        <Badge variant="outline" className="text-xs">{selectedTicket.user?.role || 'Unknown Role'}</Badge>
                       </div>
                     </div>
                   </CardContent>
@@ -378,27 +378,27 @@ export default function AdminSupportDashboard() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <Building2 className="h-4 w-4" />
-                        <span className="font-medium">{selectedTicket.company.name}</span>
+                        <span className="font-medium">{selectedTicket.company?.name || 'Unknown Company'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Badge variant="outline" className="text-xs">{selectedTicket.company.shortName}</Badge>
+                        <Badge variant="outline" className="text-xs">{selectedTicket.company?.shortName || 'N/A'}</Badge>
                       </div>
-                      {selectedTicket.company.contactPhone && (
+                      {selectedTicket.company?.contactPhone && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Phone className="h-4 w-4" />
-                          <span>{selectedTicket.company.contactPhone}</span>
+                          <span>{selectedTicket.company?.contactPhone}</span>
                         </div>
                       )}
-                      {selectedTicket.company.contactEmail && (
+                      {selectedTicket.company?.contactEmail && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Mail className="h-4 w-4" />
-                          <span>{selectedTicket.company.contactEmail}</span>
+                          <span>{selectedTicket.company?.contactEmail}</span>
                         </div>
                       )}
-                      {selectedTicket.company.address && (
+                      {selectedTicket.company?.address && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <MapPin className="h-4 w-4" />
-                          <span className="line-clamp-2">{selectedTicket.company.address}</span>
+                          <span className="line-clamp-2">{selectedTicket.company?.address}</span>
                         </div>
                       )}
                     </div>
