@@ -4771,7 +4771,7 @@ export async function registerRoutes(app: Express) {
   app.post('/api/messages', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
-      const { subject, message, applicationId, parentMessageId, ticketNumber } = req.body;
+      const { subject, message, applicationId, parentMessageId, ticketNumber, priority } = req.body;
       
       console.log(`[MESSAGES API] Creating message from user: ${user.email}`);
       console.log(`[MESSAGES API] Message data:`, { 
@@ -4780,6 +4780,7 @@ export async function registerRoutes(app: Express) {
         applicationId, 
         parentMessageId, 
         ticketNumber,
+        priority,
         isReply: !!parentMessageId || !!ticketNumber
       });
       
@@ -4808,6 +4809,7 @@ export async function registerRoutes(app: Express) {
         message: message.trim(),
         applicationId: applicationId || null,
         parentMessageId: parentMessageId || null,
+        priority: priority || 'normal', // Default to normal if not provided
         isAdminMessage: isAdminReply, // Set true for admin replies
         isRead: false
       };

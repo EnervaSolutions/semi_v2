@@ -2583,7 +2583,7 @@ export class DatabaseStorage implements IStorage {
       isRead: Boolean(messageData.isRead),
       ticketNumber,
       status: 'open',
-      priority: 'normal'
+      priority: messageData.priority || 'normal' // Use the priority from messageData or default to 'normal'
     };
     
     console.log('[STORAGE] Insert values:', JSON.stringify(insertValues, null, 2));
