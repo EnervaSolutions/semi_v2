@@ -87,6 +87,8 @@ export default function AdminCompaniesPage() {
   const [showFacilityDialog, setShowFacilityDialog] = useState(false);
   // Removed facilityForm state - using AdminEnhancedFacilityForm component now
   const [editingFacility, setEditingFacility] = useState<any>(null);
+  const [selectedFacility, setSelectedFacility] = useState<any>(null);
+  const [showDeleteFacilityDialog, setShowDeleteFacilityDialog] = useState(false);
   
   // Delete functionality states
   const [selectedCompanies, setSelectedCompanies] = useState<number[]>([]);
@@ -445,6 +447,30 @@ export default function AdminCompaniesPage() {
     },
   });
 
+  // Delete facility mutation
+  const deleteFacilityMutation = useMutation({
+    mutationFn: async ({ facilityId }: { facilityId: number }) => {
+      return await apiRequest(`/api/admin/facilities/${facilityId}`, "DELETE");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      setShowDeleteFacilityDialog(false);
+      setSelectedFacility(null);
+      toast({
+        title: "Success",
+        description: "Facility deleted successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete facility.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const stats = {
     totalCompanies: Array.isArray(companies) ? companies.length : 0,
     contractorCompanies: Array.isArray(companies) ? companies.filter((c: any) => c.isContractor).length : 0,
@@ -516,6 +542,11 @@ export default function AdminCompaniesPage() {
   const handleEditFacility = (facility: any) => {
     setEditingFacility(facility);
     setShowFacilityDialog(true);
+  };
+
+  const handleDeleteFacility = (facility: any) => {
+    setSelectedFacility(facility);
+    setShowDeleteFacilityDialog(true);
   };
 
   // Handler for adding company
@@ -1028,6 +1059,14 @@ export default function AdminCompaniesPage() {
                             className="h-8 w-8 p-0"
                           >
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteFacility(facility)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -1878,6 +1917,29 @@ export default function AdminCompaniesPage() {
               disabled={bulkDeleteCompaniesMutation.isPending}
             >
               {bulkDeleteCompaniesMutation.isPending ? 'Deleting...' : 'Delete Companies'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Facility Dialog */}
+      <AlertDialog open={showDeleteFacilityDialog} onOpenChange={setShowDeleteFacilityDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Facility</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedFacility?.name}"? 
+              This action will archive the facility and all its applications, preventing them from appearing in application workflows while preserving data in the archive system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteFacilityMutation.mutate({ facilityId: selectedFacility?.id })}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteFacilityMutation.isPending}
+            >
+              {deleteFacilityMutation.isPending ? 'Deleting...' : 'Delete Facility'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
