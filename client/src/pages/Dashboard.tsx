@@ -73,6 +73,21 @@ export default function Dashboard() {
     enabled: !!user
   });
 
+  // DEBUG: Log activity settings data for production troubleshooting
+  useEffect(() => {
+    console.log('[DASHBOARD DEBUG] Activity Settings State:', {
+      data: activitySettings,
+      loading: activitySettingsLoading,
+      error: activitySettingsError,
+      dataLength: activitySettings?.length || 0,
+      userExists: !!user,
+      userRole: user?.role
+    });
+    if (activitySettingsError) {
+      console.error('[DASHBOARD ERROR] Activity Settings Error:', activitySettingsError);
+    }
+  }, [activitySettings, activitySettingsLoading, activitySettingsError, user]);
+
   // Debug activity settings loading
   console.log('Dashboard activity settings debug:', {
     user: user ? `${user.email} (${user.role}/${user.permissionLevel})` : 'none',

@@ -3171,9 +3171,9 @@ export async function registerRoutes(app: Express) {
   // GET activity settings - For admin panel and application limits
   app.get('/api/activity-settings', requireAuth, async (req: any, res: Response) => {
     try {
-      console.log('[ACTIVITY SETTINGS] Fetching activity settings');
+      console.log('[ACTIVITY SETTINGS] Fetching activity settings for user:', req.user.email, 'role:', req.user.role);
       const settings = await dbStorage.getActivitySettings();
-      console.log(`[ACTIVITY SETTINGS] Found ${settings.length} activity settings`);
+      console.log(`[ACTIVITY SETTINGS] Found ${settings.length} activity settings:`, settings);
       res.json(settings);
     } catch (error) {
       console.error("Error fetching activity settings:", error);
