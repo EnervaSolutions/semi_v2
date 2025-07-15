@@ -2526,8 +2526,8 @@ export class DatabaseStorage implements IStorage {
     return `TKT-${year}-${nextNumber}`;
   }
 
-  async createMessage(messageData: InsertMessage): Promise<Message> {
-    let ticketNumber = messageData.ticketNumber;
+  async createMessage(messageData: any, providedTicketNumber?: string): Promise<Message> {
+    let ticketNumber = providedTicketNumber;
     
     console.log(`[STORAGE] CreateMessage called with ticketNumber: ${ticketNumber}, subject: "${messageData.subject}"`);
     
@@ -2571,21 +2571,26 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
+    // Debug log to see exact values being inserted
+    const insertValues = {
+      fromUserId: messageData.fromUserId,
+      toUserId: messageData.toUserId,
+      subject: messageData.subject,
+      message: messageData.message,
+      applicationId: messageData.applicationId,
+      parentMessageId: messageData.parentMessageId,
+      isAdminMessage: Boolean(messageData.isAdminMessage),
+      isRead: Boolean(messageData.isRead),
+      ticketNumber,
+      status: 'open',
+      priority: 'normal'
+    };
+    
+    console.log('[STORAGE] Insert values:', JSON.stringify(insertValues, null, 2));
+    
     const [created] = await db
       .insert(messages)
-      .values({
-        fromUserId: messageData.fromUserId,
-        toUserId: messageData.toUserId,
-        subject: messageData.subject,
-        message: messageData.message,
-        applicationId: messageData.applicationId,
-        parentMessageId: messageData.parentMessageId,
-        isAdminMessage: messageData.isAdminMessage || false,
-        isRead: messageData.isRead || false,
-        ticketNumber,
-        status: 'open',
-        priority: 'normal'
-      })
+      .values(insertValues)
       .returning();
     
     console.log(`[STORAGE] Message created with ticket: ${created.ticketNumber}`);

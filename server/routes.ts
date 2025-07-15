@@ -4808,12 +4808,11 @@ export async function registerRoutes(app: Express) {
         message: message.trim(),
         applicationId: applicationId || null,
         parentMessageId: parentMessageId || null,
-        ticketNumber: finalTicketNumber, // Pass the ticket number for threading
         isAdminMessage: isAdminReply, // Set true for admin replies
         isRead: false
       };
 
-      const createdMessage = await dbStorage.createMessage(messageData);
+      const createdMessage = await dbStorage.createMessage(messageData, finalTicketNumber);
       console.log(`[MESSAGES API] Message created successfully with ID: ${createdMessage.id}, ticket: ${createdMessage.ticketNumber}`);
       
       res.status(201).json(createdMessage);
