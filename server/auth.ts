@@ -237,7 +237,8 @@ export async function setupAuth(app: Express) {
         emailVerificationToken,
         verificationTokenExpiry,
         isEmailVerified: false,
-        role: assignedRole
+        role: assignedRole,
+        permissionLevel: assignedRole === "company_admin" ? "owner" : "editor" // Company admins get owner level by default
       };
 
       let user;

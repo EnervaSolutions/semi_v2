@@ -3177,7 +3177,7 @@ export class DatabaseStorage implements IStorage {
             email: companyData.userEmail,
             password: hashedPassword,
             role: companyData.userRole as any,
-            permissionLevel: companyData.userPermissionLevel as any || 'viewer',
+            permissionLevel: companyData.userPermissionLevel as any || (companyData.userRole === 'company_admin' ? 'owner' : 'viewer'),
             companyId: company.id,
             isActive: true,
             isEmailVerified: true, // Admin-created users are auto-verified
@@ -3242,7 +3242,7 @@ export class DatabaseStorage implements IStorage {
         email: userData.email,
         password: hashedPassword,
         role: userData.role as any,
-        permissionLevel: userData.permissionLevel as any || 'viewer',
+        permissionLevel: userData.permissionLevel as any || (userData.role === 'company_admin' ? 'owner' : 'viewer'),
         companyId: userData.companyId || null,
         isActive: userData.isActive !== undefined ? userData.isActive : true,
         isEmailVerified: true, // Admin-created users are auto-verified
