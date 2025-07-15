@@ -3696,6 +3696,59 @@ export async function registerRoutes(app: Express) {
   });
 
   // ============================================================================
+  // TICKET MANAGEMENT API ENDPOINTS
+  // ============================================================================
+  // Handle ticket resolution and priority updates for admin support dashboard
+
+  // Mark ticket as resolved
+  app.patch('/api/admin/tickets/:ticketNumber/resolve', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (user.role !== 'system_admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { ticketNumber } = req.params;
+      console.log(`[TICKETS] Marking ticket ${ticketNumber} as resolved by admin ${user.email}`);
+      
+      await dbStorage.resolveTicket(ticketNumber);
+      
+      console.log(`[TICKETS] Ticket ${ticketNumber} marked as resolved successfully`);
+      res.json({ success: true, message: "Ticket marked as resolved" });
+    } catch (error) {
+      console.error("Error marking ticket as resolved:", error);
+      res.status(500).json({ message: "Failed to resolve ticket" });
+    }
+  });
+
+  // Update ticket priority
+  app.patch('/api/admin/tickets/:ticketNumber/priority', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (user.role !== 'system_admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { ticketNumber } = req.params;
+      const { priority } = req.body;
+      
+      if (!priority || !['low', 'normal', 'high'].includes(priority)) {
+        return res.status(400).json({ message: "Valid priority (low, normal, high) is required" });
+      }
+
+      console.log(`[TICKETS] Updating ticket ${ticketNumber} priority to ${priority} by admin ${user.email}`);
+      
+      await dbStorage.updateTicketPriority(ticketNumber, priority);
+      
+      console.log(`[TICKETS] Ticket ${ticketNumber} priority updated to ${priority} successfully`);
+      res.json({ success: true, message: "Ticket priority updated" });
+    } catch (error) {
+      console.error("Error updating ticket priority:", error);
+      res.status(500).json({ message: "Failed to update ticket priority" });
+    }
+  });
+
+  // ============================================================================
   // ARCHIVE MANAGEMENT API ENDPOINTS
   // ============================================================================
   // Provides comprehensive archive functionality to resolve foreign key constraint issues
@@ -4744,15 +4797,19 @@ export async function registerRoutes(app: Express) {
         }
       }
 
+      // Detect if this is an admin reply by checking request body
+      const { toUserId } = req.body;
+      const isAdminReply = user.role === 'system_admin' && toUserId;
+      
       const messageData = {
         fromUserId: user.id,
-        toUserId: null, // null means message to admin
+        toUserId: toUserId || null, // null means message to admin, specific toUserId for admin replies
         subject: subject.trim(),
         message: message.trim(),
         applicationId: applicationId || null,
         parentMessageId: parentMessageId || null,
         ticketNumber: finalTicketNumber, // Pass the ticket number for threading
-        isAdminMessage: false,
+        isAdminMessage: isAdminReply, // Set true for admin replies
         isRead: false
       };
 

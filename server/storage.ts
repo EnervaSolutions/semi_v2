@@ -278,6 +278,10 @@ export interface IStorage {
   markThreadAsResolved(messageId: number): Promise<void>;
   updateMessageStatus(messageId: number, status: string): Promise<Message>;
   generateTicketNumber(): Promise<string>;
+  resolveTicket(ticketNumber: string): Promise<void>;
+  updateTicketPriority(ticketNumber: string, priority: string): Promise<void>;
+  getAllMessagesForAdmin(): Promise<any[]>;
+  getMessagesByUser(userId: string): Promise<any[]>;
   
   // Notification operations
   createNotification(notification: InsertNotification): Promise<Notification>;
@@ -2817,7 +2821,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMessagesByUser(userId: string): Promise<any[]> {
-    return await db
+    console.log(`[STORAGE] getMessagesByUser called for userId: ${userId}`);
+    
+    // First get all ticket numbers where this user has participated
+    const userTicketsResult = await db
+      .select({ ticketNumber: messages.ticketNumber })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.isDeleted, false),
+          or(
+            eq(messages.fromUserId, userId),
+            eq(messages.toUserId, userId)
+          )
+        )
+      )
+      .groupBy(messages.ticketNumber);
+    
+    const userTicketNumbers = userTicketsResult.map(t => t.ticketNumber).filter(Boolean);
+    console.log(`[STORAGE] User ${userId} has participated in tickets:`, userTicketNumbers);
+    
+    if (userTicketNumbers.length === 0) {
+      console.log(`[STORAGE] No tickets found for user ${userId}`);
+      return [];
+    }
+    
+    // Now get ALL messages from those tickets (including admin replies)
+    const result = await db
       .select({
         id: messages.id,
         fromUserId: messages.fromUserId,
@@ -2868,12 +2898,91 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(messages.isDeleted, false),
-          or(
-            eq(messages.fromUserId, userId),
-            eq(messages.toUserId, userId)
-          )
+          inArray(messages.ticketNumber, userTicketNumbers)
         )
       )
+      .orderBy(desc(messages.createdAt));
+    
+    console.log(`[STORAGE] Found ${result.length} messages for user ${userId} across ${userTicketNumbers.length} tickets`);
+    return result;
+  }
+
+  async resolveTicket(ticketNumber: string): Promise<void> {
+    console.log(`[STORAGE] Resolving all messages for ticket: ${ticketNumber}`);
+    await db
+      .update(messages)
+      .set({ 
+        isResolved: true,
+        status: 'resolved',
+        updatedAt: new Date() 
+      })
+      .where(eq(messages.ticketNumber, ticketNumber));
+    console.log(`[STORAGE] Ticket ${ticketNumber} marked as resolved`);
+  }
+
+  async updateTicketPriority(ticketNumber: string, priority: string): Promise<void> {
+    console.log(`[STORAGE] Updating priority for ticket ${ticketNumber} to ${priority}`);
+    await db
+      .update(messages)
+      .set({ 
+        priority,
+        updatedAt: new Date() 
+      })
+      .where(eq(messages.ticketNumber, ticketNumber));
+    console.log(`[STORAGE] Ticket ${ticketNumber} priority updated to ${priority}`);
+  }
+
+  async getAllMessagesForAdmin(): Promise<any[]> {
+    console.log('[STORAGE] Fetching all messages for admin dashboard');
+    return await db
+      .select({
+        id: messages.id,
+        fromUserId: messages.fromUserId,
+        toUserId: messages.toUserId,
+        subject: messages.subject,
+        message: messages.message,
+        isRead: messages.isRead,
+        isAdminMessage: messages.isAdminMessage,
+        isResolved: messages.isResolved,
+        isArchived: messages.isArchived,
+        isDeleted: messages.isDeleted,
+        status: messages.status,
+        priority: messages.priority,
+        ticketNumber: messages.ticketNumber,
+        parentMessageId: messages.parentMessageId,
+        applicationId: messages.applicationId,
+        createdAt: messages.createdAt,
+        updatedAt: messages.updatedAt,
+        fromUser: {
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          companyId: users.companyId,
+          role: users.role,
+        },
+        company: {
+          id: companies.id,
+          name: companies.name,
+          shortName: companies.shortName,
+          phone: companies.phone,
+          address: companies.address,
+        },
+        application: {
+          id: applications.id,
+          applicationId: applications.applicationId,
+          title: applications.title,
+          status: applications.status,
+          activityType: applications.activityType,
+          facilityName: facilities.name,
+        }
+      })
+      .from(messages)
+      .leftJoin(users, eq(messages.fromUserId, users.id))
+      .leftJoin(companies, eq(users.companyId, companies.id))
+      .leftJoin(applications, eq(messages.applicationId, applications.id))
+      .leftJoin(facilities, eq(applications.facilityId, facilities.id))
+      .where(eq(messages.isDeleted, false))
       .orderBy(desc(messages.createdAt));
   }
 

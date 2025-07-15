@@ -307,13 +307,24 @@ export default function Messages() {
                       </Badge>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 flex items-center flex-wrap gap-2">
                     <span className="font-mono">Ticket: {ticketNumber}</span>
-                    <span className="ml-2">
+                    <Badge 
+                      variant={latestMessage.priority === 'high' ? 'destructive' : latestMessage.priority === 'normal' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {latestMessage.priority || 'normal'}
+                    </Badge>
+                    {latestMessage.isResolved && (
+                      <Badge variant="secondary" className="text-xs">
+                        Resolved
+                      </Badge>
+                    )}
+                    <span>
                       • Latest: {latestMessage.createdAt ? new Date(latestMessage.createdAt).toLocaleString() : 'Unknown date'}
                     </span>
                     {originalMessage.applicationId && (
-                      <span className="ml-2">
+                      <span>
                         • Related to application
                       </span>
                     )}

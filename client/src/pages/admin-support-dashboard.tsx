@@ -144,7 +144,7 @@ export default function AdminSupportDashboard() {
   // Mark ticket as resolved
   const markResolvedMutation = useMutation({
     mutationFn: async (ticketNumber: string) => {
-      return await apiRequest("PATCH", `/api/admin/tickets/${ticketNumber}/resolve`, {});
+      return await apiRequest(`/api/admin/tickets/${ticketNumber}/resolve`, "PATCH", {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/messages"] });
@@ -160,10 +160,12 @@ export default function AdminSupportDashboard() {
   // Update ticket priority
   const updatePriorityMutation = useMutation({
     mutationFn: async ({ ticketNumber, priority }: { ticketNumber: string; priority: string }) => {
-      return await apiRequest("PATCH", `/api/admin/tickets/${ticketNumber}/priority`, { priority });
+      return await apiRequest(`/api/admin/tickets/${ticketNumber}/priority`, "PATCH", { priority });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/messages"] });
+      // Force refetch to update the UI immediately
+      queryClient.refetchQueries({ queryKey: ["/api/admin/messages"] });
       toast({
         title: "Priority updated",
         description: "Ticket priority has been updated.",
@@ -272,13 +274,13 @@ export default function AdminSupportDashboard() {
                   </Select>
                   <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                     <SelectTrigger className="flex-1">
-                      <SelectValue />
+                      <SelectValue placeholder="All Priority" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Priority</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
                       <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
