@@ -556,7 +556,11 @@ export class DatabaseStorage implements IStorage {
       })
       .from(facilities)
       .leftJoin(companies, eq(facilities.companyId, companies.id))
-      .where(and(eq(facilities.companyId, companyId), eq(facilities.isActive, true)))
+      .where(and(
+        eq(facilities.companyId, companyId), 
+        eq(facilities.isActive, true),
+        eq(facilities.isArchived, false)  // Exclude archived facilities
+      ))
       .orderBy(facilities.name);
   }
 
@@ -831,7 +835,10 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(facilities)
-      .where(eq(facilities.companyId, companyId))
+      .where(and(
+        eq(facilities.companyId, companyId),
+        eq(facilities.isArchived, false)  // Exclude archived facilities
+      ))
       .orderBy(facilities.createdAt);
   }
 
@@ -851,7 +858,10 @@ export class DatabaseStorage implements IStorage {
         naicsCode: facilities.naicsCode
       })
       .from(facilities)
-      .where(eq(facilities.companyId, companyId))
+      .where(and(
+        eq(facilities.companyId, companyId),
+        eq(facilities.isArchived, false)  // Exclude archived facilities
+      ))
       .orderBy(facilities.name);
   }
 

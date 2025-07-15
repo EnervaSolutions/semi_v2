@@ -291,9 +291,10 @@ export default function Dashboard() {
                     size="sm"
                     variant="outline"
                     onClick={() => setShowFacilityForm(true)}
-                    className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-50"
+                    className="h-8 px-3 border-gray-300 hover:bg-gray-50"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Facility
                   </Button>
                 )}
               </div>
