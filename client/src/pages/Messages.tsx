@@ -335,7 +335,7 @@ export default function Messages() {
                 </CardHeader>
                 <CardContent className="flex flex-col">
                   {/* Scrollable message thread */}
-                  <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                     {thread.map((message, index) => (
                       <div key={message.id} className={`${index > 0 ? 'ml-4 border-l-2 border-gray-200 pl-4' : ''}`}>
                         <div className="flex items-center justify-between mb-2">

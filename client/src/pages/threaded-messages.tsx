@@ -137,6 +137,18 @@ export default function ThreadedMessages() {
     );
   };
 
+  const threads = groupMessagesIntoThreads(messages as Message[]);
+
+  // Auto-update selected thread when new messages arrive
+  React.useEffect(() => {
+    if (selectedThread && threads.length > 0) {
+      const updatedThread = threads.find(t => t.id === selectedThread.id);
+      if (updatedThread) {
+        setSelectedThread(updatedThread);
+      }
+    }
+  }, [threads, selectedThread?.id]);
+
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: typeof newMessage) => {
@@ -248,8 +260,8 @@ export default function ThreadedMessages() {
     markResolvedMutation.mutate(lastMessage.id);
   };
 
-  // Get threaded messages
-  const messageThreads = groupMessagesIntoThreads(messages as Message[]);
+  // Use the threads variable defined earlier  
+  const messageThreads = threads;
 
   if (isLoading) {
     return (
@@ -378,7 +390,7 @@ export default function ThreadedMessages() {
               </div>
 
               {/* Message Thread - Scrollable container with fixed height */}
-              <div className="flex-1 overflow-y-auto space-y-4 max-h-[calc(100vh-450px)] pr-2">
+              <div className="flex-1 overflow-y-auto space-y-4 max-h-[calc(100vh-350px)] pr-2">
                 {selectedThread.messages.map((message, index) => (
                   <div
                     key={message.id}

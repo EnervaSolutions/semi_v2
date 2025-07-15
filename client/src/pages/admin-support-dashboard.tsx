@@ -178,6 +178,16 @@ export default function AdminSupportDashboard() {
 
   const tickets = groupMessagesIntoTickets(allMessages as EnhancedMessage[]);
 
+  // Auto-update selected ticket when new messages arrive
+  React.useEffect(() => {
+    if (selectedTicket && tickets.length > 0) {
+      const updatedTicket = tickets.find(t => t.ticketNumber === selectedTicket.ticketNumber);
+      if (updatedTicket) {
+        setSelectedTicket(updatedTicket);
+      }
+    }
+  }, [tickets, selectedTicket?.ticketNumber]);
+
   // Filter tickets
   const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = !searchQuery || 
@@ -485,7 +495,7 @@ export default function AdminSupportDashboard() {
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col h-full">
                     {/* Messages - Scrollable container with fixed height */}
-                    <div className="flex-1 overflow-y-auto space-y-3 max-h-[calc(100vh-400px)] pr-2">
+                    <div className="flex-1 overflow-y-auto space-y-3 max-h-[calc(100vh-300px)] pr-2">
                       {selectedTicket.messages
                         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                         .map((message) => (
