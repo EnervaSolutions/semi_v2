@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -40,10 +40,17 @@ export default function AdminApprovalDashboard() {
   });
   const [loadingStates, setLoadingStates] = useState<{[key: number]: 'approving' | 'rejecting' | null}>({});
 
-  // Fetch pending submissions
-  const { data: pendingSubmissions = [], isLoading } = useQuery({
+  // Fetch pending submissions with auto-refresh
+  const { data: pendingSubmissions = [], isLoading, refetch: refetchSubmissions } = useQuery({
     queryKey: ["/api/admin/pending-submissions"],
+    refetchInterval: 10000, // Auto-refresh every 10 seconds
+    refetchOnWindowFocus: true, // Refresh when window gets focus
   });
+
+  // Auto-refresh submissions when page is accessed
+  useEffect(() => {
+    refetchSubmissions();
+  }, [refetchSubmissions]);
 
   // Process the submissions data to get statistics
   const submissions = (pendingSubmissions as any[]) || [];
@@ -61,10 +68,12 @@ export default function AdminApprovalDashboard() {
     },
     onSuccess: (_, submissionId) => {
       setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
-      // Refresh approval dashboard data and overall applications data
+      // Immediate refetch for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+      // Force immediate refresh
+      refetchSubmissions();
       toast({
         title: "Submission Approved",
         description: "The submission has been approved successfully.",
@@ -90,10 +99,12 @@ export default function AdminApprovalDashboard() {
     onSuccess: (_, { submissionId }) => {
       setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
       setRejectionDialog({ open: false, submissionId: null, rejectionNotes: "" });
-      // Refresh approval dashboard data and overall applications data
+      // Immediate refetch for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+      // Force immediate refresh
+      refetchSubmissions();
       toast({
         title: "Submission Rejected",
         description: "The submission has been rejected and reverted to draft status for resubmission.",

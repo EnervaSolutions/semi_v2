@@ -455,6 +455,10 @@ export default function AdminCompaniesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/facilities"] });
+      // Force refetch of company details to update facility list immediately
+      queryClient.refetchQueries({ queryKey: ["/api/admin/companies"] });
       setShowDeleteFacilityDialog(false);
       setSelectedFacility(null);
       toast({
