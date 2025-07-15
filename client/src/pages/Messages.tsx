@@ -68,6 +68,8 @@ export default function Messages() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      // Force refetch to update the UI immediately
+      queryClient.refetchQueries({ queryKey: ["/api/messages"] });
       toast({
         title: "Message sent",
         description: "Your message has been sent to the admin team.",
@@ -94,6 +96,8 @@ export default function Messages() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      // Force refetch to update the UI immediately
+      queryClient.refetchQueries({ queryKey: ["/api/messages"] });
       toast({
         title: "Reply sent",
         description: "Your reply has been sent to the admin team.",

@@ -117,6 +117,7 @@ function Router() {
           <Route path="/admin/archive-settings" component={AdminArchiveSettingsPage} />
           <Route path="/admin/system-notifications" component={SystemNotifications} />
           <Route path="/admin/recognition" component={AdminRecognitionPage} />
+          <Route path="/admin/support" component={AdminSupportDashboard} />
           <Route path="/recognition" component={RecognitionPage} />
           <Route path="/documents" component={Documents} />
           <Route path="/messages" component={ThreadedMessages} />

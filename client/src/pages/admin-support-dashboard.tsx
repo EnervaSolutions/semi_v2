@@ -132,6 +132,8 @@ export default function AdminSupportDashboard() {
     onSuccess: () => {
       setReplyText("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/messages"] });
+      // Force refetch to update the UI immediately
+      queryClient.refetchQueries({ queryKey: ["/api/admin/messages"] });
       toast({
         title: "Reply sent",
         description: "Your reply has been sent to the user.",
@@ -146,6 +148,8 @@ export default function AdminSupportDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/messages"] });
+      // Force refetch to update the UI immediately
+      queryClient.refetchQueries({ queryKey: ["/api/admin/messages"] });
       toast({
         title: "Ticket resolved",
         description: "The ticket has been marked as resolved.",
