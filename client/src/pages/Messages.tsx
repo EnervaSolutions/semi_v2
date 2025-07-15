@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Plus } from "lucide-react";
+import { MessageSquare, Send, Plus, Reply } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,12 +20,16 @@ const messageSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
   applicationId: z.string().optional(),
+  parentMessageId: z.number().optional(),
+  ticketNumber: z.string().optional(),
 });
 
 type MessageForm = z.infer<typeof messageSchema>;
 
 export default function Messages() {
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
   const { toast } = useToast();
 
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
@@ -37,6 +41,15 @@ export default function Messages() {
   });
 
   const form = useForm<MessageForm>({
+    resolver: zodResolver(messageSchema),
+    defaultValues: {
+      subject: "",
+      message: "",
+      applicationId: "",
+    },
+  });
+
+  const replyForm = useForm<MessageForm>({
     resolver: zodResolver(messageSchema),
     defaultValues: {
       subject: "",
@@ -71,9 +84,73 @@ export default function Messages() {
     },
   });
 
+  const replyMutation = useMutation({
+    mutationFn: async (data: MessageForm) => {
+      const response = await apiRequest("/api/messages", "POST", {
+        ...data,
+        applicationId: data.applicationId && data.applicationId !== "none" ? parseInt(data.applicationId) : null,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      toast({
+        title: "Reply sent",
+        description: "Your reply has been sent to the admin team.",
+      });
+      setIsReplyOpen(false);
+      setReplyToMessage(null);
+      replyForm.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to send reply. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: MessageForm) => {
     createMessageMutation.mutate(data);
   };
+
+  const onReply = (data: MessageForm) => {
+    replyMutation.mutate(data);
+  };
+
+  const startReply = (message: Message) => {
+    setReplyToMessage(message);
+    replyForm.reset({
+      subject: message.subject.startsWith("Re: ") ? message.subject : `Re: ${message.subject}`,
+      message: "",
+      applicationId: message.applicationId?.toString() || "",
+      parentMessageId: message.id,
+      ticketNumber: message.ticketNumber || "",
+    });
+    setIsReplyOpen(true);
+  };
+
+  // Group messages by ticket number for threading
+  const groupedMessages = messages.reduce((acc, message) => {
+    const ticket = message.ticketNumber || `msg-${message.id}`;
+    if (!acc[ticket]) {
+      acc[ticket] = [];
+    }
+    acc[ticket].push(message);
+    return acc;
+  }, {} as Record<string, Message[]>);
+
+  // Sort each thread by creation date and sort threads by latest message
+  Object.keys(groupedMessages).forEach(ticket => {
+    groupedMessages[ticket].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  });
+
+  const sortedThreads = Object.entries(groupedMessages).sort(([, a], [, b]) => {
+    const latestA = a[a.length - 1];
+    const latestB = b[b.length - 1];
+    return new Date(latestB.createdAt).getTime() - new Date(latestA.createdAt).getTime();
+  });
 
   if (messagesLoading) {
     return (
@@ -202,38 +279,139 @@ export default function Messages() {
             </CardContent>
           </Card>
         ) : (
-          messages.map((message) => (
-            <Card key={message.id} className="transition-shadow hover:shadow-md">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{message.subject}</CardTitle>
-                  <div className="flex items-center space-x-2">
-                    {!message.isRead && (
-                      <Badge variant="secondary">Unread</Badge>
-                    )}
-                    <Badge variant="outline">
-                      {message.isAdminMessage ? "From Admin" : "To Admin"}
-                    </Badge>
+          sortedThreads.map(([ticketNumber, thread]) => {
+            const latestMessage = thread[thread.length - 1];
+            const originalMessage = thread[0];
+            
+            return (
+              <Card key={ticketNumber} className="transition-shadow hover:shadow-md">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{originalMessage.subject}</CardTitle>
+                    <div className="flex items-center space-x-2">
+                      {thread.some(msg => !msg.isRead) && (
+                        <Badge variant="secondary">Unread</Badge>
+                      )}
+                      <Badge variant="outline">
+                        {thread.length > 1 ? `${thread.length} messages` : "1 message"}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <div className="text-sm text-gray-500">
-                  {message.createdAt ? new Date(message.createdAt).toLocaleString() : 'Unknown date'}
-                  {message.applicationId && (
+                  <div className="text-sm text-gray-500">
+                    <span className="font-mono">Ticket: {ticketNumber}</span>
                     <span className="ml-2">
-                      • Related to application
+                      • Latest: {latestMessage.createdAt ? new Date(latestMessage.createdAt).toLocaleString() : 'Unknown date'}
                     </span>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="whitespace-pre-wrap text-gray-700">
-                  {message.message}
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                    {originalMessage.applicationId && (
+                      <span className="ml-2">
+                        • Related to application
+                      </span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {thread.map((message, index) => (
+                      <div key={message.id} className={`${index > 0 ? 'ml-4 border-l-2 border-gray-200 pl-4' : ''}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm text-gray-600">
+                            <span className="font-medium">
+                              {message.isAdminMessage ? "Admin" : "You"}
+                            </span>
+                            <span className="ml-2">
+                              {message.createdAt ? new Date(message.createdAt).toLocaleString() : 'Unknown date'}
+                            </span>
+                          </div>
+                          {!message.isRead && (
+                            <Badge variant="secondary" className="text-xs">New</Badge>
+                          )}
+                        </div>
+                        <div className="whitespace-pre-wrap text-gray-700">
+                          {message.message}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t mt-4">
+                    <div className="text-sm text-gray-500">
+                      {thread.length > 1 ? `${thread.length} messages in conversation` : 'Start of conversation'}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startReply(latestMessage)}
+                    >
+                      <Reply className="h-4 w-4 mr-1" />
+                      Reply
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
+
+      {/* Reply Dialog */}
+      <Dialog open={isReplyOpen} onOpenChange={setIsReplyOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Reply to Message</DialogTitle>
+          </DialogHeader>
+          <Form {...replyForm}>
+            <form onSubmit={replyForm.handleSubmit(onReply)} className="space-y-4">
+              <FormField
+                control={replyForm.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Input {...field} readOnly className="bg-gray-50" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={replyForm.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reply Message</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Type your reply..."
+                        className="min-h-[120px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsReplyOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={replyMutation.isPending}
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  {replyMutation.isPending ? "Sending..." : "Send Reply"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

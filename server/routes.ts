@@ -4718,13 +4718,30 @@ export async function registerRoutes(app: Express) {
   app.post('/api/messages', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
-      const { subject, message, applicationId } = req.body;
+      const { subject, message, applicationId, parentMessageId, ticketNumber } = req.body;
       
       console.log(`[MESSAGES API] Creating message from user: ${user.email}`);
-      console.log(`[MESSAGES API] Message data:`, { subject, messageLength: message?.length, applicationId });
+      console.log(`[MESSAGES API] Message data:`, { 
+        subject, 
+        messageLength: message?.length, 
+        applicationId, 
+        parentMessageId, 
+        ticketNumber,
+        isReply: !!parentMessageId || !!ticketNumber
+      });
       
       if (!subject || !message) {
         return res.status(400).json({ message: 'Subject and message are required' });
+      }
+
+      // For replies, use the existing ticket number or find it from parent message
+      let finalTicketNumber = ticketNumber;
+      if (parentMessageId && !finalTicketNumber) {
+        const parentMessage = await dbStorage.getMessageWithDetails(parentMessageId);
+        if (parentMessage) {
+          finalTicketNumber = parentMessage.ticketNumber;
+          console.log(`[MESSAGES API] Found parent message ticket: ${finalTicketNumber}`);
+        }
       }
 
       const messageData = {
@@ -4733,12 +4750,14 @@ export async function registerRoutes(app: Express) {
         subject: subject.trim(),
         message: message.trim(),
         applicationId: applicationId || null,
+        parentMessageId: parentMessageId || null,
+        ticketNumber: finalTicketNumber, // Pass the ticket number for threading
         isAdminMessage: false,
         isRead: false
       };
 
       const createdMessage = await dbStorage.createMessage(messageData);
-      console.log(`[MESSAGES API] Message created successfully with ID: ${createdMessage.id}`);
+      console.log(`[MESSAGES API] Message created successfully with ID: ${createdMessage.id}, ticket: ${createdMessage.ticketNumber}`);
       
       res.status(201).json(createdMessage);
     } catch (error: any) {
