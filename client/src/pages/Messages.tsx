@@ -47,7 +47,7 @@ export default function Messages() {
 
   const createMessageMutation = useMutation({
     mutationFn: async (data: MessageForm) => {
-      const response = await apiRequest("POST", "/api/messages", {
+      const response = await apiRequest("/api/messages", "POST", {
         ...data,
         applicationId: data.applicationId && data.applicationId !== "none" ? parseInt(data.applicationId) : null,
       });

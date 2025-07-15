@@ -139,7 +139,7 @@ export default function ThreadedMessages() {
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: typeof newMessage) => {
-      return await apiRequest("POST", "/api/messages", {
+      return await apiRequest("/api/messages", "POST", {
         ...messageData,
         applicationId: messageData.applicationId && messageData.applicationId !== "none" ? parseInt(messageData.applicationId) : null,
       });
@@ -165,7 +165,7 @@ export default function ThreadedMessages() {
   // Reply to message mutation
   const replyMessageMutation = useMutation({
     mutationFn: async (replyData: { subject: string; message: string; toUserId?: string; applicationId?: number; ticketNumber?: string }) => {
-      return await apiRequest("POST", "/api/messages", replyData);
+      return await apiRequest("/api/messages", "POST", replyData);
     },
     onSuccess: () => {
       setReplyText("");

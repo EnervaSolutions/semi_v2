@@ -27,7 +27,7 @@ export function TeamInviteModal({ isOpen, onClose }: TeamInviteModalProps) {
 
   const inviteMutation = useMutation({
     mutationFn: async (data: typeof inviteData) => {
-      const res = await apiRequest("POST", "/api/team/invite", data);
+      const res = await apiRequest("/api/team/invite", "POST", data);
       return res.json();
     },
     onSuccess: () => {

@@ -127,7 +127,7 @@ export default function AdminSupportDashboard() {
   // Reply to ticket
   const replyMutation = useMutation({
     mutationFn: async (replyData: { subject: string; message: string; toUserId: string; ticketNumber: string; applicationId?: number }) => {
-      return await apiRequest("POST", "/api/messages", replyData);
+      return await apiRequest("/api/messages", "POST", replyData);
     },
     onSuccess: () => {
       setReplyText("");
