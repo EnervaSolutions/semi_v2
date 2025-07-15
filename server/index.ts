@@ -58,7 +58,35 @@ app.use((req, res, next) => {
   if (!isProduction) {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // CRITICAL FIX: Import path and fs for production static serving
+    const path = await import("path");
+    const fs = await import("fs");
+    
+    // Serve static files from dist/public directory
+    const distPath = path.resolve(import.meta.dirname, "public");
+    
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+      console.log('✅ Static files served from:', distPath);
+    } else {
+      console.error('❌ Build directory not found:', distPath);
+    }
+    
+    // CRITICAL: Only serve index.html for non-API routes
+    // This prevents API routes from being intercepted by the catch-all
+    app.use("*", (req, res) => {
+      // Don't serve index.html for API routes - let them 404 if not found
+      if (req.originalUrl.startsWith('/api/')) {
+        return res.status(404).json({ message: 'API endpoint not found' });
+      }
+      
+      // For all other routes, serve index.html (React Router will handle client-side routing)
+      if (fs.existsSync(distPath)) {
+        res.sendFile(path.resolve(distPath, "index.html"));
+      } else {
+        res.status(500).json({ message: 'Build files not found' });
+      }
+    });
   }
 
   // Production-ready port configuration for Render deployment
