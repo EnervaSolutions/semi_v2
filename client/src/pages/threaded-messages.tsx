@@ -65,6 +65,8 @@ export default function ThreadedMessages() {
   const [newMessage, setNewMessage] = useState({
     subject: "",
     message: "",
+    priority: "normal",
+    status: "open",
     applicationId: ""
   });
 
@@ -159,7 +161,7 @@ export default function ThreadedMessages() {
     },
     onSuccess: (data: any) => {
       // Clear form immediately and show ticket number
-      setNewMessage({ subject: "", message: "", applicationId: "" });
+      setNewMessage({ subject: "", message: "", priority: "normal", status: "open", applicationId: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
       // Force immediate refetch for real-time updates
       queryClient.refetchQueries({ queryKey: ["/api/messages"] });
@@ -380,6 +382,14 @@ export default function ThreadedMessages() {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* Priority Badge for all users */}
+                    {(selectedThread.messages[0] as any)?.priority && (
+                      <Badge variant="outline" className="text-xs">
+                        {(selectedThread.messages[0] as any).priority === 'low' && '🟢 Low'}
+                        {(selectedThread.messages[0] as any).priority === 'normal' && '🟡 Normal'}
+                        {(selectedThread.messages[0] as any).priority === 'high' && '🟠 High'}
+                      </Badge>
+                    )}
                     {selectedThread.isResolved ? (
                       <Badge variant="secondary">Resolved</Badge>
                     ) : (
@@ -532,24 +542,60 @@ export default function ThreadedMessages() {
                     rows={6}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="applicationId">Application ID (optional)</Label>
-                  <Select
-                    value={newMessage.applicationId}
-                    onValueChange={(value) => setNewMessage({ ...newMessage, applicationId: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an application (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No application selected</SelectItem>
-                      {(userApplications as any[])?.map((app: any) => (
-                        <SelectItem key={app.id} value={app.id.toString()}>
-                          {app.applicationId} - {app.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select
+                      value={newMessage.priority}
+                      onValueChange={(value) => setNewMessage({ ...newMessage, priority: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">🟢 Low</SelectItem>
+                        <SelectItem value="normal">🟡 Normal</SelectItem>
+                        <SelectItem value="high">🟠 High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select
+                      value={newMessage.status}
+                      onValueChange={(value) => setNewMessage({ ...newMessage, status: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="open">📬 Open</SelectItem>
+                        <SelectItem value="in_progress">⏳ In Progress</SelectItem>
+                        <SelectItem value="resolved">✅ Resolved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="applicationId">Application ID (optional)</Label>
+                    <Select
+                      value={newMessage.applicationId}
+                      onValueChange={(value) => setNewMessage({ ...newMessage, applicationId: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an application (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No application selected</SelectItem>
+                        {(userApplications as any[])?.map((app: any) => (
+                          <SelectItem key={app.id} value={app.id.toString()}>
+                            {app.applicationId} - {app.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <Button
                   onClick={handleSendMessage}
