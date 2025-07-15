@@ -3172,6 +3172,14 @@ export async function registerRoutes(app: Express) {
   app.get('/api/activity-settings', requireAuth, async (req: any, res: Response) => {
     try {
       console.log('[ACTIVITY SETTINGS] Fetching activity settings for user:', req.user.email, 'role:', req.user.role);
+      console.log('[ACTIVITY SETTINGS] Session debug:', {
+        sessionId: req.session?.id,
+        userId: req.session?.userId,
+        hasUser: !!req.user,
+        isProduction: process.env.NODE_ENV === 'production',
+        cookiePresent: !!req.headers.cookie
+      });
+      
       const settings = await dbStorage.getActivitySettings();
       console.log(`[ACTIVITY SETTINGS] Found ${settings.length} activity settings:`, settings);
       res.json(settings);

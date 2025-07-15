@@ -77,8 +77,9 @@ export async function setupAuth(app: Express) {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax", // Changed from "strict" to "lax" for production
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+      domain: process.env.NODE_ENV === "production" ? undefined : undefined, // Let browser handle domain
     },
   };
 
@@ -1087,6 +1088,14 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
   try {
     const userId = (req.session as any)?.userId;
     console.log('Auth middleware - userId from session:', userId, 'path:', req.path);
+    console.log('Auth middleware - Session debug:', {
+      sessionId: (req.session as any)?.id,
+      hasSession: !!(req.session as any),
+      sessionKeys: Object.keys(req.session || {}),
+      cookieHeader: !!req.headers.cookie,
+      userAgent: req.headers['user-agent']?.substring(0, 50) + '...',
+      isProduction: process.env.NODE_ENV === 'production'
+    });
     
     if (!userId) {
       console.log('No userId in session');
