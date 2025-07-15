@@ -19,7 +19,8 @@ import type { Message, Application } from "@shared/schema";
 const messageSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
-  priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+  priority: z.enum(["low", "normal", "high"]).default("normal"),
+  status: z.enum(["open", "in_progress", "resolved"]).default("open"),
   applicationId: z.string().optional(),
   parentMessageId: z.number().optional(),
   ticketNumber: z.string().optional(),
@@ -50,6 +51,7 @@ export default function Messages() {
       subject: "",
       message: "",
       priority: "normal",
+      status: "open",
       applicationId: "",
     },
   });
@@ -213,7 +215,7 @@ export default function Messages() {
                   )}
                 />
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="priority"
@@ -230,7 +232,29 @@ export default function Messages() {
                             <SelectItem value="low">🟢 Low</SelectItem>
                             <SelectItem value="normal">🟡 Normal</SelectItem>
                             <SelectItem value="high">🟠 High</SelectItem>
-                            <SelectItem value="urgent">🔴 Urgent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="open">📬 Open</SelectItem>
+                            <SelectItem value="in_progress">⏳ In Progress</SelectItem>
+                            <SelectItem value="resolved">✅ Resolved</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -342,11 +366,10 @@ export default function Messages() {
                   <div className="text-sm text-gray-500 flex items-center flex-wrap gap-2">
                     <span className="font-mono">Ticket: {ticketNumber}</span>
                     <Badge 
-                      variant={latestMessage.priority === 'urgent' ? 'destructive' : latestMessage.priority === 'high' ? 'destructive' : latestMessage.priority === 'normal' ? 'default' : 'secondary'}
+                      variant={latestMessage.priority === 'high' ? 'destructive' : latestMessage.priority === 'normal' ? 'default' : 'secondary'}
                       className="text-xs"
                     >
-                      {latestMessage.priority === 'urgent' ? '🔴 Urgent' : 
-                       latestMessage.priority === 'high' ? '🟠 High' : 
+                      {latestMessage.priority === 'high' ? '🟠 High' : 
                        latestMessage.priority === 'low' ? '🟢 Low' : '🟡 Normal'}
                     </Badge>
                     {latestMessage.isResolved && (
