@@ -45,6 +45,21 @@ interface PendingInvitation {
   status: string;
 }
 
+interface ContractorJoinRequest {
+  id: number;
+  userId: string;
+  userFirstName: string;
+  userLastName: string;
+  userEmail: string;
+  requestedPermissionLevel: string;
+  message?: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  reviewNotes?: string;
+}
+
 export default function ContractorTeam() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -78,6 +93,12 @@ export default function ContractorTeam() {
   // Fetch pending invitations
   const { data: pendingInvitations = [], isLoading: invitationsLoading } = useQuery<PendingInvitation[]>({
     queryKey: ["/api/contractor/team-invitations"],
+    enabled: !!user?.id && (user?.role === "contractor_individual" || user?.role === "contractor_account_owner" || (user?.role === "contractor_team_member" && user?.permissionLevel === "manager")),
+  });
+
+  // Fetch contractor join requests
+  const { data: joinRequests = [], isLoading: joinRequestsLoading } = useQuery<ContractorJoinRequest[]>({
+    queryKey: ["/api/contractor/join-requests"],
     enabled: !!user?.id && (user?.role === "contractor_individual" || user?.role === "contractor_account_owner" || (user?.role === "contractor_team_member" && user?.permissionLevel === "manager")),
   });
 
@@ -117,6 +138,44 @@ export default function ContractorTeam() {
     }
     inviteTeamMemberMutation.mutate(invitationData);
   };
+
+  // Join request approval/rejection mutations
+  const approveJoinRequestMutation = useMutation({
+    mutationFn: async ({ requestId, assignedPermissionLevel }: { requestId: number, assignedPermissionLevel: string }) => {
+      const response = await apiRequest(`/api/contractor/join-requests/${requestId}/approve`, "POST", { assignedPermissionLevel });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contractor/join-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/contractor/team-members"] });
+      toast({ title: "Join request approved successfully" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to approve join request", 
+        description: error.message || "An error occurred",
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const rejectJoinRequestMutation = useMutation({
+    mutationFn: async ({ requestId, reviewNotes }: { requestId: number, reviewNotes?: string }) => {
+      const response = await apiRequest(`/api/contractor/join-requests/${requestId}/reject`, "POST", { reviewNotes });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contractor/join-requests"] });
+      toast({ title: "Join request rejected" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Failed to reject join request", 
+        description: error.message || "An error occurred",
+        variant: "destructive" 
+      });
+    },
+  });
 
   const getPermissionIcon = (level: string) => {
     switch (level) {
@@ -338,7 +397,7 @@ export default function ContractorTeam() {
       </div>
 
       {/* Team Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <Card>
           <CardContent className="flex items-center justify-between p-6">
             <div>
@@ -381,11 +440,22 @@ export default function ContractorTeam() {
             <Clock className="h-8 w-8 text-orange-600" />
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Join Requests</p>
+              <p className="text-2xl font-bold">
+                {joinRequests.filter(req => req.status === 'pending').length}
+              </p>
+            </div>
+            <UserPlus className="h-8 w-8 text-blue-600" />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabbed Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="team-members" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Team Members ({teamMembers.length})
@@ -393,6 +463,10 @@ export default function ContractorTeam() {
           <TabsTrigger value="pending-invitations" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             Pending Invitations ({pendingInvitations.filter(inv => inv.status === 'pending').length})
+          </TabsTrigger>
+          <TabsTrigger value="join-requests" className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4" />
+            Join Requests ({joinRequests.filter(req => req.status === 'pending').length})
           </TabsTrigger>
         </TabsList>
 
@@ -553,6 +627,142 @@ export default function ContractorTeam() {
                   <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 mb-4">No pending invitations</p>
                   <p className="text-sm text-gray-400">All sent invitations have been accepted or expired</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="join-requests" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Join Requests</CardTitle>
+              <CardDescription>
+                Individuals requesting to join your contractor company
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {joinRequestsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+                  <p className="text-gray-500">Loading join requests...</p>
+                </div>
+              ) : joinRequests.filter(req => req.status === 'pending').length > 0 ? (
+                <div className="space-y-4">
+                  {joinRequests.filter(req => req.status === 'pending').map((request: ContractorJoinRequest) => (
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg border-blue-200 bg-blue-50">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
+                          <UserPlus className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">
+                            {request.userFirstName} {request.userLastName}
+                          </div>
+                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                            <Mail className="h-3 w-3" />
+                            {request.userEmail}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            Requested {new Date(request.createdAt).toLocaleDateString()}
+                          </div>
+                          {request.message && (
+                            <div className="text-sm text-gray-600 mt-1 italic">
+                              "{request.message}"
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                          Requested: {request.requestedPermissionLevel.charAt(0).toUpperCase() + request.requestedPermissionLevel.slice(1)}
+                        </Badge>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
+                                <Check className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Approve Join Request</DialogTitle>
+                                <DialogDescription>
+                                  Set the permission level for {request.userFirstName} {request.userLastName}
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="assignedPermissionLevel">Permission Level</Label>
+                                  <Select
+                                    defaultValue={request.requestedPermissionLevel}
+                                    onValueChange={(value) => {
+                                      approveJoinRequestMutation.mutate({
+                                        requestId: request.id,
+                                        assignedPermissionLevel: value
+                                      });
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="editor">Editor - Requires individual assignment to applications</SelectItem>
+                                      <SelectItem value="manager">Manager - Full access to all applications and team management</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            onClick={() => rejectJoinRequestMutation.mutate({ requestId: request.id })}
+                            disabled={rejectJoinRequestMutation.isPending}
+                          >
+                            <AlertTriangle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <UserPlus className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">No pending join requests</p>
+                  <p className="text-sm text-gray-400">No individuals have requested to join your contractor company yet</p>
+                </div>
+              )}
+              
+              {/* Show processed requests */}
+              {joinRequests.filter(req => req.status !== 'pending').length > 0 && (
+                <div className="mt-8 pt-6 border-t">
+                  <h4 className="font-medium text-gray-900 mb-4">Recent Decisions</h4>
+                  <div className="space-y-3">
+                    {joinRequests.filter(req => req.status !== 'pending').slice(0, 5).map((request: ContractorJoinRequest) => (
+                      <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm">
+                            <span className="font-medium">{request.userFirstName} {request.userLastName}</span>
+                            <span className="text-gray-500 ml-2">({request.userEmail})</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={request.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                          </Badge>
+                          <span className="text-xs text-gray-400">
+                            {request.reviewedAt ? new Date(request.reviewedAt).toLocaleDateString() : ''}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>

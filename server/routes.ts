@@ -2634,6 +2634,128 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // ============================================================================
+  // CONTRACTOR JOIN REQUEST ENDPOINTS
+  // ============================================================================
+  
+  // Get contractor join requests for account owners/managers
+  app.get('/api/contractor/join-requests', requireAuth, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const user = await dbStorage.getUserById(userId);
+      if (!user || !user.companyId) {
+        return res.status(404).json({ message: "Contractor company not found" });
+      }
+
+      // Check if user is contractor account owner or manager
+      const hasAccess = user.role === 'contractor_individual' || 
+                        user.role === 'contractor_account_owner' || 
+                        user.role === 'contractor_manager' ||
+                        (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can view join requests" });
+      }
+
+      const joinRequests = await dbStorage.getContractorJoinRequestsByCompany(user.companyId);
+      res.json(joinRequests);
+    } catch (error) {
+      console.error("Error fetching contractor join requests:", error);
+      res.status(500).json({ message: "Failed to fetch contractor join requests" });
+    }
+  });
+
+  // Approve contractor join request
+  app.post('/api/contractor/join-requests/:id/approve', requireAuth, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      const requestId = parseInt(req.params.id);
+      const { assignedPermissionLevel } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const user = await dbStorage.getUserById(userId);
+      if (!user || !user.companyId) {
+        return res.status(404).json({ message: "Contractor company not found" });
+      }
+
+      // Check if user is contractor account owner or manager
+      const hasAccess = user.role === 'contractor_individual' || 
+                        user.role === 'contractor_account_owner' || 
+                        user.role === 'contractor_manager' ||
+                        (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can approve join requests" });
+      }
+
+      // Validate permission level
+      if (!assignedPermissionLevel || !['editor', 'manager'].includes(assignedPermissionLevel)) {
+        return res.status(400).json({ message: "Valid permission level (editor or manager) is required" });
+      }
+
+      const approvedRequest = await dbStorage.approveContractorJoinRequest(requestId, userId, assignedPermissionLevel);
+      
+      // TODO: Send approval email notification to the user
+      
+      res.json({ 
+        success: true, 
+        message: "Join request approved successfully",
+        joinRequest: approvedRequest 
+      });
+    } catch (error) {
+      console.error("Error approving contractor join request:", error);
+      res.status(500).json({ message: error.message || "Failed to approve contractor join request" });
+    }
+  });
+
+  // Reject contractor join request
+  app.post('/api/contractor/join-requests/:id/reject', requireAuth, async (req: any, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      const requestId = parseInt(req.params.id);
+      const { reviewNotes } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const user = await dbStorage.getUserById(userId);
+      if (!user || !user.companyId) {
+        return res.status(404).json({ message: "Contractor company not found" });
+      }
+
+      // Check if user is contractor account owner or manager
+      const hasAccess = user.role === 'contractor_individual' || 
+                        user.role === 'contractor_account_owner' || 
+                        user.role === 'contractor_manager' ||
+                        (user.role === 'contractor_team_member' && user.permissionLevel === 'manager');
+      
+      if (!hasAccess) {
+        return res.status(403).json({ message: "Only contractor managers and account owners can reject join requests" });
+      }
+
+      const rejectedRequest = await dbStorage.rejectContractorJoinRequest(requestId, userId, reviewNotes);
+      
+      // TODO: Send rejection email notification to the user
+      
+      res.json({ 
+        success: true, 
+        message: "Join request rejected",
+        joinRequest: rejectedRequest 
+      });
+    } catch (error) {
+      console.error("Error rejecting contractor join request:", error);
+      res.status(500).json({ message: error.message || "Failed to reject contractor join request" });
+    }
+  });
+
   // Update contractor services and regions
   app.patch('/api/contractor/services', requireAuth, async (req: any, res: Response) => {
     try {

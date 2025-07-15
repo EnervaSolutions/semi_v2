@@ -476,6 +476,23 @@ export const teamInvitations = pgTable("team_invitations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Contractor Join Requests - For individuals requesting to join existing contractor companies
+export const contractorJoinRequests = pgTable("contractor_join_requests", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(), // The user requesting to join
+  requestedCompanyId: integer("requested_company_id").notNull(), // The contractor company they want to join
+  requestedPermissionLevel: varchar("requested_permission_level").default("editor").notNull(), // editor or manager
+  message: text("message"), // Optional message from requester
+  status: varchar("status").default("pending").notNull(), // pending, approved, rejected
+  reviewedBy: varchar("reviewed_by"), // Who approved/rejected the request
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"), // Notes from reviewer
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  unique().on(table.userId, table.requestedCompanyId) // Each user can only have one pending request per company
+]);
+
 // Ghost Application IDs table - tracks deleted application IDs to prevent immediate reuse
 export const ghostApplicationIds = pgTable("ghost_application_ids", {
   id: serial("id").primaryKey(),
@@ -833,6 +850,12 @@ export const insertTeamInvitationSchema = createInsertSchema(teamInvitations).om
   updatedAt: true,
 });
 
+export const insertContractorJoinRequestSchema = createInsertSchema(contractorJoinRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -876,6 +899,8 @@ export type AnnouncementAcknowledgment = typeof announcementAcknowledgments.$inf
 export type InsertAnnouncementAcknowledgment = z.infer<typeof insertAnnouncementAcknowledgmentSchema>;
 export type TeamInvitation = typeof teamInvitations.$inferSelect;
 export type InsertTeamInvitation = z.infer<typeof insertTeamInvitationSchema>;
+export type ContractorJoinRequest = typeof contractorJoinRequests.$inferSelect;
+export type InsertContractorJoinRequest = z.infer<typeof insertContractorJoinRequestSchema>;
 
 // Recognition System Tables
 

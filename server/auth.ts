@@ -167,7 +167,8 @@ export async function setupAuth(app: Express) {
         howHeardAbout, howHeardAboutOther, agreeToPortalServices, agreeToBusinessInfo, agreeToContact,
         phone, website, serviceRegions, supportedActivities, capitalRetrofitTechnologies,
         hasCodeOfConductAgreement, hasPrivacyPolicyAgreement, hasTermsOfServiceAgreement, hasDataSharingAgreement,
-        acceptTerms, acceptBusinessInfo, acceptContact, codeOfConductAgreed, gstWcbInsuranceConfirmed
+        acceptTerms, acceptBusinessInfo, acceptContact, codeOfConductAgreed, gstWcbInsuranceConfirmed,
+        contractorCompanyExists, selectedCompanyId
       } = req.body;
 
 
@@ -315,9 +316,59 @@ export async function setupAuth(app: Express) {
           companyName, streetAddress, city, province, country, postalCode,
           serviceRegions, supportedActivities, hasCodeOfConductAgreement,
           hasPrivacyPolicyAgreement, hasTermsOfServiceAgreement, hasDataSharingAgreement,
-          acceptTerms, acceptBusinessInfo, acceptContact, codeOfConductAgreed, gstWcbInsuranceConfirmed
+          acceptTerms, acceptBusinessInfo, acceptContact, codeOfConductAgreed, gstWcbInsuranceConfirmed,
+          contractorCompanyExists, selectedCompanyId
         });
         console.log("[CONTRACTOR REGISTRATION] Full request body:", req.body);
+
+        // Handle contractor individual joining existing company (CREATE JOIN REQUEST)
+        if (userRole === "contractor_individual" && contractorCompanyExists === "yes" && selectedCompanyId) {
+          console.log("[CONTRACTOR JOIN REQUEST] Creating join request for existing company:", selectedCompanyId);
+          
+          // Create contractor_individual user (pending)
+          const contractorUser = await storage.createUser({
+            id: userId,
+            email,
+            password: hashedPassword,
+            firstName,
+            lastName,
+            businessMobile,
+            role: userRole,
+            permissionLevel: "editor", // Default permission level for join requests
+            companyId: null, // Will be set when join request is approved
+            isActive: false, // Inactive until approved
+            hearAboutUs: howHeardAbout,
+            hearAboutUsOther: howHeardAboutOther,
+            emailVerificationToken,
+            verificationTokenExpiry,
+            isEmailVerified: false
+          });
+
+          // Create contractor join request
+          const joinRequest = await storage.createContractorJoinRequest({
+            userId: userId,
+            requestedCompanyId: selectedCompanyId,
+            requestedPermissionLevel: "editor", // Default requested permission
+            message: `${firstName} ${lastName} is requesting to join your contractor team.`,
+            status: "pending"
+          });
+
+          console.log("[CONTRACTOR JOIN REQUEST] Created join request:", joinRequest);
+
+          return res.status(201).json({
+            message: "Join request submitted successfully! Your request is pending approval from the contractor company administrator. You will receive an email confirmation once approved.",
+            user: {
+              id: contractorUser.id,
+              email: contractorUser.email,
+              firstName: contractorUser.firstName,
+              lastName: contractorUser.lastName,
+              role: contractorUser.role
+            },
+            requiresEmailVerification: false,
+            isPending: true,
+            isJoinRequest: true
+          });
+        }
         
         // Validate required contractor fields (postalCode is optional for contractors)
         console.log("[CONTRACTOR REGISTRATION] Field validation debug:", {

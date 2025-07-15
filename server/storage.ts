@@ -15,6 +15,7 @@ import {
   messages,
   notifications,
   teamInvitations,
+  contractorJoinRequests,
   ghostApplicationIds,
   systemAnnouncements,
   announcementAcknowledgments,
@@ -55,6 +56,8 @@ import {
   type InsertNotification,
   type TeamInvitation,
   type InsertTeamInvitation,
+  type ContractorJoinRequest,
+  type InsertContractorJoinRequest,
   type Badge,
   type InsertBadge,
   type CompanyBadge,
@@ -7559,6 +7562,130 @@ export class DatabaseStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('Error creating team invitation:', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // CONTRACTOR JOIN REQUEST METHODS
+  // ============================================================================
+  
+  async createContractorJoinRequest(requestData: InsertContractorJoinRequest): Promise<ContractorJoinRequest> {
+    try {
+      console.log('[STORAGE] Creating contractor join request with data:', requestData);
+      
+      const [result] = await db.insert(contractorJoinRequests).values({
+        ...requestData,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+
+      console.log('[STORAGE] Successfully created contractor join request:', result.id);
+      return result;
+    } catch (error) {
+      console.error('Error creating contractor join request:', error);
+      throw error;
+    }
+  }
+
+  async getContractorJoinRequestsByCompany(companyId: number): Promise<ContractorJoinRequest[]> {
+    try {
+      const joinRequests = await db
+        .select({
+          id: contractorJoinRequests.id,
+          userId: contractorJoinRequests.userId,
+          requestedCompanyId: contractorJoinRequests.requestedCompanyId,
+          requestedPermissionLevel: contractorJoinRequests.requestedPermissionLevel,
+          message: contractorJoinRequests.message,
+          status: contractorJoinRequests.status,
+          reviewedBy: contractorJoinRequests.reviewedBy,
+          reviewedAt: contractorJoinRequests.reviewedAt,
+          reviewNotes: contractorJoinRequests.reviewNotes,
+          createdAt: contractorJoinRequests.createdAt,
+          updatedAt: contractorJoinRequests.updatedAt,
+          // Join user data
+          userFirstName: users.firstName,
+          userLastName: users.lastName,
+          userEmail: users.email
+        })
+        .from(contractorJoinRequests)
+        .leftJoin(users, eq(contractorJoinRequests.userId, users.id))
+        .where(eq(contractorJoinRequests.requestedCompanyId, companyId))
+        .orderBy(desc(contractorJoinRequests.createdAt));
+
+      return joinRequests as any;
+    } catch (error) {
+      console.error('Error fetching contractor join requests:', error);
+      throw error;
+    }
+  }
+
+  async approveContractorJoinRequest(requestId: number, reviewerId: string, assignedPermissionLevel: string): Promise<ContractorJoinRequest> {
+    try {
+      console.log(`[STORAGE] Approving contractor join request ${requestId} by ${reviewerId}`);
+      
+      // Get the join request details
+      const [joinRequest] = await db
+        .select()
+        .from(contractorJoinRequests)
+        .where(eq(contractorJoinRequests.id, requestId));
+
+      if (!joinRequest) {
+        throw new Error('Join request not found');
+      }
+
+      // Update the user to be active and assign to company
+      await db
+        .update(users)
+        .set({
+          companyId: joinRequest.requestedCompanyId,
+          permissionLevel: assignedPermissionLevel as any,
+          role: 'contractor_team_member' as any,
+          isActive: true,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, joinRequest.userId));
+
+      // Update the join request status
+      const [updatedRequest] = await db
+        .update(contractorJoinRequests)
+        .set({
+          status: 'approved',
+          reviewedBy: reviewerId,
+          reviewedAt: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(contractorJoinRequests.id, requestId))
+        .returning();
+
+      console.log(`[STORAGE] Successfully approved join request and activated user ${joinRequest.userId}`);
+      return updatedRequest;
+    } catch (error) {
+      console.error('Error approving contractor join request:', error);
+      throw error;
+    }
+  }
+
+  async rejectContractorJoinRequest(requestId: number, reviewerId: string, reviewNotes?: string): Promise<ContractorJoinRequest> {
+    try {
+      console.log(`[STORAGE] Rejecting contractor join request ${requestId} by ${reviewerId}`);
+      
+      const [updatedRequest] = await db
+        .update(contractorJoinRequests)
+        .set({
+          status: 'rejected',
+          reviewedBy: reviewerId,
+          reviewedAt: new Date(),
+          reviewNotes: reviewNotes || null,
+          updatedAt: new Date()
+        })
+        .where(eq(contractorJoinRequests.id, requestId))
+        .returning();
+
+      console.log(`[STORAGE] Successfully rejected join request ${requestId}`);
+      return updatedRequest;
+    } catch (error) {
+      console.error('Error rejecting contractor join request:', error);
       throw error;
     }
   }
