@@ -2574,7 +2574,14 @@ export class DatabaseStorage implements IStorage {
     const [created] = await db
       .insert(messages)
       .values({
-        ...messageData,
+        fromUserId: messageData.fromUserId,
+        toUserId: messageData.toUserId,
+        subject: messageData.subject,
+        message: messageData.message,
+        applicationId: messageData.applicationId,
+        parentMessageId: messageData.parentMessageId,
+        isAdminMessage: messageData.isAdminMessage || false,
+        isRead: messageData.isRead || false,
         ticketNumber,
         status: 'open',
         priority: 'normal'
