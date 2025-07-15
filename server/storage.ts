@@ -2584,6 +2584,26 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
+    // For replies, try to preserve the priority from the original ticket if not provided
+    let messagePriority = messageData.priority;
+    if (!messagePriority && ticketNumber && ticketNumber !== await this.generateTicketNumber()) {
+      // This is a reply - try to get the priority from the existing ticket
+      try {
+        const [existingMessage] = await db
+          .select({ priority: messages.priority })
+          .from(messages)
+          .where(eq(messages.ticketNumber, ticketNumber))
+          .limit(1);
+        
+        if (existingMessage) {
+          messagePriority = existingMessage.priority;
+          console.log(`[STORAGE] Preserving priority '${messagePriority}' from existing ticket ${ticketNumber}`);
+        }
+      } catch (error) {
+        console.log(`[STORAGE] Could not retrieve existing priority for ticket ${ticketNumber}, using default`);
+      }
+    }
+
     // Debug log to see exact values being inserted
     const insertValues = {
       fromUserId: messageData.fromUserId,
@@ -2596,7 +2616,7 @@ export class DatabaseStorage implements IStorage {
       isRead: Boolean(messageData.isRead),
       ticketNumber,
       status: 'open',
-      priority: messageData.priority || 'normal' // Use the priority from messageData or default to 'normal'
+      priority: messagePriority || 'normal' // Use resolved priority or default to 'normal'
     };
     
     console.log('[STORAGE] Insert values:', JSON.stringify(insertValues, null, 2));
