@@ -483,9 +483,9 @@ export default function AdminSupportDashboard() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="flex-1 flex flex-col space-y-4">
-                    {/* Messages */}
-                    <div className="flex-1 overflow-y-auto space-y-3">
+                  <CardContent className="flex-1 flex flex-col h-full">
+                    {/* Messages - Scrollable container with fixed height */}
+                    <div className="flex-1 overflow-y-auto space-y-3 max-h-[calc(100vh-400px)] pr-2">
                       {selectedTicket.messages
                         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                         .map((message) => (
@@ -510,9 +510,9 @@ export default function AdminSupportDashboard() {
                       ))}
                     </div>
 
-                    {/* Reply Form */}
+                    {/* Reply Form - Fixed at bottom */}
                     {!selectedTicket.isResolved && (
-                      <div className="border-t pt-4 space-y-3">
+                      <div className="border-t pt-4 space-y-3 bg-white sticky bottom-0">
                         <Label htmlFor="admin-reply">Reply to User</Label>
                         <Textarea
                           id="admin-reply"
@@ -520,6 +520,7 @@ export default function AdminSupportDashboard() {
                           value={replyText}
                           onChange={(e) => setReplyText(e.target.value)}
                           rows={3}
+                          className="resize-none"
                         />
                         <div className="flex justify-end">
                           <Button
@@ -527,7 +528,7 @@ export default function AdminSupportDashboard() {
                             disabled={!replyText.trim() || replyMutation.isPending}
                           >
                             <Send className="h-4 w-4 mr-1" />
-                            Send Reply
+                            {replyMutation.isPending ? "Sending..." : "Send Reply"}
                           </Button>
                         </div>
                       </div>

@@ -377,8 +377,8 @@ export default function ThreadedMessages() {
                 </div>
               </div>
 
-              {/* Message Thread */}
-              <div className="flex-1 overflow-y-auto space-y-4">
+              {/* Message Thread - Scrollable container with fixed height */}
+              <div className="flex-1 overflow-y-auto space-y-4 max-h-[calc(100vh-450px)] pr-2">
                 {selectedThread.messages.map((message, index) => (
                   <div
                     key={message.id}
@@ -409,9 +409,9 @@ export default function ThreadedMessages() {
                 ))}
               </div>
 
-              {/* Reply Section for both users and admins */}
+              {/* Reply Section - Fixed at bottom */}
               {selectedThread && (
-                <div className="border-t pt-4 space-y-4">
+                <div className="border-t pt-4 space-y-4 bg-white sticky bottom-0">
                   {selectedThread.isResolved ? (
                     <div className="p-4 bg-muted rounded-lg">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -442,7 +442,7 @@ export default function ThreadedMessages() {
                             handleReply(e);
                           }
                         }}
-                        className="mt-1"
+                        className="mt-1 resize-none"
                         rows={3}
                       />
                     </div>

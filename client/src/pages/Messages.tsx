@@ -333,8 +333,9 @@ export default function Messages() {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
+                <CardContent className="flex flex-col">
+                  {/* Scrollable message thread */}
+                  <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                     {thread.map((message, index) => (
                       <div key={message.id} className={`${index > 0 ? 'ml-4 border-l-2 border-gray-200 pl-4' : ''}`}>
                         <div className="flex items-center justify-between mb-2">
@@ -356,7 +357,8 @@ export default function Messages() {
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t mt-4">
+                  {/* Fixed reply button */}
+                  <div className="flex items-center justify-between pt-4 border-t mt-4 bg-white sticky bottom-0">
                     <div className="text-sm text-gray-500">
                       {thread.length > 1 ? `${thread.length} messages in conversation` : 'Start of conversation'}
                     </div>
