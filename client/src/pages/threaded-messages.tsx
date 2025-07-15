@@ -66,7 +66,6 @@ export default function ThreadedMessages() {
     subject: "",
     message: "",
     priority: "normal",
-    status: "open",
     applicationId: ""
   });
 
@@ -161,7 +160,7 @@ export default function ThreadedMessages() {
     },
     onSuccess: (data: any) => {
       // Clear form immediately and show ticket number
-      setNewMessage({ subject: "", message: "", priority: "normal", status: "open", applicationId: "" });
+      setNewMessage({ subject: "", message: "", priority: "normal", applicationId: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
       // Force immediate refetch for real-time updates
       queryClient.refetchQueries({ queryKey: ["/api/messages"] });
@@ -542,7 +541,7 @@ export default function ThreadedMessages() {
                     rows={6}
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="priority">Priority</Label>
                     <Select
@@ -556,23 +555,6 @@ export default function ThreadedMessages() {
                         <SelectItem value="low">🟢 Low</SelectItem>
                         <SelectItem value="normal">🟡 Normal</SelectItem>
                         <SelectItem value="high">🟠 High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={newMessage.status}
-                      onValueChange={(value) => setNewMessage({ ...newMessage, status: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="open">📬 Open</SelectItem>
-                        <SelectItem value="in_progress">⏳ In Progress</SelectItem>
-                        <SelectItem value="resolved">✅ Resolved</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
