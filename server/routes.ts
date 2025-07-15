@@ -3126,16 +3126,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Activity settings endpoint
-  app.get('/api/activity-settings', requireAuth, async (req: any, res: Response) => {
-    try {
-      const activitySettings = await dbStorage.getActivitySettings();
-      res.json(activitySettings);
-    } catch (error) {
-      console.error("Error fetching activity settings:", error);
-      res.status(500).json({ message: "Failed to fetch activity settings" });
-    }
-  });
+  // DUPLICATE REMOVED - Activity settings endpoint is defined below with proper logging
 
   // ============================================================================
   // CRITICAL DOCUMENTS ENDPOINT - DO NOT REMOVE

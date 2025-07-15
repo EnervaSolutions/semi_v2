@@ -68,9 +68,17 @@ export default function Dashboard() {
   const facilitiesLoading = facilitiesLoadingState;
   const company = companyData;
   const stats = statsData;
-  const { data: activitySettings = [] } = useQuery<any[]>({
+  const { data: activitySettings = [], isLoading: activitySettingsLoading, error: activitySettingsError } = useQuery<any[]>({
     queryKey: ["/api/activity-settings"],
     enabled: !!user
+  });
+
+  // Debug activity settings loading
+  console.log('Dashboard activity settings debug:', {
+    user: !!user,
+    activitySettingsLoading,
+    activitySettingsError,
+    activitySettings: activitySettings?.length || 0
   });
 
   // Helper function to get enabled activities for a facility
