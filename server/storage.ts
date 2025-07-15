@@ -7333,7 +7333,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCompanyRecognitionPage(companyId: number): Promise<{
-    settings: RecognitionPageSettings | null;
+    settings: RecognitionPageSettings;
     badges: (CompanyBadge & { badge: Badge })[];
     content: RecognitionContent[];
   }> {
@@ -7343,9 +7343,25 @@ export class DatabaseStorage implements IStorage {
         this.getCompanyBadges(companyId),
         this.getRecognitionContent(companyId),
       ]);
+      
+      // If no settings exist, return default settings for preview
+      const defaultSettings = {
+        id: 0,
+        companyId,
+        isEnabled: true,
+        pageTitle: "Our Recognition & Achievements",
+        welcomeMessage: "We're proud to showcase our achievements and recognition in the energy efficiency sector.",
+        badgesSectionTitle: "Our Badges & Certifications",
+        contentSectionTitle: "Featured Achievements",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: null,
+        updatedBy: null
+      };
+      
       // content is already normalized by getRecognitionContent
       return {
-        settings,
+        settings: settings || defaultSettings,
         badges,
         content: content.map((item: any) => ({
           ...item,

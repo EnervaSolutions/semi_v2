@@ -127,6 +127,12 @@ export default function AdminArchiveSettingsPage() {
       toast({ title: "Success", description: "Entities restored successfully" });
       setSelectedEntities([]);
       refetchArchived();
+      // Invalidate all related queries so restored entities appear throughout the system
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to restore entities", variant: "destructive" });
@@ -147,6 +153,12 @@ export default function AdminArchiveSettingsPage() {
       toast({ title: "Success", description: "Entities deleted successfully" });
       setSelectedEntities([]);
       refetchArchived();
+      // Invalidate all related queries to refresh the system after permanent deletion
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete entities", variant: "destructive" });
