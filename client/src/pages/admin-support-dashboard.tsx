@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -179,7 +179,7 @@ export default function AdminSupportDashboard() {
   const tickets = groupMessagesIntoTickets(allMessages as EnhancedMessage[]);
 
   // Auto-update selected ticket when new messages arrive
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedTicket && tickets.length > 0) {
       const updatedTicket = tickets.find(t => t.ticketNumber === selectedTicket.ticketNumber);
       if (updatedTicket) {

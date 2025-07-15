@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -140,7 +140,7 @@ export default function ThreadedMessages() {
   const threads = groupMessagesIntoThreads(messages as Message[]);
 
   // Auto-update selected thread when new messages arrive
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedThread && threads.length > 0) {
       const updatedThread = threads.find(t => t.id === selectedThread.id);
       if (updatedThread) {
