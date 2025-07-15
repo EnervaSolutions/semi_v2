@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -39,21 +39,45 @@ export default function AdminApprovalDashboard() {
     rejectionNotes: ""
   });
   const [loadingStates, setLoadingStates] = useState<{[key: number]: 'approving' | 'rejecting' | null}>({});
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [localSubmissions, setLocalSubmissions] = useState<any[]>([]);
+
+  // Force refresh function
+  const forceRefresh = useCallback(() => {
+    setRefreshKey(prev => prev + 1);
+  }, []);
 
   // Fetch pending submissions with auto-refresh
   const { data: pendingSubmissions = [], isLoading, refetch: refetchSubmissions } = useQuery({
-    queryKey: ["/api/admin/pending-submissions"],
-    refetchInterval: 10000, // Auto-refresh every 10 seconds
+    queryKey: ["/api/admin/pending-submissions", refreshKey],
+    refetchInterval: 5000, // Auto-refresh every 5 seconds
     refetchOnWindowFocus: true, // Refresh when window gets focus
+    refetchOnMount: true, // Always refetch when component mounts
   });
 
-  // Auto-refresh submissions when page is accessed
+  // Auto-refresh submissions when page is accessed or refresh key changes
   useEffect(() => {
     refetchSubmissions();
-  }, [refetchSubmissions]);
+  }, [refetchSubmissions, refreshKey]);
 
-  // Process the submissions data to get statistics
-  const submissions = (pendingSubmissions as any[]) || [];
+  // Listen for URL changes to refresh when navigating to approvals
+  const [location] = useLocation();
+  useEffect(() => {
+    if (location === '/admin/approvals') {
+      forceRefresh();
+      refetchSubmissions();
+    }
+  }, [location, forceRefresh, refetchSubmissions]);
+
+  // Update local submissions when API data changes
+  useEffect(() => {
+    if (pendingSubmissions && pendingSubmissions.length >= 0) {
+      setLocalSubmissions([...pendingSubmissions]);
+    }
+  }, [pendingSubmissions]);
+
+  // Process the submissions data to get statistics - use local state for immediate updates
+  const submissions = localSubmissions.length > 0 ? localSubmissions : (pendingSubmissions as any[]) || [];
   const totalPending = submissions.filter(s => s.approvalStatus === 'pending').length;
   const totalApproved = submissions.filter(s => s.approvalStatus === 'approved').length;
   const totalRejected = submissions.filter(s => s.approvalStatus === 'rejected').length;
@@ -66,14 +90,22 @@ export default function AdminApprovalDashboard() {
         reviewNotes: "Quick approval from dashboard"
       });
     },
-    onSuccess: (_, submissionId) => {
+    onSuccess: async (_, submissionId) => {
       setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
-      // Immediate refetch for real-time updates
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
-      // Force immediate refresh
-      refetchSubmissions();
+      
+      // Multiple strategies for immediate update
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+      
+      // Force immediate UI refresh
+      forceRefresh();
+      
+      // Wait a moment then refetch to ensure data is fresh
+      setTimeout(() => {
+        refetchSubmissions();
+      }, 100);
+      
       toast({
         title: "Submission Approved",
         description: "The submission has been approved successfully.",
@@ -96,15 +128,23 @@ export default function AdminApprovalDashboard() {
         reviewNotes: reviewNotes || "Rejected from admin dashboard"
       });
     },
-    onSuccess: (_, { submissionId }) => {
+    onSuccess: async (_, { submissionId }) => {
       setLoadingStates(prev => ({ ...prev, [submissionId]: null }));
       setRejectionDialog({ open: false, submissionId: null, rejectionNotes: "" });
-      // Immediate refetch for real-time updates
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
-      // Force immediate refresh
-      refetchSubmissions();
+      
+      // Multiple strategies for immediate update
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-submissions"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
+      
+      // Force immediate UI refresh
+      forceRefresh();
+      
+      // Wait a moment then refetch to ensure data is fresh
+      setTimeout(() => {
+        refetchSubmissions();
+      }, 100);
+      
       toast({
         title: "Submission Rejected",
         description: "The submission has been rejected and reverted to draft status for resubmission.",
@@ -121,6 +161,12 @@ export default function AdminApprovalDashboard() {
   });
 
   const handleQuickApprove = (submissionId: number) => {
+    // Immediate optimistic update to local state
+    const optimisticSubmissions = localSubmissions.map(s => 
+      s.id === submissionId ? { ...s, approvalStatus: 'approved' } : s
+    );
+    setLocalSubmissions(optimisticSubmissions);
+    
     approveMutation.mutate(submissionId);
   };
 
@@ -134,6 +180,12 @@ export default function AdminApprovalDashboard() {
 
   const handleConfirmReject = () => {
     if (rejectionDialog.submissionId) {
+      // Immediate optimistic update to local state
+      const optimisticSubmissions = localSubmissions.map(s => 
+        s.id === rejectionDialog.submissionId ? { ...s, approvalStatus: 'rejected' } : s
+      );
+      setLocalSubmissions(optimisticSubmissions);
+      
       rejectMutation.mutate({
         submissionId: rejectionDialog.submissionId,
         reviewNotes: rejectionDialog.rejectionNotes
