@@ -110,9 +110,10 @@ export default function AdminApplicationLimitsPage() {
   };
 
   const handleToggleActivity = (activityType: string, currentEnabled: boolean) => {
+    const currentActivity = mergedActivities.find(a => a.activityType === activityType);
     updateActivityLimitMutation.mutate({
       activityType,
-      maxApplications: null, // Keep current limit
+      maxApplications: currentActivity?.maxApplications || null, // Keep current limit
       isEnabled: !currentEnabled
     });
   };
