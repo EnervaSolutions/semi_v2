@@ -1947,12 +1947,19 @@ export class DatabaseStorage implements IStorage {
     updatedBy: string 
   }): Promise<ActivitySettings> {
     const [settings] = await db
-      .update(activitySettings)
-      .set({ 
+      .insert(activitySettings)
+      .values({
+        activityType: activityType as any,
         ...updates,
-        updatedAt: new Date() 
+        updatedAt: new Date()
       })
-      .where(eq(activitySettings.activityType, activityType as any))
+      .onConflictDoUpdate({
+        target: activitySettings.activityType,
+        set: { 
+          ...updates, 
+          updatedAt: new Date() 
+        }
+      })
       .returning();
     return settings;
   }
