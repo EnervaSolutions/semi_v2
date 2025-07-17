@@ -6,26 +6,26 @@ export const ACTIVITY_TYPES = {
     color: "blue",
     icon: "F"
   },
-  SEM: {
+  EAA: {
     code: "2",
+    name: "Energy Assessments and Audits (EAA)",
+    description: "Activity 2 - Energy Assessments and Audits",
+    color: "teal",
+    icon: "A"
+  },
+  SEM: {
+    code: "3",
     name: "Strategic Energy Manager (SEM)", 
-    description: "Activity 2 - Strategic Energy Manager",
+    description: "Activity 3 - Strategic Energy Manager",
     color: "purple",
     icon: "S"
   },
   EMIS: {
-    code: "3",
+    code: "4",
     name: "Energy Management Information Systems (EMIS)",
-    description: "Activity 3 - Energy Management Information Systems",
+    description: "Activity 4 - Energy Management Information Systems",
     color: "indigo", 
     icon: "E"
-  },
-  EAA: {
-    code: "4",
-    name: "Energy Assessments and Audits (EAA)",
-    description: "Activity 4 - Energy Assessments and Audits",
-    color: "teal",
-    icon: "A"
   },
   CR: {
     code: "5",
