@@ -1206,6 +1206,58 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // ============================================================================
+  // NOTIFICATIONS ENDPOINTS
+  // ============================================================================
+  // DO NOT REMOVE - Required for notification bell functionality
+
+  // GET user notifications
+  app.get('/api/notifications', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      console.log('[NOTIFICATIONS] Fetching notifications for user:', user.email);
+      
+      const notifications = await dbStorage.getUserNotifications(user.id);
+      console.log(`[NOTIFICATIONS] Found ${notifications.length} notifications for user ${user.id}`);
+      
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  // PATCH notification as read
+  app.patch('/api/notifications/:id/read', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { id } = req.params;
+      
+      console.log(`[NOTIFICATIONS] Marking notification ${id} as read for user ${user.id}`);
+      
+      await dbStorage.markNotificationAsRead(parseInt(id), user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  // DELETE all notifications for user
+  app.delete('/api/notifications', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      
+      console.log(`[NOTIFICATIONS] Deleting all notifications for user ${user.id}`);
+      
+      await dbStorage.deleteAllNotifications(user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting all notifications:", error);
+      res.status(500).json({ message: "Failed to delete all notifications" });
+    }
+  });
+
   app.get('/api/admin/announcements/:id/stats', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
