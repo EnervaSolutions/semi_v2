@@ -711,14 +711,24 @@ export class DatabaseStorage implements IStorage {
     const companyFacilities = await db
       .select()
       .from(facilities)
-      .where(eq(facilities.companyId, companyId))
+      .where(
+        and(
+          eq(facilities.companyId, companyId),
+          eq(facilities.isArchived, false)
+        )
+      )
       .orderBy(facilities.createdAt);
 
     // Get applications for this company
     const companyApplications = await db
       .select()
       .from(applications)
-      .where(eq(applications.companyId, companyId))
+      .where(
+        and(
+          eq(applications.companyId, companyId),
+          eq(applications.isArchived, false)
+        )
+      )
       .orderBy(applications.createdAt);
 
     return {
