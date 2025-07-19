@@ -1097,6 +1097,7 @@ export async function registerRoutes(app: Express) {
       res.json(application);
     } catch (error) {
       console.error("Error creating admin application:", error);
+      console.log('error', error);
       res.status(500).json({ message: error.message || "Failed to create application" });
     }
   });
