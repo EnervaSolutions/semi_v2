@@ -42,7 +42,7 @@ export default function ApplicationDetails() {
   const [showContractorAssignment, setShowContractorAssignment] = useState(false);
 
   // Query for assigned contractors
-  const { data: assignedContractors = [] } = useQuery({
+  const { data: contractorData = { contractors: [], allowContractorAssignment: false } } = useQuery({
     queryKey: ["/api/applications", id, "assigned-contractors"],
     queryFn: async () => {
       const response = await apiRequest(`/api/applications/${id}/assigned-contractors`, "GET");
@@ -50,6 +50,9 @@ export default function ApplicationDetails() {
     },
     enabled: !!id,
   });
+  
+  // Destructure from the data
+  const { contractors: assignedContractors, allowContractorAssignment } = contractorData;
 
   // Handle file deletion with confirmation
   const handleDeleteFile = async (docId: number) => {
@@ -639,7 +642,7 @@ export default function ApplicationDetails() {
               )}
               
               {/* Assign Contractor Button - Only show for company admins/team members */}
-              {['company_admin', 'team_member'].includes(user?.role || '') && (
+              {['company_admin', 'team_member'].includes(user?.role || '') && allowContractorAssignment && (
                 <Button
                   onClick={() => setShowContractorAssignment(true)}
                   size="sm"

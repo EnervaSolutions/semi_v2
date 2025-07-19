@@ -931,6 +931,7 @@ export class DatabaseStorage implements IStorage {
       applicationData.facilityId, 
       applicationData.activityType
     );
+    console.log('\n \n applicationId', applicationId);
     
     console.log("[ADMIN STORAGE] Generated application ID:", applicationId);
     
@@ -2466,23 +2467,40 @@ export class DatabaseStorage implements IStorage {
   // ===========================
   // These methods support the application endpoints - DO NOT REMOVE
 
-  async getApplicationAssignedContractors(applicationId: number): Promise<any[]> {
+  async getApplicationAssignedContractors(applicationId: number): Promise<{
+    contractors: any[],
+    allowContractorAssignment: boolean
+  }> {
     try {
       console.log(`[CONTRACTORS] Fetching assigned contractors for application: ${applicationId}`);
       
-      // Use raw SQL since Drizzle ORM seems to have schema issues
-      const rawResult = await db.execute(sql`
-        SELECT caa.*, c.name, c.short_name, c.is_contractor, c.service_regions, 
-               c.supported_activities, c.capital_retrofit_technologies
-        FROM company_application_assignments caa
-        LEFT JOIN companies c ON c.id = caa.contractor_company_id
-        WHERE caa.application_id = ${applicationId} AND caa.is_active = true
-      `);
-      
-      console.log(`[CONTRACTORS] Raw SQL found ${rawResult.rows.length} assignments`);
-      
+      // Run both queries in parallel
+      const [rawResult, permissionResult] = await Promise.all([
+        
+        // Query 1: Get Assigned Contractors
+        // Use raw SQL since Drizzle ORM seems to have schema issues
+        db.execute(sql`
+          SELECT caa.*, c.name, c.short_name, c.is_contractor, c.service_regions, 
+                 c.supported_activities, c.capital_retrofit_technologies
+          FROM company_application_assignments caa
+          LEFT JOIN companies c ON c.id = caa.contractor_company_id
+          WHERE caa.application_id = ${applicationId} AND caa.is_active = true
+        `),
+        
+        // Query 2: Get permission flag
+        db.execute(sql`
+          SELECT ast.allow_contractor_assignment
+          FROM applications a
+          JOIN activity_settings ast ON ast.activity_type = a.activity_type
+          WHERE a.id = ${applicationId}
+        `)
+      ]);
+  
+      // const allowContractorAssignment = permissionResult.rows[0]?.allow_contractor_assignment ?? false;
+      const allowContractorAssignment =Boolean(permissionResult.rows[0]?.allow_contractor_assignment) ?? false;
+    
       // Format the results
-      const result = rawResult.rows.map((row: any) => ({
+      const contractors = rawResult.rows.map((row: any) => ({
         id: row.id,
         contractorCompanyId: row.contractor_company_id,
         assignedAt: row.assigned_at,
@@ -2499,14 +2517,19 @@ export class DatabaseStorage implements IStorage {
         } : null
       }));
       
-      console.log(`[CONTRACTORS] Returning ${result.length} formatted contractor assignments`);
-      return result;
+      console.log(`[CONTRACTORS] Returning ${contractors.length} formatted contractor assignments`);
+      return {
+        contractors,
+        allowContractorAssignment
+      };
     } catch (error) {
       console.error('[CONTRACTORS] Error fetching assigned contractors:', error);
-      return [];
+      return { 
+        allowContractorAssignment: false, 
+        contractors: [] 
+      };
     }
   }
-
   async getApplicationDocuments(applicationId: number): Promise<any[]> {
     try {
       const docs = await db
@@ -6261,6 +6284,8 @@ export class DatabaseStorage implements IStorage {
             .from(companies)
             .where(eq(companies.id, entityId));
 
+          if (!company) return null;
+
           // Get associated facilities
           const facilitiesList = await db
             .select({
@@ -6319,6 +6344,8 @@ export class DatabaseStorage implements IStorage {
             .from(facilities)
             .where(eq(facilities.id, entityId));
 
+          if (!facility) return null;
+
           // Get company info
           const [facilityCompany] = await db
             .select({
@@ -6367,6 +6394,8 @@ export class DatabaseStorage implements IStorage {
             })
             .from(applications)
             .where(eq(applications.id, entityId));
+
+          if (!application) return null;
 
           // Get company and facility info
           const [appCompany] = await db
