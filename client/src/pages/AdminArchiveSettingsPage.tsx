@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Archive, Database, AlertTriangle, Trash2, RefreshCw, Info, Building, MapPin, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import EntityDetailsDialog from '@/components/ArchiveDialog';
 
 // Helper functions for entity visualization
 function getEntityIcon(type: string) {
@@ -50,7 +51,7 @@ interface EntityRowProps {
 function EntityRow({ entity, isSelected, onSelect, onViewDetails, level }: EntityRowProps) {
   const EntityIcon = getEntityIcon(entity.type);
   const indentClass = level === 'facility' ? 'ml-8' : level === 'application' ? 'ml-16' : '';
-  
+
   return (
     <div className={`flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50 ${indentClass}`}>
       <div className="flex items-center space-x-3">
@@ -253,7 +254,7 @@ export default function AdminArchiveSettingsPage() {
   // Flatten and group the hierarchical archived entities structure
   const groupedEntities = useMemo(() => {
     console.log('ARCHIVE DEBUG - Raw archived entities data:', archivedEntities);
-    
+
     if (!archivedEntities || !Array.isArray(archivedEntities) || archivedEntities.length === 0) {
       console.log('ARCHIVE DEBUG - No data to group');
       return {};
@@ -309,7 +310,7 @@ export default function AdminArchiveSettingsPage() {
     // Group the flattened entities by type
     const grouped = flatEntities.reduce((acc: any, entity: any) => {
       const entityType = entity.type;
-      
+
       if (!acc[entityType]) {
         acc[entityType] = [];
       }
@@ -402,7 +403,7 @@ export default function AdminArchiveSettingsPage() {
                         {type}s ({Array.isArray(entities) ? entities.length : 0})
                       </h3>
                       {Array.isArray(entities) && entities.map((entity: ArchivedEntity) => (
-                        <EntityRow 
+                        <EntityRow
                           key={`${entity.type}-${entity.id}`}
                           entity={entity}
                           isSelected={selectedEntities.includes(entity.id)}
@@ -489,54 +490,11 @@ export default function AdminArchiveSettingsPage() {
       </Tabs>
 
       {/* Entity Details Dialog */}
-      <Dialog open={showEntityDetailsDialog} onOpenChange={setShowEntityDetailsDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Entity Details</DialogTitle>
-          </DialogHeader>
-          {selectedEntityDetails && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Basic Information</h3>
-                  <div className="space-y-2">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Type</label>
-                      <p className="text-sm">{selectedEntityDetails.type}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Name</label>
-                      <p className="text-sm">{selectedEntityDetails.name}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Archive Reason</label>
-                      <p className="text-sm">{selectedEntityDetails.archiveReason || 'Not specified'}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Archived Date</label>
-                      <p className="text-sm">{new Date(selectedEntityDetails.archivedAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Additional Details</h3>
-                  <div className="space-y-2">
-                    {Object.entries(selectedEntityDetails.details || {}).map(([key, value]) => (
-                      <div key={key}>
-                        <label className="text-sm font-medium text-gray-600 capitalize">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </label>
-                        <p className="text-sm">{String(value || 'N/A')}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <EntityDetailsDialog
+        open={showEntityDetailsDialog}
+        onOpenChange={setShowEntityDetailsDialog}
+        entityDetails={selectedEntityDetails}
+      />
     </div>
   );
 }
