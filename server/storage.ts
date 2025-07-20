@@ -6260,102 +6260,116 @@ export class DatabaseStorage implements IStorage {
     try {
       switch (entityType) {
         case 'company':
-          const [company] = await db
-            .select({
-              id: companies.id,
-              name: companies.name,
-              businessNumber: companies.businessNumber,
-              website: companies.website,
-              phone: companies.phone,
-              address: companies.address,
-              city: companies.city,
-              province: companies.province,
-              postalCode: companies.postalCode,
-              companyType: companies.companyType,
-              serviceRegions: companies.serviceRegions,
-              supportedActivities: companies.supportedActivities,
-              capitalRetrofitTechnologies: companies.capitalRetrofitTechnologies,
-              isArchived: companies.isArchived,
-              archiveReason: companies.archiveReason,
-              archivedAt: companies.archivedAt,
-              archivedBy: companies.archivedBy,
-              createdAt: companies.createdAt,
-            })
-            .from(companies)
-            .where(eq(companies.id, entityId));
-
-          if (!company) return null;
-
-          // Get associated facilities
-          const facilitiesList = await db
-            .select({
-              id: facilities.id,
-              name: facilities.name,
-              naicsCode: facilities.naicsCode,
-              facilityType: facilities.facilityType,
-              isArchived: facilities.isArchived,
-              archiveReason: facilities.archiveReason,
-            })
-            .from(facilities)
-            .where(eq(facilities.companyId, entityId));
-
-          // Get applications for this company
-          const applicationsList = await db
-            .select({
-              id: applications.id,
-              applicationId: applications.applicationId,
-              title: applications.title,
-              activityType: applications.activityType,
-              status: applications.status,
-              isArchived: applications.isArchived,
-              archiveReason: applications.archiveReason,
-            })
-            .from(applications)
-            .where(eq(applications.companyId, entityId));
-
+          // Use Promise.all to run queries in parallel
+          const [company, facilitiesList, applicationsList] = await Promise.all([
+            db
+              .select({
+                id: companies.id,
+                name: companies.name,
+                businessNumber: companies.businessNumber,
+                website: companies.website,
+                phone: companies.phone,
+                address: companies.address,
+                city: companies.city,
+                province: companies.province,
+                postalCode: companies.postalCode,
+                serviceRegions: companies.serviceRegions,
+                supportedActivities: companies.supportedActivities,
+                capitalRetrofitTechnologies: companies.capitalRetrofitTechnologies,
+                isArchived: companies.isArchived,
+                archiveReason: companies.archiveReason,
+                archivedAt: companies.archivedAt,
+                archivedBy: companies.archivedBy,
+                createdAt: companies.createdAt,
+              })
+              .from(companies)
+              .where(and(
+                eq(companies.id, entityId),
+                eq(companies.isArchived, true)
+              ))
+              .limit(1),
+            
+            // Parallel query for facilities
+            db
+              .select({
+                id: facilities.id,
+                name: facilities.name,
+                naicsCode: facilities.naicsCode,
+                address: facilities.address,
+                city: facilities.city,
+                province: facilities.province,
+                postalCode: facilities.postalCode,
+                isArchived: facilities.isArchived,
+                archiveReason: facilities.archiveReason,
+                archivedAt: facilities.archivedAt,
+                archivedBy: facilities.archivedBy,
+              })
+              .from(facilities)
+              .where(eq(facilities.companyId, entityId)),
+            
+            // Parallel query for applications
+            db
+              .select({
+                id: applications.id,
+                applicationId: applications.applicationId,
+                title: applications.title,
+                activityType: applications.activityType,
+                status: applications.status,
+                submittedBy: applications.submittedBy,
+                isArchived: applications.isArchived,
+                archiveReason: applications.archiveReason,
+                archivedAt: applications.archivedAt,
+                archivedBy: applications.archivedBy,
+              })
+              .from(applications)
+              .where(eq(applications.companyId, entityId))
+          ]);
+  
+          if (!company[0]) return null;
+  
           return {
-            ...company,
+            type: 'company',
+            ...company[0],
             facilities: facilitiesList,
             applications: applicationsList,
           };
-
+  
         case 'facility':
-          const [facility] = await db
+          // Single query with JOIN for better performance
+          const facilityResult = await db
             .select({
+              // Facility fields
               id: facilities.id,
+              companyId: facilities.companyId,
               name: facilities.name,
+              naicsCode: facilities.naicsCode,
               address: facilities.address,
               city: facilities.city,
               province: facilities.province,
               postalCode: facilities.postalCode,
-              naicsCode: facilities.naicsCode,
-              naicsDescription: facilities.naicsDescription,
-              facilityType: facilities.facilityType,
-              floorArea: facilities.floorArea,
-              yearBuilt: facilities.yearBuilt,
-              operatingHours: facilities.operatingHours,
-              numberOfEmployees: facilities.numberOfEmployees,
               isArchived: facilities.isArchived,
               archiveReason: facilities.archiveReason,
               archivedAt: facilities.archivedAt,
               archivedBy: facilities.archivedBy,
-              companyId: facilities.companyId,
+              createdAt: facilities.createdAt,
+              
+              // Company fields with alias
+              companyName: companies.name,
+              companyBusinessNumber: companies.businessNumber,
             })
             .from(facilities)
-            .where(eq(facilities.id, entityId));
-
-          if (!facility) return null;
-
-          // Get company info
-          const [facilityCompany] = await db
-            .select({
-              id: companies.id,
-              name: companies.name,
-            })
-            .from(companies)
-            .where(eq(companies.id, facility.companyId));
-
-          // Get applications for this facility
+            .leftJoin(companies, eq(facilities.companyId, companies.id))
+            .where(and(
+              eq(facilities.id, entityId),
+              eq(facilities.isArchived, true)
+            ))
+            .limit(1);
+  
+          if (!facilityResult[0]) return null;
+  
+          const facility = facilityResult[0];
+          
+          // Separate query for applications (only if needed)
           const facilityApplications = await db
             .select({
               id: applications.id,
@@ -6363,63 +6377,100 @@ export class DatabaseStorage implements IStorage {
               title: applications.title,
               activityType: applications.activityType,
               status: applications.status,
+              submittedBy: applications.submittedBy,
               isArchived: applications.isArchived,
+              archiveReason: applications.archiveReason,
+              archivedAt: applications.archivedAt,
+              archivedBy: applications.archivedBy,
             })
             .from(applications)
             .where(eq(applications.facilityId, entityId));
-
+  
           return {
-            ...facility,
-            company: facilityCompany,
+            type: 'facility',
+            id: facility.id,
+            companyId: facility.companyId,
+            name: facility.name,
+            naicsCode: facility.naicsCode,
+            address: facility.address,
+            city: facility.city,
+            province: facility.province,
+            postalCode: facility.postalCode,
+            isArchived: facility.isArchived,
+            archiveReason: facility.archiveReason,
+            archivedAt: facility.archivedAt,
+            archivedBy: facility.archivedBy,
+            createdAt: facility.createdAt,
+            company: {
+              id: facility.companyId,
+              name: facility.companyName,
+            },
             applications: facilityApplications,
           };
-
+  
         case 'application':
-          const [application] = await db
+          // Single query with JOINs
+          const applicationResult = await db
             .select({
+              // Application fields
               id: applications.id,
               applicationId: applications.applicationId,
-              title: applications.title,
-              description: applications.description,
+              companyId: applications.companyId,
+              facilityId: applications.facilityId,
               activityType: applications.activityType,
+              title: applications.title,
               status: applications.status,
               submittedBy: applications.submittedBy,
               isArchived: applications.isArchived,
               archiveReason: applications.archiveReason,
               archivedAt: applications.archivedAt,
               archivedBy: applications.archivedBy,
-              companyId: applications.companyId,
-              facilityId: applications.facilityId,
               createdAt: applications.createdAt,
+              
+              // Company fields
+              companyName: companies.name,
+              
+              // Facility fields
+              facilityName: facilities.name,
             })
             .from(applications)
-            .where(eq(applications.id, entityId));
-
-          if (!application) return null;
-
-          // Get company and facility info
-          const [appCompany] = await db
-            .select({
-              id: companies.id,
-              name: companies.name,
-            })
-            .from(companies)
-            .where(eq(companies.id, application.companyId));
-
-          const [appFacility] = await db
-            .select({
-              id: facilities.id,
-              name: facilities.name,
-            })
-            .from(facilities)
-            .where(eq(facilities.id, application.facilityId));
-
+            .leftJoin(companies, eq(applications.companyId, companies.id))
+            .leftJoin(facilities, eq(applications.facilityId, facilities.id))
+            .where(and(
+              eq(applications.id, entityId),
+              eq(applications.isArchived, true)
+            ))
+            .limit(1);
+  
+          if (!applicationResult[0]) return null;
+  
+          const application = applicationResult[0];
+  
           return {
-            ...application,
-            company: appCompany,
-            facility: appFacility,
+            type: 'application',
+            id: application.id,
+            applicationId: application.applicationId,
+            companyId: application.companyId,
+            facilityId: application.facilityId,
+            activityType: application.activityType,
+            title: application.title,
+            status: application.status,
+            submittedBy: application.submittedBy,
+            isArchived: application.isArchived,
+            archiveReason: application.archiveReason,
+            archivedAt: application.archivedAt,
+            archivedBy: application.archivedBy,
+            createdAt: application.createdAt,
+            company: {
+              id: application.companyId,
+              name: application.companyName,
+            },
+            facility: {
+              id: application.facilityId,
+              name: application.facilityName,
+            },
           };
-
+  
         default:
           throw new Error(`Unknown entity type: ${entityType}`);
       }

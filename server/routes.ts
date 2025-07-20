@@ -3952,7 +3952,14 @@ export async function registerRoutes(app: Express) {
       }
       
       const { id, type } = req.params;
-      const entityDetails = await dbStorage.getArchivedEntityDetails(parseInt(id), type);
+
+      // Validate the ID
+      const entityId = parseInt(id);
+      if (isNaN(entityId) || entityId <= 0) {
+        return res.status(400).json({ message: "Invalid entity ID" });
+      }
+
+      const entityDetails = await dbStorage.getArchivedEntityDetails(entityId, type);
       
       if (!entityDetails) {
         return res.status(404).json({ message: "Archived entity not found" });
