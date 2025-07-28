@@ -2359,9 +2359,6 @@ export async function registerRoutes(app: Express) {
   });
 
 
-
-
-
   // GET /api/contractor/team-member/:userId/permissions/:applicationId - Get contractor team member permissions for application
   app.get('/api/contractor/team-member/:userId/permissions/:applicationId', requireAuth, async (req: any, res: Response) => {
     try {
@@ -2888,6 +2885,96 @@ export async function registerRoutes(app: Express) {
     } catch (error) {
       console.error("Error assigning contractors:", error);
       res.status(500).json({ message: "Failed to assign contractors" });
+    }
+  });
+
+  // POST /api/applications/:id/remove-contractor - Remove specific contractor from application
+  app.post('/api/applications/:id/remove-contractor', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const applicationId = parseInt(req.params.id);
+      const { contractorCompanyId } = req.body;
+      
+      console.log('[CONTRACTOR REMOVAL] Request:', { applicationId, contractorCompanyId, user: user.email, userRole: user.role });
+      
+      // Enhanced input validation
+      if (isNaN(applicationId) || applicationId <= 0) {
+        console.warn('[CONTRACTOR REMOVAL] Invalid application ID:', req.params.id);
+        return res.status(400).json({ message: "Invalid application ID" });
+      }
+      
+      if (!contractorCompanyId || typeof contractorCompanyId !== 'number' || contractorCompanyId <= 0) {
+        console.warn('[CONTRACTOR REMOVAL] Invalid contractor company ID:', contractorCompanyId);
+        return res.status(400).json({ message: "Invalid contractor company ID provided" });
+      }
+      
+      // Check if application exists and get full details
+      const application = await dbStorage.getApplicationById(applicationId);
+      if (!application) {
+        console.warn('[CONTRACTOR REMOVAL] Application not found:', applicationId);
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // Enhanced permission checks
+      const isSystemAdmin = user.role === 'system_admin';
+      const isApplicationOwner = user.companyId && application.companyId === user.companyId;
+      const isCompanyAdmin = user.role === 'company_admin' && isApplicationOwner;
+      
+      if (!isSystemAdmin && !isCompanyAdmin) {
+        console.warn('[CONTRACTOR REMOVAL] Access denied:', { 
+          userId: user.id, 
+          userRole: user.role, 
+          userCompanyId: user.companyId, 
+          applicationCompanyId: application.companyId 
+        });
+        return res.status(403).json({ message: "Access denied. Only system admins and company admins can remove contractors." });
+      }
+      
+      // Verify contractor is actually assigned to this application
+      const assignedContractors = await dbStorage.getApplicationAssignedContractors(applicationId);
+      const isContractorAssigned = assignedContractors.contractors.some(
+        (contractor: any) => contractor.contractorCompany?.id === contractorCompanyId
+      );
+      
+      if (!isContractorAssigned) {
+        console.warn('[CONTRACTOR REMOVAL] Contractor not assigned to application:', { applicationId, contractorCompanyId });
+        return res.status(400).json({ message: "Contractor is not assigned to this application" });
+      }
+      
+      // Check if application is in a state where contractor removal is allowed
+      const allowedStatuses = ['draft', 'submitted', 'under_review', 'revision_required'];
+      if (!allowedStatuses.includes(application.status)) {
+        console.warn('[CONTRACTOR REMOVAL] Application status does not allow contractor removal:', { 
+          applicationId, 
+          status: application.status 
+        });
+        return res.status(400).json({ 
+          message: `Cannot remove contractors from applications with status: ${application.status}` 
+        });
+      }
+      
+      // Log the removal action for audit trail
+      console.log('[CONTRACTOR REMOVAL] Proceeding with removal:', {
+        applicationId,
+        contractorCompanyId,
+        removedBy: user.id,
+        userRole: user.role,
+        applicationStatus: application.status
+      });
+      
+      // Remove the specific contractor assignment
+      await dbStorage.removeContractorFromApplication(applicationId, contractorCompanyId);
+      
+      console.log(`[CONTRACTOR REMOVAL] Successfully removed contractor ${contractorCompanyId} from application ${applicationId}`);
+      res.json({ 
+        message: "Contractor removed successfully",
+        applicationId,
+        contractorCompanyId,
+        removedBy: user.id
+      });
+    } catch (error) {
+      console.error("[CONTRACTOR REMOVAL] Error removing contractor:", error);
+      res.status(500).json({ message: "Failed to remove contractor. Please try again." });
     }
   });
 

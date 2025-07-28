@@ -149,12 +149,6 @@ export default function Sidebar() {
       icon: "Wrench",
       roles: ["system_admin"]
     },
-    {
-      name: "Ghost Application ID Manager",
-      href: "/admin/ghost-ids",
-      icon: "Trash2",
-      roles: ["system_admin"]
-    }
   ];
 
   // Admin management items (moved from dashboard)

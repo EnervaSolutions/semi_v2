@@ -4,9 +4,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, MapPin, Building2, CheckCircle } from "lucide-react";
+import { Search, MapPin, Building2, CheckCircle, X, AlertTriangle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -71,9 +71,10 @@ export default function ContractorAssignmentDialog({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [selectedContractors, setSelectedContractors] = useState<Set<number>>(new Set());
+  const [confirmUnassign, setConfirmUnassign] = useState<{contractorId: number, contractorName: string} | null>(null);
 
   // Query for assigned contractors to pre-populate selection
-  const { data: assignedContractors = [] } = useQuery({
+  const { data: assignedContractorsResponse } = useQuery({
     queryKey: ["/api/applications", applicationId, "assigned-contractors"],
     queryFn: async () => {
       const response = await apiRequest(`/api/applications/${applicationId}/assigned-contractors`, "GET");
@@ -82,11 +83,13 @@ export default function ContractorAssignmentDialog({
     enabled: open && !!applicationId,
   });
 
+  const assignedContractors = assignedContractorsResponse?.contractors || [];
+
   // Pre-populate selected contractors when dialog opens
   React.useEffect(() => {
     if (open && assignedContractors.length > 0) {
       const assignedCompanyIds = new Set<number>(
-        assignedContractors.map((assignment: any) => assignment.contractorCompany?.id).filter((id): id is number => Boolean(id))
+        assignedContractors.map((assignment: any) => assignment.contractorCompany?.id).filter((id: any): id is number => Boolean(id))
       );
       setSelectedContractors(assignedCompanyIds);
     }
@@ -124,6 +127,61 @@ export default function ContractorAssignmentDialog({
       return matchesSearch;
     })
     .sort((a, b) => a.name.localeCompare(b.name)); // Alphabetical sorting
+
+  // Unassign contractor mutation with enhanced error handling
+  const unassignContractorMutation = useMutation({
+    mutationFn: async (contractorCompanyId: number) => {
+      try {
+        const response = await apiRequest(`/api/applications/${applicationId}/remove-contractor`, "POST", {
+          contractorCompanyId
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        return response.json();
+      } catch (error: any) {
+        console.error('Contractor unassignment error:', error);
+        throw error;
+      }
+    },
+    onSuccess: (data: any) => {
+      console.log('Contractor unassignment successful:', data);
+      toast({
+        title: "Contractor Unassigned",
+        description: "Contractor has been unassigned successfully",
+      });
+      // Invalidate both applications and assigned contractors queries
+      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/applications", applicationId, "assigned-contractors"] });
+    },
+    onError: (error: any) => {
+      console.error('Unassignment mutation error:', error);
+      
+      let errorMessage = "Failed to unassign contractor";
+      
+      // Handle specific error cases
+      if (error.message) {
+        if (error.message.includes('Access denied')) {
+          errorMessage = "You don't have permission to unassign contractors.";
+        } else if (error.message.includes('not assigned')) {
+          errorMessage = "This contractor is not currently assigned to the application.";
+        } else if (error.message.includes('status')) {
+          errorMessage = "Cannot remove contractors from applications in this status.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast({
+        title: "Unassignment Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
 
   // Assign multiple contractors mutation
   const assignContractorsMutation = useMutation({
@@ -168,10 +226,26 @@ export default function ContractorAssignmentDialog({
     setSelectedContractors(newSelection);
   };
 
+  const handleUnassign = (contractorId: number, contractorName: string) => {
+    setConfirmUnassign({ contractorId, contractorName });
+  };
+
+  const confirmUnassignAction = () => {
+    if (confirmUnassign) {
+      unassignContractorMutation.mutate(confirmUnassign.contractorId);
+      setConfirmUnassign(null);
+    }
+  };
+
+  const cancelUnassign = () => {
+    setConfirmUnassign(null);
+  };
+
   const resetAndClose = () => {
     setSearchTerm("");
     setSelectedRegion("");
     setSelectedContractors(new Set());
+    setConfirmUnassign(null);
     onOpenChange(false);
   };
 
@@ -211,6 +285,46 @@ export default function ContractorAssignmentDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Already Assigned Contractors Section */}
+          {assignedContractors.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-medium text-gray-900">Currently Assigned Contractors</h3>
+                <Badge variant="secondary">{assignedContractors.length}</Badge>
+              </div>
+              <div className="space-y-2">
+                {assignedContractors.map((assignment: any) => (
+                  <div key={assignment.id || assignment.contractorCompanyId} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <div>
+                        <p className="font-medium text-green-900">{assignment.contractorCompany?.name}</p>
+                        <p className="text-sm text-green-700">{assignment.contractorCompany?.shortName}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUnassign(assignment.contractorCompany?.id, assignment.contractorCompany?.name)}
+                      disabled={unassignContractorMutation.isPending}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                    >
+                      {unassignContractorMutation.isPending ? (
+                        "Removing..."
+                      ) : (
+                        <>
+                          <X className="h-4 w-4 mr-1" />
+                          Unassign
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-4" />
+            </div>
+          )}
 
           {/* Results Summary */}
           <div className="flex items-center justify-between">
@@ -378,6 +492,35 @@ export default function ContractorAssignmentDialog({
           </div>
         </div>
       </DialogContent>
+
+      {/* Confirmation Dialog for Unassigning Contractor */}
+      <Dialog open={!!confirmUnassign} onOpenChange={() => setConfirmUnassign(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Confirm Unassignment
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unassign <strong>"{confirmUnassign?.contractorName}"</strong> from this application?
+              <br /><br />
+              This action will remove their access to this application and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button variant="outline" onClick={cancelUnassign}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmUnassignAction}
+              disabled={unassignContractorMutation.isPending}
+            >
+              {unassignContractorMutation.isPending ? "Removing..." : "Unassign Contractor"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
