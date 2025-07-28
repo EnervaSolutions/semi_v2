@@ -256,10 +256,6 @@ export default function Sidebar() {
               className="w-full h-full object-contain"
             />
           </div>
-          <div className="text-center">
-            <h2 className="text-lg font-bold text-gray-900">SEMI Portal</h2>
-            <p className="text-xs text-gray-500">Strategic Energy Management</p>
-          </div>
         </div>
       </div>
       
