@@ -149,12 +149,6 @@ export default function Sidebar() {
       icon: "Wrench",
       roles: ["system_admin"]
     },
-    {
-      name: "Ghost Application ID Manager",
-      href: "/admin/ghost-ids",
-      icon: "Trash2",
-      roles: ["system_admin"]
-    }
   ];
 
   // Admin management items (moved from dashboard)
@@ -255,10 +249,6 @@ export default function Sidebar() {
               alt="Strategic Energy Management Initiative" 
               className="w-full h-full object-contain"
             />
-          </div>
-          <div className="text-center">
-            <h2 className="text-lg font-bold text-gray-900">SEMI Portal</h2>
-            <p className="text-xs text-gray-500">Strategic Energy Management</p>
           </div>
         </div>
       </div>

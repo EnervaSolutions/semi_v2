@@ -202,6 +202,7 @@ export interface IStorage {
   // Contractor assignment operations
   assignContractorToApplication(applicationId: number, contractorCompanyId: number, assignedBy: string): Promise<void>;
   removeApplicationContractorAssignments(applicationId: number): Promise<void>;
+  removeContractorFromApplication(applicationId: number, contractorCompanyId: number): Promise<void>;
   
   // Team member application assignment operations
   assignUserToApplication(applicationId: number, userId: string, permissions: string[], assignedBy: string): Promise<void>;
@@ -1050,7 +1051,7 @@ export class DatabaseStorage implements IStorage {
     // Get all application IDs for contractor assignment lookup
     const appIds = appsWithFacilities.map(app => app.id);
     
-    // Get assigned contractor company names for each application
+    // Get assigned contractor company names for each application (only active assignments)
     const contractorAssignments = appIds.length > 0 ? await db
       .select({
         applicationId: companyApplicationAssignments.applicationId,
@@ -1059,7 +1060,12 @@ export class DatabaseStorage implements IStorage {
       })
       .from(companyApplicationAssignments)
       .innerJoin(companies, eq(companyApplicationAssignments.contractorCompanyId, companies.id))
-      .where(inArray(companyApplicationAssignments.applicationId, appIds)) : [];
+      .where(
+        and(
+          inArray(companyApplicationAssignments.applicationId, appIds),
+          eq(companyApplicationAssignments.isActive, true)
+        )
+      ) : [];
     
     console.log(`[COMPANY APPS] Found contractor assignments for ${contractorAssignments.length} application(s)`);
 
@@ -1269,7 +1275,7 @@ export class DatabaseStorage implements IStorage {
     
     // Get all application IDs
     const appIds = appsWithDetails.map(app => app.id);
-    // Get assigned contractor company names for each application
+    // Get assigned contractor company names for each application (only active assignments)
     const contractorAssignments = appIds.length > 0 ? await db
       .select({
         applicationId: companyApplicationAssignments.applicationId,
@@ -1278,7 +1284,12 @@ export class DatabaseStorage implements IStorage {
       })
       .from(companyApplicationAssignments)
       .innerJoin(companies, eq(companyApplicationAssignments.contractorCompanyId, companies.id))
-      .where(inArray(companyApplicationAssignments.applicationId, appIds)) : [];
+      .where(
+        and(
+          inArray(companyApplicationAssignments.applicationId, appIds),
+          eq(companyApplicationAssignments.isActive, true)
+        )
+      ) : [];
     // Build a map of applicationId -> array of contractor names
     const contractorMap = new Map<number, string[]>();
     contractorAssignments.forEach(a => {
@@ -3976,6 +3987,91 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Remove specific contractor from application with enhanced integrity checks
+  async removeContractorFromApplication(applicationId: number, contractorCompanyId: number): Promise<void> {
+    try {
+      console.log(`[CONTRACTOR REMOVAL] Starting removal of contractor company ${contractorCompanyId} from application ${applicationId}`);
+      
+      // First, verify the assignment exists and is active
+      const existingAssignment = await db
+        .select()
+        .from(companyApplicationAssignments)
+        .where(
+          and(
+            eq(companyApplicationAssignments.applicationId, applicationId),
+            eq(companyApplicationAssignments.contractorCompanyId, contractorCompanyId),
+            eq(companyApplicationAssignments.isActive, true)
+          )
+        );
+      
+      if (existingAssignment.length === 0) {
+        throw new Error(`No active contractor assignment found for contractor ${contractorCompanyId} on application ${applicationId}`);
+      }
+      
+      console.log(`[CONTRACTOR REMOVAL] Found ${existingAssignment.length} active assignment(s) to remove`);
+      
+      // Use transaction to ensure data consistency
+      await db.transaction(async (tx) => {
+        // Step 1: Deactivate contractor company assignment
+        const updateResult = await tx
+          .update(companyApplicationAssignments)
+          .set({
+            isActive: false,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(companyApplicationAssignments.applicationId, applicationId),
+              eq(companyApplicationAssignments.contractorCompanyId, contractorCompanyId),
+              eq(companyApplicationAssignments.isActive, true)
+            )
+          );
+        
+        console.log(`[CONTRACTOR REMOVAL] Updated company assignment records`);
+        
+        // Step 2: Also deactivate any contractor team member assignments for this application
+        const teamAssignmentUpdate = await tx
+          .update(contractorTeamApplicationAssignments)
+          .set({
+            isActive: false,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(contractorTeamApplicationAssignments.applicationId, applicationId),
+              eq(contractorTeamApplicationAssignments.contractorCompanyId, contractorCompanyId),
+              eq(contractorTeamApplicationAssignments.isActive, true)
+            )
+          );
+        
+        console.log(`[CONTRACTOR REMOVAL] Updated contractor team assignment records`);
+        
+        // Step 3: Verify the removal was successful
+        const verifyRemoval = await tx
+          .select()
+          .from(companyApplicationAssignments)
+          .where(
+            and(
+              eq(companyApplicationAssignments.applicationId, applicationId),
+              eq(companyApplicationAssignments.contractorCompanyId, contractorCompanyId),
+              eq(companyApplicationAssignments.isActive, true)
+            )
+          );
+        
+        if (verifyRemoval.length > 0) {
+          throw new Error(`Failed to remove contractor assignment - ${verifyRemoval.length} active assignments still remain`);
+        }
+        
+        console.log(`[CONTRACTOR REMOVAL] Verification successful - no active assignments remain`);
+      });
+      
+      console.log(`[CONTRACTOR REMOVAL] Successfully removed contractor company ${contractorCompanyId} from application ${applicationId} with integrity checks`);
+    } catch (error) {
+      console.error('[CONTRACTOR REMOVAL] Error removing contractor from application:', error);
+      throw error;
+    }
+  }
+
   // ============================================================================
   // CONTRACTOR TEAM MEMBER APPLICATION ASSIGNMENT METHODS - CRITICAL
   // ============================================================================
@@ -4530,13 +4626,18 @@ export class DatabaseStorage implements IStorage {
   async getContractorApplications(companyId: number): Promise<any[]> {
     try {
       console.log(`[STORAGE] getContractorApplications called for company ${companyId}`);
-      // Get all applications currently assigned to this contractor company
+      // Get all applications currently assigned to this contractor company (only active assignments)
       const assignments = await db
         .select({
           applicationId: companyApplicationAssignments.applicationId,
         })
         .from(companyApplicationAssignments)
-        .where(eq(companyApplicationAssignments.contractorCompanyId, companyId));
+        .where(
+          and(
+            eq(companyApplicationAssignments.contractorCompanyId, companyId),
+            eq(companyApplicationAssignments.isActive, true)
+          )
+        );
 
       const appIds = assignments.map(a => a.applicationId);
       if (appIds.length === 0) {
@@ -4568,7 +4669,7 @@ export class DatabaseStorage implements IStorage {
         .innerJoin(companies, eq(applications.companyId, companies.id))
         .where(inArray(applications.id, appIds));
 
-      // For each application, get assigned contractor company names
+      // For each application, get assigned contractor company names (only active assignments)
       const contractorAssignments = await db
         .select({
           applicationId: companyApplicationAssignments.applicationId,
@@ -4577,7 +4678,12 @@ export class DatabaseStorage implements IStorage {
         })
         .from(companyApplicationAssignments)
         .innerJoin(companies, eq(companyApplicationAssignments.contractorCompanyId, companies.id))
-        .where(inArray(companyApplicationAssignments.applicationId, appIds));
+        .where(
+          and(
+            inArray(companyApplicationAssignments.applicationId, appIds),
+            eq(companyApplicationAssignments.isActive, true)
+          )
+        );
 
       // Build a map of applicationId -> array of contractor names
       const contractorMap = new Map<number, string[]>();
