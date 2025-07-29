@@ -23,9 +23,12 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/stats"],
   });
 
-  const { data: pendingSubmissions = [], isLoading: pendingLoading } = useQuery({
+  const { data: pendingSubmissionsResponse, isLoading: pendingLoading } = useQuery({
     queryKey: ["/api/admin/pending-submissions"],
   });
+
+  // Handle the new API response format that includes pagination
+  const pendingSubmissions = pendingSubmissionsResponse?.data || [];
 
   const { data: allUsers = [], isLoading: usersLoading } = useQuery({
     queryKey: ["/api/admin/users"],
