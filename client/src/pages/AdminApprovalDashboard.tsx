@@ -47,10 +47,10 @@ export default function AdminApprovalDashboard() {
     setRefreshKey(prev => prev + 1);
   }, []);
 
-  // Fetch pending submissions with auto-refresh
+  // Fetch pending submissions with optimized auto-refresh
   const { data: pendingSubmissions = [], isLoading, refetch: refetchSubmissions } = useQuery({
     queryKey: ["/api/admin/pending-submissions", refreshKey],
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    refetchInterval: 30000, // OPTIMIZED: Auto-refresh every 30 seconds instead of 5
     refetchOnWindowFocus: true, // Refresh when window gets focus
     refetchOnMount: true, // Always refetch when component mounts
   });
@@ -68,6 +68,7 @@ export default function AdminApprovalDashboard() {
       refetchSubmissions();
     }
   }, [location, forceRefresh, refetchSubmissions]);
+
 
   // Update local submissions when API data changes
   useEffect(() => {

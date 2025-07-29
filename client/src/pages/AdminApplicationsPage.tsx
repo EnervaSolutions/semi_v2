@@ -25,7 +25,8 @@ import AddApplicationDialog from '@/components/AddApplicationDialog';
 export default function AdminApplicationsPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [submissionStatusFilter, setSubmissionStatusFilter] = useState("all");
+  const [approvalStatusFilter, setApprovalStatusFilter] = useState("all");
   const [activityFilter, setActivityFilter] = useState("all");
   const [companyFilter, setCompanyFilter] = useState("all");
   const [selectedApplications, setSelectedApplications] = useState<number[]>([]);
@@ -93,8 +94,10 @@ export default function AdminApplicationsPage() {
     },
   });
 
-  // Get unique companies for filter
-  const uniqueCompanies = [...new Set(applications.map((app: any) => app.companyName))];
+  // Get unique companies, submission statuses, and approval statuses for filters
+  const uniqueCompanies = Array.from(new Set(applications.map((app: any) => app.companyName)));
+  const uniqueSubmissionStatuses = Array.from(new Set(applications.map((app: any) => app.status))).filter(Boolean);
+  const uniqueApprovalStatuses = Array.from(new Set(applications.map((app: any) => app.approvalStatus))).filter(Boolean);
 
   // Individual delete functions
   const handleDeleteApplication = (application: any) => {
@@ -108,55 +111,51 @@ export default function AdminApplicationsPage() {
     }
   };
 
-  // Status counts
-  const getStatusCount = (status: string) => {
+  // Submission status counts (workflow status)
+  const getSubmissionStatusCount = (status: string) => {
     return applications.filter((app: any) => app.status === status).length;
   };
 
-  // Status badge variants
-  const getStatusVariant = (status: string) => {
+  // Approval status counts (from activityTemplateSubmissions)
+  const getApprovalStatusCount = (approvalStatus: string) => {
+    return applications.filter((app: any) => app.approvalStatus === approvalStatus).length;
+  };
+
+
+  // Submission status color function (for workflow status)
+  const getSubmissionStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'submitted': return 'default';
-      case 'approved': return 'default';
-      case 'rejected': return 'destructive';
-      case 'draft': return 'secondary';
-      case 'in_progress': return 'default';
-      default: return 'outline';
+      case "submitted":
+        return "bg-blue-100 text-blue-800";
+      case "in_progress":
+        return "bg-purple-100 text-purple-800";
+      case "draft":
+        return "bg-gray-100 text-gray-800";
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  // Get detailed status for an application - matches application details page logic
-  const getDetailedStatusLabel = (application: any) => {
-    // Check for completion status
-    if (application?.status === 'approved' || application?.status === 'completed') {
-      return 'All Activities Approved';
+  // Approval status color function
+  const getApprovalStatusColor = (approvalStatus: string) => {
+    switch (approvalStatus) {
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "needs_revision":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
-    
-    // Use backend-calculated detailed status when available (this should match application details page)
-    if (application && application.detailedStatus) {
-      return application.detailedStatus;
-    }
-    
-    // Use backend-calculated status label if available
-    if (application && application.detailedStatusLabel) {
-      return application.detailedStatusLabel;
-    }
-    
-    // Check if we have submittedTemplates data to calculate detailed status
-    if (application && application.submittedTemplates && application.totalTemplates) {
-      const submittedCount = application.submittedTemplates.length;
-      const totalCount = application.totalTemplates;
-      
-      if (submittedCount > 0) {
-        // Get the latest submitted template name
-        const latestTemplate = application.submittedTemplates[0]; // Should be sorted by backend
-        return `${latestTemplate} Submitted (${submittedCount}/${totalCount} activities)`;
-      }
-    }
-    
-    // Final fallback to basic status
-    return application?.status === 'draft' ? 'Draft' : 'In Progress';
   };
+
 
   // Filter applications
   const filteredApplications = applications.filter((application: any) => {
@@ -166,11 +165,12 @@ export default function AdminApplicationsPage() {
       application.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.facilityName.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === "all" || application.status?.toLowerCase() === statusFilter?.toLowerCase();
+    const matchesSubmissionStatus = submissionStatusFilter === "all" || application.status?.toLowerCase() === submissionStatusFilter?.toLowerCase();
+    const matchesApprovalStatus = approvalStatusFilter === "all" || application.approvalStatus === approvalStatusFilter;
     const matchesActivity = activityFilter === "all" || application.activityType === activityFilter;
     const matchesCompany = companyFilter === "all" || application.companyName === companyFilter;
-    
-    return matchesSearch && matchesStatus && matchesActivity && matchesCompany;
+    console.log("First last name:", application.submitterFirstName, application.submitterLastName);
+    return matchesSearch && matchesSubmissionStatus && matchesApprovalStatus && matchesActivity && matchesCompany;
   });
 
   if (isLoading) {
@@ -208,72 +208,133 @@ export default function AdminApplicationsPage() {
         </div>
 
         {/* Professional Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="space-y-4 mb-6">
+          {/* Total Applications */}
           <Card className="border-gray-200 dark:border-gray-700">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Total Applications</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{applications.length}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{applications.length}</p>
                 </div>
-                <FileText className="h-5 w-5 text-gray-400" />
+                <FileText className="h-6 w-6 text-gray-400" />
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">In Progress</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('in_progress')}</p>
-                </div>
-                <div className="h-5 w-5 bg-blue-500 rounded-full"></div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Approved</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('approved')}</p>
-                </div>
-                <div className="h-5 w-5 bg-green-500 rounded-full"></div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Rejected</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('rejected')}</p>
-                </div>
-                <div className="h-5 w-5 bg-red-500 rounded-full"></div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-gray-200 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Draft</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getStatusCount('draft')}</p>
-                </div>
-                <div className="h-5 w-5 bg-gray-400 rounded-full"></div>
-              </div>
-            </CardContent>
-          </Card>
+
+          {/* Submission Status Analytics */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Submission Status</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Draft</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getSubmissionStatusCount('draft')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-gray-400 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">In Progress</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getSubmissionStatusCount('in_progress')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-purple-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Submitted</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getSubmissionStatusCount('submitted')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-blue-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Completed</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getSubmissionStatusCount('approved') + getSubmissionStatusCount('rejected')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-slate-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Approval Status Analytics */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Approval Status</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Pending Approval</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getApprovalStatusCount('pending')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-yellow-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Approved</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getApprovalStatusCount('approved')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-green-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Needs Revision</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getApprovalStatusCount('needs_revision')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-orange-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-gray-200 dark:border-gray-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Rejected</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{getApprovalStatusCount('rejected')}</p>
+                    </div>
+                    <div className="h-5 w-5 bg-red-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
 
         {/* Professional Search and Filters */}
         <Card className="mb-6 border-gray-200 dark:border-gray-700">
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
@@ -284,17 +345,31 @@ export default function AdminApplicationsPage() {
                 />
               </div>
               
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={submissionStatusFilter} onValueChange={setSubmissionStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder="Submission status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="submitted">Submitted</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="all">All Submissions</SelectItem>
+                  {uniqueSubmissionStatuses.map((status) => (
+                    <SelectItem key={status} value={status.toLowerCase()}>
+                      {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={approvalStatusFilter} onValueChange={setApprovalStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Approval status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Approvals</SelectItem>
+                  {uniqueApprovalStatuses.map((approvalStatus) => (
+                    <SelectItem key={approvalStatus} value={approvalStatus}>
+                      {approvalStatus.charAt(0).toUpperCase() + approvalStatus.slice(1).replace('_', ' ')}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               
@@ -379,14 +454,15 @@ export default function AdminApplicationsPage() {
                     <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Company</th>
                     <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Facility</th>
                     <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Activity</th>
-                    <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Status</th>
+                    <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Submission Status</th>
+                    <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Approval Status</th>
                     <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Submitter</th>
                     <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Created</th>
                     <th className="text-left p-4 font-medium text-gray-600 dark:text-gray-400">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredApplications.map((application: any, index) => (
+                  {filteredApplications.map((application: any, index: number) => (
                     <tr key={application.id} className={`border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 ${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}`}>
                       <td className="p-4">
                         <Checkbox
@@ -423,8 +499,13 @@ export default function AdminApplicationsPage() {
                         </Badge>
                       </td>
                       <td className="p-4">
-                        <Badge variant={getStatusVariant(getDetailedStatusLabel(application))} className="text-xs">
-                          {getDetailedStatusLabel(application)}
+                        <Badge className={`text-xs ${getSubmissionStatusColor(application.status || 'draft')}`}>
+                          {(application.status || 'draft').replace('_', ' ').charAt(0).toUpperCase() + (application.status || 'draft').slice(1).replace('_', ' ')}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <Badge className={`text-xs ${getApprovalStatusColor(application.approvalStatus || 'pending')}`}>
+                          {(application.approvalStatus || 'pending').replace('_', ' ').charAt(0).toUpperCase() + (application.approvalStatus || 'pending').slice(1).replace('_', ' ')}
                         </Badge>
                       </td>
                       <td className="p-4">
