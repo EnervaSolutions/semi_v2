@@ -128,7 +128,7 @@ export default function Landing() {
                   Login
                 </Button>
               </Link>
-              <Link href="/auth">
+              <Link href="/auth?mode=signup">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                   Register Now
                 </Button>
@@ -156,7 +156,7 @@ export default function Landing() {
                 reduce energy costs, and secure ongoing savings for your industrial facility.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link href="/auth">
+                <Link href="/auth?mode=signup">
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
                     Start Your Application
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -418,7 +418,7 @@ export default function Landing() {
             and demonstrating environmental leadership.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth">
+            <Link href="/auth?mode=signup">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
                 Register Your Facility
                 <ArrowRight className="ml-2 h-5 w-5" />
