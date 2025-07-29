@@ -92,7 +92,7 @@ function Router() {
     );
   }
 
-  if (user?.role === 'system_admin') {
+  if (!isLoading && user?.role === 'system_admin') {
     return (
       <Layout>
         <AdminRedirect />
@@ -133,7 +133,7 @@ function Router() {
     );
   }
 
-  if (user?.role === 'contractor_individual' || user?.role === 'contractor_team_member' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager') {
+  if (!isLoading && user?.role === 'contractor_individual' || user?.role === 'contractor_team_member' || user?.role === 'contractor_account_owner' || user?.role === 'contractor_manager') {
     return (
       <Layout>
         <Switch>
