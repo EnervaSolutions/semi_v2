@@ -118,9 +118,6 @@ export async function registerRoutes(app: Express) {
     try {
       const { email, password, twoFactorCode } = req.body;
       
-      console.log(`[LOGIN] Login attempt - Email: ${email}, Has Password: ${!!password}, Password Length: ${password?.length || 0}`);
-      console.log(`[LOGIN] Raw password received: "${password}"`);
-      
       if (!email || !password) {
         console.log(`[LOGIN] Missing credentials - Email: ${!!email}, Password: ${!!password}`);
         return res.status(400).json({ message: "Email and password are required" });
