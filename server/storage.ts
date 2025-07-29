@@ -72,7 +72,7 @@ import {
   type InsertAnnouncementAcknowledgment,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, sql, inArray, or, isNull, isNotNull, like, exists, ne, count, lte, gte } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, or, isNull, isNotNull, like, exists, ne, count, lte, gte, leftJoin } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { hashPassword } from './auth';
 
@@ -1306,6 +1306,20 @@ export class DatabaseStorage implements IStorage {
         
         const submittedActivities = submissions.filter(s => s.status === 'submitted');
         
+        // Get approval status from latest submission
+        let approvalStatus = 'pending';
+        if (submissions.length > 0) {
+          // Get the most recent submission's approval status
+          const sortedSubmissions = submissions.sort((a, b) => {
+            const timeA = new Date(a.submittedAt || a.createdAt || 0).getTime();
+            const timeB = new Date(b.submittedAt || b.createdAt || 0).getTime();
+            return timeB - timeA; // Most recent first
+          });
+          
+          const latestSubmission = sortedSubmissions[0];
+          approvalStatus = latestSubmission.approvalStatus || 'pending';
+        }
+        
         let detailedStatus = 'draft';
         
         // Determine workflow status based on actual submissions
@@ -1386,6 +1400,7 @@ export class DatabaseStorage implements IStorage {
         return {
           ...app,
           detailedStatus,
+          approvalStatus,
           assignedContractors: contractorMap.get(app.id) || [],
           // Keep both formats for compatibility
           companyName: app.companyName,
@@ -5416,13 +5431,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Approval system methods
-  async getPendingSubmissions(): Promise<any[]> {
+  async getPendingSubmissions(limit: number = 100, offset: number = 0): Promise<any[]> {
     try {
       console.log("[APPROVALS] Getting ALL submissions for approval review (pending, approved, rejected)...");
       
-      // Query BOTH submission tables to get ALL submissions for admin filtering
-      // First, get submissions from applicationSubmissions table (submitted OR previously reviewed)
-      const appSubmissions = await db
+      // OPTIMIZED: Use JOINs to get all data in fewer queries instead of N+1
+      // First, get submissions from applicationSubmissions table with all related data
+      const appSubmissionsQuery = db
         .select({
           id: applicationSubmissions.id,
           applicationId: applicationSubmissions.applicationId,
@@ -5436,16 +5451,55 @@ export class DatabaseStorage implements IStorage {
           reviewNotes: applicationSubmissions.reviewNotes,
           createdAt: applicationSubmissions.createdAt,
           data: applicationSubmissions.data,
-          source: sql`'applicationSubmissions'`.as('source')
+          source: sql`'applicationSubmissions'`.as('source'),
+          // Application data
+          applicationData: {
+            id: applications.id,
+            applicationId: applications.applicationId,
+            activityType: applications.activityType,
+            title: applications.title,
+            companyId: applications.companyId,
+            facilityId: applications.facilityId
+          },
+          // Company data
+          company: {
+            id: companies.id,
+            name: companies.name,
+            shortName: companies.shortName
+          },
+          // Facility data
+          facility: {
+            id: facilities.id,
+            name: facilities.name,
+            code: facilities.code
+          },
+          // Submitter user data
+          submitterUser: {
+            id: users.id,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName
+          },
+          // Template data (form templates)
+          template: {
+            id: formTemplates.id,
+            name: formTemplates.name,
+            activityType: formTemplates.activityType
+          }
         })
         .from(applicationSubmissions)
+        .leftJoin(applications, eq(applicationSubmissions.applicationId, applications.id))
+        .leftJoin(companies, eq(applications.companyId, companies.id))
+        .leftJoin(facilities, eq(applications.facilityId, facilities.id))
+        .leftJoin(users, eq(applicationSubmissions.submittedBy, users.id))
+        .leftJoin(formTemplates, eq(applicationSubmissions.formTemplateId, formTemplates.id))
         .where(or(
           eq(applicationSubmissions.status, 'submitted'),
           isNotNull(applicationSubmissions.approvalStatus)
         ));
-      
-      // Then, get submissions from activityTemplateSubmissions table (submitted OR previously reviewed)
-      const activitySubmissions = await db
+
+      // Then, get submissions from activityTemplateSubmissions table with all related data
+      const activitySubmissionsQuery = db
         .select({
           id: activityTemplateSubmissions.id,
           applicationId: activityTemplateSubmissions.applicationId,
@@ -5459,13 +5513,58 @@ export class DatabaseStorage implements IStorage {
           reviewNotes: activityTemplateSubmissions.reviewNotes,
           createdAt: activityTemplateSubmissions.createdAt,
           data: activityTemplateSubmissions.data,
-          source: sql`'activityTemplateSubmissions'`.as('source')
+          source: sql`'activityTemplateSubmissions'`.as('source'),
+          // Application data
+          applicationData: {
+            id: applications.id,
+            applicationId: applications.applicationId,
+            activityType: applications.activityType,
+            title: applications.title,
+            companyId: applications.companyId,
+            facilityId: applications.facilityId
+          },
+          // Company data
+          company: {
+            id: companies.id,
+            name: companies.name,
+            shortName: companies.shortName
+          },
+          // Facility data
+          facility: {
+            id: facilities.id,
+            name: facilities.name,
+            code: facilities.code
+          },
+          // Submitter user data
+          submitterUser: {
+            id: users.id,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName
+          },
+          // Template data (activity templates)
+          template: {
+            id: activityTemplates.id,
+            name: activityTemplates.templateName,
+            activityType: activityTemplates.activityType
+          }
         })
         .from(activityTemplateSubmissions)
+        .leftJoin(applications, eq(activityTemplateSubmissions.applicationId, applications.id))
+        .leftJoin(companies, eq(applications.companyId, companies.id))
+        .leftJoin(facilities, eq(applications.facilityId, facilities.id))
+        .leftJoin(users, eq(activityTemplateSubmissions.submittedBy, users.id))
+        .leftJoin(activityTemplates, eq(activityTemplateSubmissions.activityTemplateId, activityTemplates.id))
         .where(or(
           eq(activityTemplateSubmissions.status, 'submitted'),
           isNotNull(activityTemplateSubmissions.approvalStatus)
         ));
+
+      // Execute both queries in parallel for better performance
+      const [appSubmissions, activitySubmissions] = await Promise.all([
+        appSubmissionsQuery,
+        activitySubmissionsQuery
+      ]);
       
       // Combine both sets of submissions and deduplicate by applicationId + formTemplateId
       const allSubmissions = [...appSubmissions, ...activitySubmissions];
@@ -5482,69 +5581,20 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      // Sort by submission date and limit
+      // Sort by submission date and apply pagination
       const submissions = Array.from(uniqueSubmissions.values())
         .sort((a, b) => {
           const dateA = new Date(a.submittedAt || a.createdAt);
           const dateB = new Date(b.submittedAt || b.createdAt);
           return dateB.getTime() - dateA.getTime();
         })
-        .slice(0, 100);
+        .slice(offset, offset + limit);
 
       console.log(`[APPROVALS] Found ${submissions.length} submitted activities for approval review`);
 
-      // Enhanced enrichment for approval dashboard
-      const enrichedSubmissions = [];
-      for (const submission of submissions) {
-        let applicationData = null;
-        let company = null;
-        let facility = null;
-        let template = null;
-        let submitterUser = null;
-        
-        try {
-          // Get application with full details
-          const app = await db.select().from(applications).where(eq(applications.id, submission.applicationId)).limit(1);
-          applicationData = app[0] || null;
-          
-          if (applicationData) {
-            // Get company
-            const comp = await db.select().from(companies).where(eq(companies.id, applicationData.companyId)).limit(1);
-            company = comp[0] || null;
-            
-            // Get facility
-            const fac = await db.select().from(facilities).where(eq(facilities.id, applicationData.facilityId)).limit(1);
-            facility = fac[0] || null;
-          }
-          
-          // Get submitter information
-          if (submission.submittedBy) {
-            const submitter = await db.select().from(users).where(eq(users.id, submission.submittedBy)).limit(1);
-            submitterUser = submitter[0] || null;
-          }
-          
-          // Get template information from form_templates
-          if (submission.formTemplateId) {
-            const tmpl = await db.select().from(formTemplates).where(eq(formTemplates.id, submission.formTemplateId)).limit(1);
-            template = tmpl[0] || null;
-            
-            // If not found in form_templates, try activity_templates
-            if (!template) {
-              const activityTmpl = await db.select().from(activityTemplates).where(eq(activityTemplates.id, submission.formTemplateId)).limit(1);
-              if (activityTmpl[0]) {
-                template = {
-                  id: activityTmpl[0].id,
-                  name: activityTmpl[0].templateName,
-                  activityType: activityTmpl[0].activityType
-                };
-              }
-            }
-          }
-        } catch (err: any) {
-          console.log(`[APPROVALS] Error enriching submission ${submission.id}:`, err?.message || err);
-        }
-
-        const enrichedSubmission = {
+      // Transform the enriched data to match the expected format
+      const enrichedSubmissions = submissions.map(submission => {
+        return {
           id: submission.id,
           applicationId: submission.applicationId,
           formTemplateId: submission.formTemplateId,
@@ -5552,23 +5602,25 @@ export class DatabaseStorage implements IStorage {
           approvalStatus: submission.approvalStatus || 'pending',
           submittedAt: submission.submittedAt,
           submittedBy: submission.submittedBy,
+          reviewedBy: submission.reviewedBy,
+          reviewedAt: submission.reviewedAt,
+          reviewNotes: submission.reviewNotes,
           createdAt: submission.createdAt,
           data: submission.data,
-          applicationData: applicationData,
-          company: company,
-          facility: facility,
-          template: template,
-          submitterUser: submitterUser,
+          source: submission.source,
+          applicationData: submission.applicationData,
+          company: submission.company,
+          facility: submission.facility,
+          template: submission.template,
+          submitterUser: submission.submitterUser,
           // Additional fields for approval dashboard
-          applicationId_display: applicationData?.applicationId || `App-${submission.applicationId}`,
-          companyName: company?.name || 'Unknown Company',
-          facilityName: facility?.name || 'Unknown Facility',
-          templateName: template?.name || `Template ${submission.formTemplateId}`,
-          activityType: applicationData?.activityType || template?.activityType || 'Unknown'
+          applicationId_display: submission.applicationData?.applicationId || `App-${submission.applicationId}`,
+          companyName: submission.company?.name || 'Unknown Company',
+          facilityName: submission.facility?.name || 'Unknown Facility',
+          templateName: submission.template?.name || `Template ${submission.formTemplateId}`,
+          activityType: submission.applicationData?.activityType || submission.template?.activityType || 'Unknown'
         };
-
-        enrichedSubmissions.push(enrichedSubmission);
-      }
+      });
 
       console.log("Returning", enrichedSubmissions.length, "enriched submissions");
       return enrichedSubmissions;
@@ -5914,140 +5966,6 @@ export class DatabaseStorage implements IStorage {
     return submission;
   }
 
-  async getSubmissionDetails(submissionId: number): Promise<any> {
-    try {
-      // Get the submission
-      const [submission] = await db
-        .select()
-        .from(applicationSubmissions)
-        .where(eq(applicationSubmissions.id, submissionId))
-        .limit(1);
-
-      if (!submission) return null;
-
-      // Get application details
-      const [application] = await db
-        .select()
-        .from(applications)
-        .where(eq(applications.id, parseInt(submission.applicationId)))
-        .limit(1);
-
-      if (!application) return null;
-
-      // Get comprehensive company details
-      const [company] = await db
-        .select()
-        .from(companies)
-        .where(eq(companies.id, application.companyId))
-        .limit(1);
-
-      // Get comprehensive facility details with all fields
-      const [facility] = await db
-        .select()
-        .from(facilities)
-        .where(eq(facilities.id, application.facilityId))
-        .limit(1);
-
-      // Get template details with form fields
-      let template = null;
-      if (submission.formTemplateId) {
-        try {
-          const [formTemplate] = await db
-            .select()
-            .from(formTemplates)
-            .where(eq(formTemplates.id, submission.formTemplateId))
-            .limit(1);
-          template = formTemplate;
-        } catch (err) {
-          const [activityTemplate] = await db
-            .select()
-            .from(activityTemplates)
-            .where(eq(activityTemplates.id, submission.formTemplateId))
-            .limit(1);
-          template = activityTemplate;
-        }
-      }
-
-      // Get submitter details
-      let submitter = null;
-      if (submission.submittedBy) {
-        const [user] = await db
-          .select()
-          .from(users)
-          .where(eq(users.id, submission.submittedBy))
-          .limit(1);
-        submitter = user;
-      }
-
-      // Get all uploaded documents for this application
-      const applicationDocuments = await db
-        .select()
-        .from(documents)
-        .where(eq(documents.applicationId, parseInt(submission.applicationId)))
-        .orderBy(desc(documents.createdAt));
-
-      // Get contractor assignments with user details
-      const contractorAssignments = await db
-        .select({
-          userId: applicationAssignments.userId,
-          permissions: applicationAssignments.permissions,
-          assignedAt: applicationAssignments.createdAt,
-          user: {
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-            role: users.role,
-          }
-        })
-        .from(applicationAssignments)
-        .innerJoin(users, eq(applicationAssignments.userId, users.id))
-        .where(eq(applicationAssignments.applicationId, parseInt(submission.applicationId)));
-
-      // Get all team members for the company
-      const teamMembers = await db
-        .select()
-        .from(users)
-        .where(and(
-          eq(users.companyId, application.companyId),
-          eq(users.isActive, true)
-        ));
-
-      // Get application activity log (who saved what when)
-      const activityLog = await db
-        .select({
-          userId: applications.submittedBy,
-          timestamp: applications.updatedAt,
-          action: sql<string>`'Application Updated'`,
-          user: {
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-            role: users.role
-          }
-        })
-        .from(applications)
-        .leftJoin(users, eq(applications.submittedBy, users.id))
-        .where(eq(applications.id, parseInt(submission.applicationId)))
-        .orderBy(desc(applications.updatedAt));
-
-      return {
-        ...submission,
-        application,
-        company,
-        facility,
-        template,
-        submitter,
-        documents: applicationDocuments,
-        contractorAssignments,
-        teamMembers,
-        activityLog
-      };
-    } catch (error) {
-      console.error('Error in getSubmissionDetails:', error);
-      return null;
-    }
-  }
 
   async getApplicationWithFullDetails(applicationId: number): Promise<any> {
     const [application] = await db
