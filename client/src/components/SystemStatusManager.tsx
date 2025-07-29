@@ -426,24 +426,27 @@ export default function SystemStatusManager() {
                             <Button
                               variant="outline"
                               size="sm"
+                              title="Analytics"
                               onClick={() => setSelectedAnnouncementStats(announcement.id)}
-                            >
-                              <BarChart className="h-4 w-4" />
+                              >
+                              <BarChart className="h-4 w-4 cursor-pointer" />
                             </Button>
                             <Button
                               variant="outline"
+                              title="Edit"
                               size="sm"
                               onClick={() => startEdit(announcement)}
-                            >
-                              <Edit2 className="h-4 w-4" />
+                              >
+                              <Edit2 className="h-4 w-4 cursor-pointer" />
                             </Button>
                             <Button
                               variant="outline"
+                              title="Delete"
                               size="sm"
                               onClick={() => deleteMutation.mutate(announcement.id)}
                               disabled={deleteMutation.isPending}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4 cursor-pointer" />
                             </Button>
                           </div>
                         </TableCell>

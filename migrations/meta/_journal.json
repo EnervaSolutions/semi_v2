@@ -8,6 +8,13 @@
       "when": 1751985659178,
       "tag": "0000_shiny_mole_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1753824654518,
+      "tag": "0001_steep_blindfold",
+      "breakpoints": true
     }
   ]
 }
