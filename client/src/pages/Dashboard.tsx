@@ -129,6 +129,10 @@ export default function Dashboard() {
 
   const recentApplications = (applications || []).slice(0, 5);
 
+  // Determine if user is a first-time login (within 24 hours of account creation)
+  const isFirstTimeUser = user?.createdAt && (Date.now() - new Date(user.createdAt).getTime()) < 24 * 60 * 60 * 1000;
+  const greeting = isFirstTimeUser ? "Welcome" : "Welcome back";
+
   // Force re-render when data arrives
   useEffect(() => {
     if (applications || facilities || company || stats) {
@@ -176,7 +180,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Welcome back, {user?.firstName || 'User'}!
+              {greeting}, {user?.firstName || 'User'}!
             </h1>
             <p className="text-gray-600 mt-1">
               {company?.name ? `Managing ${company.name}` : 'Ready to get started?'}
