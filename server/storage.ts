@@ -19,6 +19,7 @@ import {
   ghostApplicationIds,
   systemAnnouncements,
   announcementAcknowledgments,
+  announcementReads,
   companyApplicationAssignments,
   contractorTeamApplicationAssignments,
   badges,
@@ -70,9 +71,11 @@ import {
   type InsertSystemAnnouncement,
   type AnnouncementAcknowledgment,
   type InsertAnnouncementAcknowledgment,
+  type AnnouncementRead,
+  type InsertAnnouncementRead,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, sql, inArray, or, isNull, isNotNull, like, exists, ne, count, lte, gte, leftJoin } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, or, isNull, isNotNull, like, ilike, exists, ne, count, lte, gte, leftJoin } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { hashPassword } from './auth';
 
@@ -308,7 +311,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await db.select().from(users).where(ilike(users.email, email));
     if (!user) return undefined;
     return { ...user, permissionLevel: user.permissionLevel || 'viewer' };
   }
@@ -320,17 +323,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(userData: UpsertUser): Promise<User> {
+    const normalizedUserData = {
+      ...userData,
+      email: userData.email?.toLowerCase() || userData.email
+    };
     const [user] = await db
       .insert(users)
-      .values(userData)
+      .values(normalizedUserData)
       .returning();
     return user;
   }
 
   async updateUser(id: string, updates: Partial<UpsertUser>): Promise<User> {
+    const normalizedUpdates = {
+      ...updates,
+      ...(updates.email && { email: updates.email.toLowerCase() }),
+      updatedAt: new Date()
+    };
     const [user] = await db
       .update(users)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(normalizedUpdates)
       .where(eq(users.id, id))
       .returning();
     return user;
@@ -3305,7 +3317,7 @@ export class DatabaseStorage implements IStorage {
         id: userId,
         firstName: userData.firstName,
         lastName: userData.lastName,
-        email: userData.email,
+        email: userData.email.toLowerCase(),
         password: hashedPassword,
         role: userData.role as any,
         permissionLevel: userData.permissionLevel as any || (userData.role === 'company_admin' ? 'owner' : 'viewer'),
@@ -6117,7 +6129,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(systemAnnouncements.createdAt));
   }
 
-  async getActiveSystemAnnouncements(userRole?: string): Promise<SystemAnnouncement[]> {
+  async getActiveSystemAnnouncements(userRole?: string, userId?: string): Promise<SystemAnnouncement[]> {
     const now = new Date();
     let query = db
       .select()
@@ -6139,14 +6151,39 @@ export class DatabaseStorage implements IStorage {
     const announcements = await query.orderBy(desc(systemAnnouncements.createdAt));
 
     // Filter by role if specified
+    let filteredAnnouncements = announcements;
     if (userRole) {
-      return announcements.filter(announcement => 
+      filteredAnnouncements = announcements.filter(announcement => 
         announcement.targetRoles.includes('all') || 
         announcement.targetRoles.includes(userRole)
       );
     }
 
-    return announcements;
+    // Get read status and filter out acknowledged announcements for the specific user
+    if (userId) {
+      const acknowledgedIds = await db
+        .select({ announcementId: announcementAcknowledgments.announcementId })
+        .from(announcementAcknowledgments)
+        .where(eq(announcementAcknowledgments.userId, userId));
+      
+      const readIds = await db
+        .select({ announcementId: announcementReads.announcementId })
+        .from(announcementReads)
+        .where(eq(announcementReads.userId, userId));
+      
+      const acknowledgedSet = new Set(acknowledgedIds.map(ack => ack.announcementId));
+      const readSet = new Set(readIds.map(r => r.announcementId));
+      
+      // Filter out acknowledged announcements and add read status
+      filteredAnnouncements = filteredAnnouncements.filter(announcement => 
+        !acknowledgedSet.has(announcement.id)
+      ).map(announcement => ({
+        ...announcement,
+        isRead: readSet.has(announcement.id)
+      }));
+    }
+
+    return filteredAnnouncements;
   }
 
   async updateSystemAnnouncement(id: number, updates: Partial<InsertSystemAnnouncement>): Promise<SystemAnnouncement> {
@@ -6273,6 +6310,24 @@ export class DatabaseStorage implements IStorage {
       acknowledgmentRate: Math.round(acknowledgmentRate * 100) / 100,
       userBreakdown,
     };
+  }
+
+  // Announcement read methods
+  async markAnnouncementAsRead(announcementId: number, userId: string): Promise<AnnouncementRead> {
+    const [read] = await db
+      .insert(announcementReads)
+      .values({ announcementId, userId })
+      .onConflictDoNothing()
+      .returning();
+    return read;
+  }
+
+  async getAnnouncementReads(announcementId: number): Promise<AnnouncementRead[]> {
+    return await db
+      .select()
+      .from(announcementReads)
+      .where(eq(announcementReads.announcementId, announcementId))
+      .orderBy(desc(announcementReads.readAt));
   }
 
   // ============================================================================
@@ -7558,7 +7613,7 @@ export class DatabaseStorage implements IStorage {
           resetToken: null, // Clear reset token after setting temp password
           resetExpiry: null,
         })
-        .where(eq(users.email, email));
+        .where(ilike(users.email, email));
     } catch (error) {
       console.error('Error setting temporary password:', error);
       throw error;

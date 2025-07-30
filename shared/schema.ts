@@ -458,6 +458,16 @@ export const announcementAcknowledgments = pgTable("announcement_acknowledgments
   unique().on(table.announcementId, table.userId)
 ]);
 
+// Announcement Reads - Track which users have read announcements (separate from acknowledgment)
+export const announcementReads = pgTable("announcement_reads", {
+  id: serial("id").primaryKey(),
+  announcementId: integer("announcement_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  readAt: timestamp("read_at").defaultNow(),
+}, (table) => [
+  unique().on(table.announcementId, table.userId)
+]);
+
 // Team Invitations - For contractor team management
 export const teamInvitations = pgTable("team_invitations", {
   id: serial("id").primaryKey(),
@@ -844,6 +854,11 @@ export const insertAnnouncementAcknowledgmentSchema = createInsertSchema(announc
   acknowledgedAt: true,
 });
 
+export const insertAnnouncementReadSchema = createInsertSchema(announcementReads).omit({
+  id: true,
+  readAt: true,
+});
+
 export const insertTeamInvitationSchema = createInsertSchema(teamInvitations).omit({
   id: true,
   createdAt: true,
@@ -897,6 +912,8 @@ export type SystemAnnouncement = typeof systemAnnouncements.$inferSelect;
 export type InsertSystemAnnouncement = z.infer<typeof insertSystemAnnouncementSchema>;
 export type AnnouncementAcknowledgment = typeof announcementAcknowledgments.$inferSelect;
 export type InsertAnnouncementAcknowledgment = z.infer<typeof insertAnnouncementAcknowledgmentSchema>;
+export type AnnouncementRead = typeof announcementReads.$inferSelect;
+export type InsertAnnouncementRead = z.infer<typeof insertAnnouncementReadSchema>;
 export type TeamInvitation = typeof teamInvitations.$inferSelect;
 export type InsertTeamInvitation = z.infer<typeof insertTeamInvitationSchema>;
 export type ContractorJoinRequest = typeof contractorJoinRequests.$inferSelect;

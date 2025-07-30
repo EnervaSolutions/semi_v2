@@ -8,6 +8,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { format } from "date-fns";
@@ -37,6 +43,7 @@ interface SystemAnnouncement {
   scheduledEnd?: string;
   createdAt: string;
   createdBy: string;
+  isRead?: boolean;
 }
 
 export function NotificationBell() {
@@ -86,10 +93,14 @@ export function NotificationBell() {
     },
   });
 
-  // System announcements that require acknowledgment are treated as "unread"
+  // Count unread notifications and unread announcements
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
-  const unacknowledgedAnnouncementsCount = announcements.filter(a => a.requiresAcknowledgment).length;
-  const unreadCount = unreadNotificationsCount + unacknowledgedAnnouncementsCount;
+  // Count unread announcements (not acknowledged ones are already filtered out)
+  const unreadAnnouncementsCount = announcements.filter(a => !a.isRead).length;
+  const unreadCount = unreadNotificationsCount + unreadAnnouncementsCount;
+  
+  // Hide red count when modal is open
+  const shouldShowBadge = unreadCount > 0 && !isOpen;
 
   const handleMarkAsRead = (notificationId: number) => {
     markAsReadMutation.mutate(notificationId);
@@ -127,6 +138,17 @@ export function NotificationBell() {
     },
   });
 
+  // Mark announcement as read mutation
+  const markAnnouncementAsReadMutation = useMutation({
+    mutationFn: async (announcementId: number) => {
+      return await apiRequest(`/api/announcements/${announcementId}/read`, "POST");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements/active"] });
+    },
+  });
+
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -137,7 +159,7 @@ export function NotificationBell() {
           aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
         >
           <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
+          {shouldShowBadge && (
             <Badge
               variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
@@ -172,7 +194,11 @@ export function NotificationBell() {
               {announcements.map((announcement) => (
                 <Card
                   key={`announcement-${announcement.id}`}
-                  className="mx-2 my-1 border-0 shadow-none bg-yellow-50 dark:bg-yellow-950/20"
+                  className={`mx-2 my-1 border-0 shadow-none ${
+                    !announcement.isRead 
+                      ? 'bg-yellow-50 dark:bg-yellow-950/20' 
+                      : 'bg-gray-50 dark:bg-gray-950/20 opacity-75'
+                  }`}
                 >
                   <CardContent className="p-3">
                     <div className="flex items-start gap-3">
@@ -184,16 +210,42 @@ export function NotificationBell() {
                           <h4 className="text-sm font-medium leading-tight break-words">
                             {announcement.title}
                           </h4>
-                          <Badge 
-                            className={
-                              announcement.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                              announcement.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                              announcement.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-blue-100 text-blue-800'
-                            }
-                          >
-                            {announcement.severity}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              className={
+                                announcement.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                                announcement.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                                announcement.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-blue-100 text-blue-800'
+                              }
+                            >
+                              {announcement.severity}
+                            </Badge>
+                            {!announcement.isRead && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 flex-shrink-0"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        markAnnouncementAsReadMutation.mutate(announcement.id);
+                                      }}
+                                      disabled={markAnnouncementAsReadMutation.isPending}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Mark as read</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed break-words overflow-wrap-anywhere">
                           {announcement.message}
@@ -243,14 +295,23 @@ export function NotificationBell() {
                             {notification.title}
                           </h4>
                           {!notification.isRead && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 flex-shrink-0"
-                              onClick={() => handleMarkAsRead(notification.id)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 flex-shrink-0"
+                                    onClick={() => handleMarkAsRead(notification.id)}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Mark as read</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
@@ -299,10 +360,6 @@ export function NotificationBell() {
                 {deleteAllNotificationsMutation.isPending ? "Deleting..." : "Delete All Notifications"}
               </Button>
             )}
-            <p className="text-xs text-center text-muted-foreground">
-              {announcements.length > 0 && "System announcements appear highlighted. "}
-              Click the X to mark individual notifications as read
-            </p>
           </div>
         )}
       </PopoverContent>

@@ -195,7 +195,9 @@ const US_STATES = [
 ];
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+  const [isLogin, setIsLogin] = useState(mode !== 'signup');
   const [currentStep, setCurrentStep] = useState(1);
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState("");

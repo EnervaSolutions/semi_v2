@@ -118,9 +118,6 @@ export async function registerRoutes(app: Express) {
     try {
       const { email, password, twoFactorCode } = req.body;
       
-      console.log(`[LOGIN] Login attempt - Email: ${email}, Has Password: ${!!password}, Password Length: ${password?.length || 0}`);
-      console.log(`[LOGIN] Raw password received: "${password}"`);
-      
       if (!email || !password) {
         console.log(`[LOGIN] Missing credentials - Email: ${!!email}, Password: ${!!password}`);
         return res.status(400).json({ message: "Email and password are required" });
@@ -1134,7 +1131,7 @@ export async function registerRoutes(app: Express) {
   app.get('/api/announcements/active', requireAuth, async (req: any, res: Response) => {
     try {
       const user = req.user;
-      const announcements = await dbStorage.getActiveSystemAnnouncements(user.role);
+      const announcements = await dbStorage.getActiveSystemAnnouncements(user.role, user.id);
       res.json(announcements);
     } catch (error) {
       console.error("Error fetching active announcements:", error);
@@ -1204,6 +1201,19 @@ export async function registerRoutes(app: Express) {
     } catch (error) {
       console.error("Error acknowledging announcement:", error);
       res.status(500).json({ message: "Failed to acknowledge announcement" });
+    }
+  });
+
+  app.post('/api/announcements/:id/read', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { id } = req.params;
+      
+      const read = await dbStorage.markAnnouncementAsRead(parseInt(id), user.id);
+      res.json(read);
+    } catch (error) {
+      console.error("Error marking announcement as read:", error);
+      res.status(500).json({ message: "Failed to mark announcement as read" });
     }
   });
 
