@@ -25,7 +25,13 @@ const baseRegisterSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   businessMobile: z.string().optional(),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .max(64, "Password must be no more than 64 characters")
+    .regex(/(?=.*[a-z])/, "Password must contain at least one lowercase letter")
+    .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter") 
+    .regex(/(?=.*\d)/, "Password must contain at least one number")
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
   confirmPassword: z.string(),
   role: z.enum(["company_admin", "team_member", "contractor_individual"], {
     errorMap: () => ({ message: "Please select an account type" })
@@ -390,13 +396,10 @@ export default function AuthPage() {
         };
       }
       
-      console.log("Sending registration data:", backendData);
       const res = await apiRequest("/api/auth/register", "POST", backendData);
       return await res.json();
     },
     onSuccess: (data, variables) => {
-      console.log("🎯 Registration success response:", data);
-      console.log("🎯 Variables used:", variables);
       
       // Check if this is a team member registration that needs approval
       if (data.isPending || (variables.role === "team_member" && data.message?.includes("pending approval"))) {
@@ -591,7 +594,6 @@ export default function AuthPage() {
       return await res.json();
     },
     onSuccess: (data) => {
-      console.log("🎯 Post-registration verification success:", data);
       toast({
         title: "Email verified successfully",
         description: "Welcome to the SEMI program!"
@@ -601,7 +603,6 @@ export default function AuthPage() {
       
       // Redirect based on user role or redirectTo response
       if (data.redirectTo) {
-        console.log("🚀 Redirecting to:", data.redirectTo);
         window.location.href = data.redirectTo;
       } else if (data.user?.role === "contractor_individual") {
         console.log("🚀 Redirecting contractor to dashboard");
@@ -1005,6 +1006,16 @@ export default function AuthPage() {
         if (!emailRegex.test(value)) {
           console.log(`❌ Invalid email format:`, value);
           registerForm.setError(field, { message: 'Please enter a valid email address' });
+          isValid = false;
+        }
+      }
+      
+      // Password validation
+      if (field === 'password' && value && typeof value === 'string') {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,64}$/;
+        if (!passwordRegex.test(value)) {
+          console.log(`❌ Password doesn't meet requirements:`, value);
+          registerForm.setError(field, { message: 'Password must be 8-64 characters with lowercase, uppercase, digit, and symbol' });
           isValid = false;
         }
       }
