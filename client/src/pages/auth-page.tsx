@@ -215,6 +215,14 @@ export default function AuthPage() {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [firstLogin, setFirstLogin] = useState(() => {
+    const isFirst = sessionStorage.getItem('firstLogin');
+    if (isFirst) {
+      sessionStorage.removeItem('firstLogin');
+      return true;
+    }
+    return false;
+  });
 
   const [companyNameValidation, setCompanyNameValidation] = useState<{
     isChecking: boolean;
@@ -410,6 +418,7 @@ export default function AuthPage() {
             title: "Registration submitted",
             description: "Your request is pending approval from your company administrator. You will receive an email confirmation once approved."
           });
+          sessionStorage.setItem('firstLogin', 'true'); 
           setIsLogin(true); // Switch to login form
         }
         registerForm.reset(); // Clear the form
@@ -471,7 +480,7 @@ export default function AuthPage() {
       } else {
         toast({
           title: "Login successful",
-          description: "Welcome back!"
+          description: firstLogin?  "Welcome" :  "Welcome back!"
         });
         
         // Invalidate auth query to update authentication state
