@@ -19,27 +19,27 @@ import { Building2, AlertCircle, CheckCircle, Info, HelpCircle, Check, ChevronsU
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { 
-  FACILITY_SECTORS, 
-  FACILITY_CATEGORIES, 
+import {
+  FACILITY_SECTORS,
+  FACILITY_CATEGORIES,
   FACILITY_TYPES,
   getFacilityCategoriesBySector,
   getFacilityTypesByCategory,
   generateNAICSCode,
-  getNAICSDescription 
+  getNAICSDescription
 } from "@shared/naics-data";
 import { useAuth } from "@/hooks/useAuth";
 import { canCreateEdit } from "@/lib/permissions";
 
 const facilitySchema = z.object({
   name: z.string().min(1, "Facility name is required"),
-  
+
   // NAICS Information
   facilitySector: z.string().min(1, "Facility sector is required"),
   facilityCategory: z.string().min(1, "Facility category is required"),
   facilityType: z.string().min(1, "Facility type is required"),
   naicsCode: z.string().optional(),
-  
+
   // Address Information
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
@@ -48,7 +48,7 @@ const facilitySchema = z.object({
   postalCode: z.string()
     .min(1, "Postal code is required")
     .regex(/^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/, "Please enter a valid Canadian postal code (e.g., A1A 1A1)"),
-  
+
   // Facility Details
   grossFloorArea: z.string().min(1, "Gross floor area is required").transform((val) => parseFloat(val)),
   grossFloorAreaUnit: z.enum(["sq_ft", "sq_m"]).default("sq_ft"),
@@ -61,14 +61,14 @@ const facilitySchema = z.object({
   typeOfOperation: z.enum(["continuous", "semi_continuous", "batch"], {
     required_error: "Type of operation is required"
   }),
-  
+
   // Energy Management
   hasEMIS: z.boolean().default(false),
   emisRealtimeMonitoring: z.boolean().default(false),
   emisDescription: z.string().optional(),
   hasEnergyManager: z.boolean().default(false),
   energyManagerFullTime: z.boolean().default(false),
-  
+
   // Facility Process and Systems
   processCombinedHeatPower: z.boolean().default(false),
   processCompressedAir: z.boolean().default(false),
@@ -92,7 +92,7 @@ const facilitySchema = z.object({
   processOtherSystems: z.boolean().default(false),
   processFansBlowers: z.boolean().default(false),
   processMaterialHandling: z.boolean().default(false),
-  
+
   // Additional Information
   description: z.string().optional(),
 });
@@ -106,24 +106,38 @@ interface EnhancedFacilityFormProps {
 }
 
 const PROVINCES = [
-  "Alberta", "British Columbia", "Manitoba", "New Brunswick", 
-  "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia", 
-  "Nunavut", "Ontario", "Prince Edward Island", "Quebec", 
+  "Alberta", "British Columbia", "Manitoba", "New Brunswick",
+  "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia",
+  "Nunavut", "Ontario", "Prince Edward Island", "Quebec",
   "Saskatchewan", "Yukon"
 ];
+
+// Reusable Info Tooltip Component
+const InfoTooltip = ({ content, side = "right" }: { content: string; side?: "top" | "right" | "bottom" | "left" }) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+      </TooltipTrigger>
+      <TooltipContent side={side} className="max-w-xs">
+        <p>{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
 
 export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacility }: EnhancedFacilityFormProps) {
   const { toast } = useToast();
   const { user } = useAuth();
-  
+
   // Initialize categories and types based on existing facility data
-  const initialCategories = editingFacility?.facilitySector 
+  const initialCategories = editingFacility?.facilitySector
     ? getFacilityCategoriesBySector(editingFacility.facilitySector)
     : FACILITY_CATEGORIES;
   const initialTypes = editingFacility?.facilityCategory
-    ? getFacilityTypesByCategory(editingFacility.facilityCategory) 
+    ? getFacilityTypesByCategory(editingFacility.facilityCategory)
     : FACILITY_TYPES;
-    
+
   const [availableCategories, setAvailableCategories] = useState(initialCategories);
   const [availableTypes, setAvailableTypes] = useState(initialTypes);
   const [generatedNAICS, setGeneratedNAICS] = useState<string>(editingFacility?.naicsCode || "");
@@ -241,7 +255,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
 
   // Force component to re-render when form values change
   const [, forceUpdate] = useState({});
-  
+
   useEffect(() => {
     // Force re-render when watched values change
     forceUpdate({});
@@ -250,52 +264,52 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
   // Helper functions to get display text - called on each render
   const getCategoryDisplayText = () => {
     if (!watchedCategory) return "Select facility category";
-    
+
     const foundInAvailable = availableCategories.find(cat => cat.code === watchedCategory);
     const foundInAll = FACILITY_CATEGORIES.find(cat => cat.code === watchedCategory);
-    
+
     const found = foundInAvailable || foundInAll;
     return found?.title || "Select facility category";
   };
 
   const getTypeDisplayText = () => {
     if (!watchedType) return "Select facility type";
-    
+
     const foundInAvailable = availableTypes.find(type => type.code === watchedType);
     const foundInAll = FACILITY_TYPES.find(type => type.code === watchedType);
-    
+
     const found = foundInAvailable || foundInAll;
     return found?.title || "Select facility type";
   };
 
   // Initialize NAICS data for editing mode
   useEffect(() => {
-    console.log('[FORM INIT] useEffect triggered:', { 
-      editingFacility: !!editingFacility, 
+    console.log('[FORM INIT] useEffect triggered:', {
+      editingFacility: !!editingFacility,
       isInitializing,
-      facilityId: editingFacility?.id 
+      facilityId: editingFacility?.id
     });
-    
+
     if (editingFacility && isInitializing) {
-      
+
       // Set available categories based on existing sector
       if (editingFacility.facilitySector) {
         const categories = getFacilityCategoriesBySector(editingFacility.facilitySector);
         setAvailableCategories(categories);
       }
-      
+
       // Set available types based on existing category
       if (editingFacility.facilityCategory) {
         const types = getFacilityTypesByCategory(editingFacility.facilityCategory);
         setAvailableTypes(types);
       }
-      
+
       // Set NAICS description if available
       if (editingFacility.naicsCode) {
         const description = getNAICSDescription(editingFacility.naicsCode);
         setNAICSDescription(description);
       }
-      
+
       // Reset form with all data to ensure proper state synchronization
       // Convert numeric fields to strings to match schema expectations
       const formData = {
@@ -315,7 +329,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         hasEnergyManager: !!editingFacility.hasEnergyManager,
         emisDescription: editingFacility.emisDescription || "",
       };
-      
+
       console.log('[FORM RESET] Raw facility data:', {
         emisRealtimeMonitoring: editingFacility.emisRealtimeMonitoring,
         energyManagerFullTime: editingFacility.energyManagerFullTime,
@@ -323,7 +337,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         hasEnergyManager: editingFacility.hasEnergyManager,
         emisDescription: editingFacility.emisDescription,
       });
-      
+
       console.log('[FORM RESET] Prepared form data:', {
         emisRealtimeMonitoring: formData.emisRealtimeMonitoring,
         energyManagerFullTime: formData.energyManagerFullTime,
@@ -331,12 +345,12 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         hasEnergyManager: formData.hasEnergyManager,
         emisDescription: formData.emisDescription,
       });
-      
+
       // Use setTimeout to ensure reset happens after the state updates
       setTimeout(() => {
         console.log('[FORM RESET] Calling reset with formData');
         reset(formData);
-        
+
         // Force form values to be set explicitly for critical fields including NAICS
         console.log('[FORM RESET] Setting explicit values for NAICS and energy management fields');
         setValue("facilitySector", editingFacility.facilitySector || "");
@@ -347,7 +361,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         setValue("hasEMIS", !!editingFacility.hasEMIS);
         setValue("hasEnergyManager", !!editingFacility.hasEnergyManager);
         setValue("emisDescription", editingFacility.emisDescription || "");
-        
+
         // Verify values after setting
         setTimeout(() => {
           console.log('[FORM RESET] Values after explicit setValue:', {
@@ -362,7 +376,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
           });
         }, 100);
       }, 0);
-      
+
       // Mark initialization as complete
       setIsInitializing(false);
     }
@@ -433,14 +447,14 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
 
       // Get raw form values to ensure we have the actual input data
       const formValues = form.getValues();
-      
+
       console.log('[FORM SUBMISSION] Energy management values:', {
         emisRealtimeMonitoring: formValues.emisRealtimeMonitoring,
         energyManagerFullTime: formValues.energyManagerFullTime,
         hasEMIS: formValues.hasEMIS,
         hasEnergyManager: formValues.hasEnergyManager,
       });
-      
+
       // Map form data to existing database schema fields only
       const facilityData = {
         name: formValues.name,
@@ -449,13 +463,13 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         province: formValues.province,
         country: formValues.country || "Canada",
         postalCode: formValues.postalCode,
-        
+
         // NAICS Information
         naicsCode: generatedNAICS || formValues.naicsCode,
         facilitySector: formValues.facilitySector,
         facilityCategory: formValues.facilityCategory,
         facilityType: formValues.facilityType,
-        
+
         // Facility Details (convert string inputs to numbers for database)
         grossFloorArea: formValues.grossFloorArea ? Number(formValues.grossFloorArea) : 0,
         grossFloorAreaUnit: formValues.grossFloorAreaUnit,
@@ -466,14 +480,14 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         numberOfWorkersMainShift: formValues.numberOfWorkersMainShift ? Number(formValues.numberOfWorkersMainShift) : 0,
         numberOfWorkersMainShiftIsTemporary: Boolean(formValues.numberOfWorkersMainShiftIsTemporary),
         typeOfOperation: formValues.typeOfOperation,
-        
+
         // Energy Management - using correct database field names
         hasEMIS: Boolean(formValues.hasEMIS),
         emisRealtimeMonitoring: Boolean(formValues.emisRealtimeMonitoring),
         emisDescription: formValues.emisDescription || "",
         hasEnergyManager: Boolean(formValues.hasEnergyManager),
         energyManagerFullTime: Boolean(formValues.energyManagerFullTime),
-        
+
         // All Process and Systems checkboxes - aligned with admin form
         processCombinedHeatPower: Boolean(formValues.processCombinedHeatPower),
         processCompressedAir: Boolean(formValues.processCompressedAir),
@@ -497,14 +511,14 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
         processOtherSystems: Boolean(formValues.processOtherSystems),
         processFansBlowers: Boolean(formValues.processFansBlowers),
         processMaterialHandling: Boolean(formValues.processMaterialHandling),
-        
+
         // Process and Systems (legacy array field for backward compatibility)
         processAndSystems: processAndSystems,
-        
+
         // Description - store additional info here
         description: formValues.description || `Contact: ${formValues.primaryContactName || 'N/A'} (${formValues.primaryContactEmail || 'N/A'})`,
       };
-      
+
       if (editingFacility) {
         const response = await apiRequest(`/api/facilities/${editingFacility.id}`, "PATCH", facilityData);
         if (!response.ok) {
@@ -595,8 +609,8 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                       >
                         {watchedSector
                           ? FACILITY_SECTORS.find(
-                              (sector) => sector.code === watchedSector
-                            )?.title
+                            (sector) => sector.code === watchedSector
+                          )?.title
                           : "Select facility sector"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -656,23 +670,23 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                           {availableCategories
                             .sort((a, b) => a.title.localeCompare(b.title))
                             .map((category) => (
-                            <CommandItem
-                              key={category.code}
-                              value={category.title}
-                              onSelect={() => {
-                                setValue("facilityCategory", category.code);
-                                setCategoryOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  watchedCategory === category.code ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {category.title}
-                            </CommandItem>
-                          ))}
+                              <CommandItem
+                                key={category.code}
+                                value={category.title}
+                                onSelect={() => {
+                                  setValue("facilityCategory", category.code);
+                                  setCategoryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    watchedCategory === category.code ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {category.title}
+                              </CommandItem>
+                            ))}
                         </CommandGroup>
                       </Command>
                     </PopoverContent>
@@ -705,23 +719,23 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                           {availableTypes
                             .sort((a, b) => a.title.localeCompare(b.title))
                             .map((type) => (
-                            <CommandItem
-                              key={type.code}
-                              value={type.title}
-                              onSelect={() => {
-                                setValue("facilityType", type.code);
-                                setTypeOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  watchedType === type.code ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {type.title}
-                            </CommandItem>
-                          ))}
+                              <CommandItem
+                                key={type.code}
+                                value={type.title}
+                                onSelect={() => {
+                                  setValue("facilityType", type.code);
+                                  setTypeOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    watchedType === type.code ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {type.title}
+                              </CommandItem>
+                            ))}
                         </CommandGroup>
                       </Command>
                     </PopoverContent>
@@ -744,7 +758,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                           </Badge>
                         </div>
                         <p className="text-sm text-blue-700 mt-2">{naicsDescription}</p>
-                        
+
                         <div className="mt-4">
                           <p className="text-sm text-gray-600">
                             If this NAICS code doesn't accurately represent your facility, please contact our team for assistance.
@@ -775,7 +789,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                   )}
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <Label htmlFor="city">City *</Label>
@@ -788,7 +802,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.city.message}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="province">Province *</Label>
                   <Select value={watch("province")} onValueChange={(value) => setValue("province", value)}>
@@ -807,7 +821,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.province.message}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="country">Country</Label>
                   <Input
@@ -816,7 +830,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                     disabled
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="postalCode">Postal Code *</Label>
                   <Input
@@ -865,6 +879,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                     <Label htmlFor="grossFloorAreaIsTemporary" className="text-sm text-gray-600">
                       This is a temporary value
                     </Label>
+                    <InfoTooltip content="Select temporary value if you are providing an estimated value or your value is unknown." />
                   </div>
                   {form.formState.errors.grossFloorArea && (
                     <p className="text-sm text-red-600">{form.formState.errors.grossFloorArea.message}</p>
@@ -906,6 +921,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                     <Label htmlFor="weeklyOperatingHoursIsTemporary" className="text-sm text-gray-600">
                       This is a temporary value
                     </Label>
+                    <InfoTooltip content="Select temporary value if you are providing an estimated value or your value is unknown." />
                   </div>
                   {form.formState.errors.weeklyOperatingHours && (
                     <p className="text-sm text-red-600">{form.formState.errors.weeklyOperatingHours.message}</p>
@@ -930,6 +946,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                     <Label htmlFor="numberOfWorkersMainShiftIsTemporary" className="text-sm text-gray-600">
                       This is a temporary value
                     </Label>
+                    <InfoTooltip content="Select temporary value if you are providing an estimated value or your value is unknown." />
                   </div>
                   {form.formState.errors.numberOfWorkersMainShift && (
                     <p className="text-sm text-red-600">{form.formState.errors.numberOfWorkersMainShift.message}</p>
@@ -978,7 +995,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                       Facility has an energy management information system (EMIS)
                     </Label>
                   </div>
-                  
+
                   {watch("hasEMIS") && (
                     <div className="ml-6 space-y-3">
                       <div className="flex items-center space-x-2">
@@ -995,7 +1012,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                           Real-time monitoring capability
                         </Label>
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="emisDescription" className="text-sm">
                           EMIS Description (optional)
@@ -1032,7 +1049,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                       Facility has a designated Energy Manager
                     </Label>
                   </div>
-                  
+
                   {watch("hasEnergyManager") && (
                     <div className="ml-6">
                       <div className="flex items-center space-x-2">
@@ -1223,8 +1240,8 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                 </Button>
               )}
               {canCreateEdit(user) && (
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={facilityMutation.isPending}
                   className="min-w-[120px]"
                 >
