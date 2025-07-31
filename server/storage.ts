@@ -6751,8 +6751,33 @@ export class DatabaseStorage implements IStorage {
 
   async deleteGhostApplicationId(ghostId: number): Promise<void> {
     try {
+      // First, get the ghost ID record to check the application ID
+      const ghostRecord = await db
+        .select()
+        .from(ghostApplicationIds)
+        .where(eq(ghostApplicationIds.id, ghostId))
+        .limit(1);
+
+      if (ghostRecord.length === 0) {
+        throw new Error('Ghost application ID not found');
+      }
+
+      const applicationId = ghostRecord[0].applicationId;
+
+      // Check if the application still exists in the applications table
+      const existingApplication = await db
+        .select()
+        .from(applications)
+        .where(eq(applications.applicationId, applicationId))
+        .limit(1);
+
+      if (existingApplication.length > 0) {
+        throw new Error(`Cannot clear ghost ID ${applicationId} - application still exists in archive. Please delete the application from archive first.`);
+      }
+
+      // Safe to delete the ghost ID
       await db.delete(ghostApplicationIds).where(eq(ghostApplicationIds.id, ghostId));
-      console.log(`Deleted ghost application ID: ${ghostId}`);
+      console.log(`Deleted ghost application ID: ${ghostId} (${applicationId})`);
     } catch (error) {
       console.error('Error deleting ghost application ID:', error);
       throw error;
@@ -6761,6 +6786,26 @@ export class DatabaseStorage implements IStorage {
 
   async clearAllGhostApplicationIds(): Promise<void> {
     try {
+      // Get all ghost IDs and check if any have corresponding applications
+      const allGhostIds = await db.select().from(ghostApplicationIds);
+      
+      const conflictingIds = [];
+      for (const ghost of allGhostIds) {
+        const existingApplication = await db
+          .select()
+          .from(applications)
+          .where(eq(applications.applicationId, ghost.applicationId))
+          .limit(1);
+          
+        if (existingApplication.length > 0) {
+          conflictingIds.push(ghost.applicationId);
+        }
+      }
+      
+      if (conflictingIds.length > 0) {
+        throw new Error(`Cannot clear ghost IDs - the following application IDs still exist in archive: ${conflictingIds.join(', ')}. Please delete these applications from archive first.`);
+      }
+      
       await db.delete(ghostApplicationIds);
       console.log('Cleared all ghost application IDs');
     } catch (error) {
@@ -6792,6 +6837,14 @@ export class DatabaseStorage implements IStorage {
           })
           .where(eq(facilities.id, entityId));
       } else if (entityType === 'application') {
+        // First, get the application ID to remove from ghost IDs
+        const applicationRecord = await db
+          .select({ applicationId: applications.applicationId })
+          .from(applications)
+          .where(eq(applications.id, entityId))
+          .limit(1);
+
+        // Restore the application
         await db.update(applications)
           .set({ 
             isArchived: false,
@@ -6800,6 +6853,28 @@ export class DatabaseStorage implements IStorage {
             archiveReason: null
           })
           .where(eq(applications.id, entityId));
+
+        // Remove from ghost IDs table since it's no longer a ghost
+        if (applicationRecord.length > 0) {
+          const applicationId = applicationRecord[0].applicationId;
+          console.log(`[RESTORE] Attempting to remove application ID ${applicationId} from ghost IDs table`);
+          
+          // First check if it exists in ghost table
+          const existingGhost = await db
+            .select()
+            .from(ghostApplicationIds)
+            .where(eq(ghostApplicationIds.applicationId, applicationId));
+          
+          console.log(`[RESTORE] Found ${existingGhost.length} ghost records for application ID ${applicationId}`);
+          
+          if (existingGhost.length > 0) {
+            const deleteResult = await db.delete(ghostApplicationIds)
+              .where(eq(ghostApplicationIds.applicationId, applicationId));
+            console.log(`[RESTORE] Delete operation completed for application ID ${applicationId}`, deleteResult);
+          } else {
+            console.log(`[RESTORE] No ghost record found for application ID ${applicationId}`);
+          }
+        }
       }
       
       console.log(`Successfully restored ${entityType} with ID: ${entityId}`);
@@ -7057,10 +7132,29 @@ export class DatabaseStorage implements IStorage {
         .set(restoreData)
         .where(inArray(facilities.id, entityIds));
 
+      // Get all application IDs that will be restored so we can remove them from ghost IDs
+      const applicationsToRestore = await db
+        .select({ applicationId: applications.applicationId })
+        .from(applications)
+        .where(inArray(applications.id, entityIds));
+
       await db
         .update(applications)
         .set(restoreData)
         .where(inArray(applications.id, entityIds));
+
+      // Remove restored application IDs from ghost IDs table
+      if (applicationsToRestore.length > 0) {
+        const applicationIdsToRemove = applicationsToRestore.map(app => app.applicationId);
+        console.log(`[RESTORE BULK] Removing ${applicationIdsToRemove.length} application IDs from ghost table:`, applicationIdsToRemove);
+        
+        for (const appId of applicationIdsToRemove) {
+          await db.delete(ghostApplicationIds)
+            .where(eq(ghostApplicationIds.applicationId, appId));
+        }
+        
+        console.log(`[RESTORE BULK] Successfully removed ${applicationIdsToRemove.length} ghost IDs`);
+      }
 
       return {
         success: true,

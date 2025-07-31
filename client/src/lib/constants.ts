@@ -107,6 +107,29 @@ export const USER_ROLES = {
   }
 } as const;
 
+export const PERMISSION_LEVELS = {
+  view: {
+    label: "View",
+    color: "gray",
+    description: "Can view data but cannot make changes"
+  },
+  editor: {
+    label: "Editor", 
+    color: "blue",
+    description: "Can view and edit data but cannot manage users"
+  },
+  manager: {
+    label: "Manager",
+    color: "orange",
+    description: "Can view, edit, and manage team members"
+  },
+  owner: {
+    label: "Owner",
+    color: "red", 
+    description: "Full access including user management and settings"
+  }
+} as const;
+
 export const DOCUMENT_TYPES = {
   pre_activity: {
     label: "Pre-Activity Document",

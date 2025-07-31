@@ -57,7 +57,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { USER_ROLES } from "@/lib/constants";
+import { USER_ROLES, PERMISSION_LEVELS } from "@/lib/constants";
 
 interface User {
   id: string;
@@ -65,6 +65,7 @@ interface User {
   firstName: string;
   lastName: string;
   role: string;
+  permission_level: string;
   companyId: number | null;
   isActive: boolean;
   createdAt: string;
@@ -114,6 +115,7 @@ export default function AdminUsersPage() {
     lastName: "",
     password: "",
     role: "team_member",
+    permission_level: "view",
     companyId: "",
     isActive: true,
     isTemporaryPassword: false
@@ -126,6 +128,7 @@ export default function AdminUsersPage() {
     firstName: "",
     lastName: "",
     role: "",
+    permission_level: "",
     companyId: "",
     isActive: true
   });
@@ -225,6 +228,7 @@ export default function AdminUsersPage() {
         lastName: "",
         password: "",
         role: "team_member",
+        permission_level: "view",
         companyId: "",
         isActive: true,
         isTemporaryPassword: false
@@ -538,6 +542,7 @@ export default function AdminUsersPage() {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      permission_level: user.permission_level || "view", // Populate permission_level from user data
       companyId: user.companyId?.toString() || "none",
       isActive: user.isActive
     });
@@ -772,6 +777,22 @@ export default function AdminUsersPage() {
                     {Object.entries(USER_ROLES).map(([value, role]) => (
                       <SelectItem key={value} value={value}>
                         {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="permission_level">Permission Level</Label>
+                <Select value={createForm.permission_level} onValueChange={(value) => setCreateForm(prev => ({ ...prev, permission_level: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Permission Level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(PERMISSION_LEVELS).map(([value, level]) => (
+                      <SelectItem key={value} value={value}>
+                        {level.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1229,6 +1250,22 @@ export default function AdminUsersPage() {
                   {Object.entries(USER_ROLES).map(([value, role]) => (
                     <SelectItem key={value} value={value}>
                       {role.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="editPermissionLevel">Permission Level</Label>
+              <Select value={editForm.permission_level} onValueChange={(value) => setEditForm(prev => ({ ...prev, permission_level: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Permission Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PERMISSION_LEVELS).map(([value, level]) => (
+                    <SelectItem key={value} value={value}>
+                      {level.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

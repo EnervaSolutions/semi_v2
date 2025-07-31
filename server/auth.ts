@@ -758,6 +758,8 @@ export async function setupAuth(app: Express) {
         permissionLevel: user.permissionLevel,
         companyId: user.companyId,
         profileImageUrl: user.profileImageUrl,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
         twoFactorEnabled: user.twoFactorEnabled
       });
     } catch (error) {
