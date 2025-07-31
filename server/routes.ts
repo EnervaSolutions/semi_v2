@@ -4243,7 +4243,7 @@ export async function registerRoutes(app: Express) {
       res.json({ message: "Ghost application ID deleted successfully" });
     } catch (error: any) {
       console.error("Error deleting ghost application ID:", error);
-      res.status(500).json({ message: "Failed to delete ghost application ID" });
+      res.status(500).json({ message: error.message || "Failed to delete ghost application ID" });
     }
   });
 
@@ -4259,7 +4259,7 @@ export async function registerRoutes(app: Express) {
       res.json({ message: "All ghost application IDs cleared successfully" });
     } catch (error: any) {
       console.error("Error clearing all ghost application IDs:", error);
-      res.status(500).json({ message: "Failed to clear all ghost application IDs" });
+      res.status(500).json({ message: error.message || "Failed to clear all ghost application IDs" });
     }
   });
 

@@ -172,15 +172,22 @@ export default function AdminArchiveSettingsPage() {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
-      if (!response.ok) throw new Error('Failed to clear ghost IDs');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to clear ghost IDs');
+      }
       return response.json();
     },
     onSuccess: () => {
-      toast({ title: "Success", description: "All ghost application IDs cleared" });
+      toast({ title: "Success", description: "All ghost application IDs cleared successfully" });
       refetchGhostIds();
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message || "Failed to clear ghost IDs", variant: "destructive" });
+      toast({ 
+        title: "Cannot Clear Ghost IDs", 
+        description: error.message || "Failed to clear ghost IDs", 
+        variant: "destructive" 
+      });
     }
   });
 
@@ -190,15 +197,22 @@ export default function AdminArchiveSettingsPage() {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
-      if (!response.ok) throw new Error('Failed to clear ghost ID');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to clear ghost ID');
+      }
       return response.json();
     },
     onSuccess: () => {
-      toast({ title: "Success", description: "Ghost application ID cleared" });
+      toast({ title: "Success", description: "Ghost application ID cleared successfully" });
       refetchGhostIds();
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message || "Failed to clear ghost ID", variant: "destructive" });
+      toast({ 
+        title: "Cannot Clear Ghost ID", 
+        description: error.message || "Failed to clear ghost ID", 
+        variant: "destructive" 
+      });
     }
   });
 
