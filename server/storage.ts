@@ -1639,8 +1639,36 @@ export class DatabaseStorage implements IStorage {
 
     console.log(`[STORAGE DEBUG] Found ${applicationDocuments.length} application documents`);
 
+    // Get documents uploaded by users from this company (fallback for documents without companyId/applicationId)
+    const userUploadedDocuments = await db
+      .select({
+        id: documents.id,
+        applicationId: documents.applicationId,
+        companyId: documents.companyId,
+        filename: documents.filename,
+        originalName: documents.originalName,
+        mimeType: documents.mimeType,
+        size: documents.size,
+        documentType: documents.documentType,
+        isTemplate: documents.isTemplate,
+        isGlobal: documents.isGlobal,
+        uploadedBy: documents.uploadedBy,
+        filePath: documents.filePath,
+        createdAt: documents.createdAt
+      })
+      .from(documents)
+      .innerJoin(users, eq(documents.uploadedBy, users.id))
+      .where(and(
+        eq(users.companyId, companyId),
+        isNull(documents.companyId),
+        isNull(documents.applicationId)
+      ))
+      .orderBy(desc(documents.createdAt));
+
+    console.log(`[STORAGE DEBUG] Found ${userUploadedDocuments.length} user-uploaded documents without company/application ID`);
+
     // Combine and deduplicate documents
-    const allDocuments = [...companyDocuments, ...applicationDocuments];
+    const allDocuments = [...companyDocuments, ...applicationDocuments, ...userUploadedDocuments];
     const uniqueDocuments = allDocuments.filter((doc, index, self) => 
       self.findIndex(d => d.id === doc.id) === index
     );
@@ -3032,6 +3060,19 @@ export class DatabaseStorage implements IStorage {
 
   async resolveTicket(ticketNumber: string): Promise<void> {
     console.log(`[STORAGE] Resolving all messages for ticket: ${ticketNumber}`);
+    
+    // First, get the original user who created the ticket
+    const ticketMessages = await db
+      .select({
+        fromUserId: messages.fromUserId,
+        subject: messages.subject
+      })
+      .from(messages)
+      .where(eq(messages.ticketNumber, ticketNumber))
+      .orderBy(messages.createdAt)
+      .limit(1);
+
+    // Update ticket status
     await db
       .update(messages)
       .set({ 
@@ -3040,6 +3081,22 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(messages.ticketNumber, ticketNumber));
+
+    // Create notification for the original user
+    if (ticketMessages.length > 0) {
+      const originalUser = ticketMessages[0].fromUserId;
+      const subject = ticketMessages[0].subject;
+      
+      await this.createNotification({
+        userId: originalUser,
+        type: 'ticket_resolved',
+        title: 'Ticket Resolved',
+        message: `Your support ticket "${subject}" (${ticketNumber}) has been resolved by our admin team.`
+      });
+      
+      console.log(`[STORAGE] Notification sent to user ${originalUser} for resolved ticket ${ticketNumber}`);
+    }
+    
     console.log(`[STORAGE] Ticket ${ticketNumber} marked as resolved`);
   }
 
@@ -3169,12 +3226,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.ticketNumber, ticketNumber));
   }
 
-  async resolveTicket(ticketNumber: string): Promise<void> {
-    await db
-      .update(messages)
-      .set({ isResolved: true, status: 'resolved', updatedAt: new Date() })
-      .where(eq(messages.ticketNumber, ticketNumber));
-  }
 
   // Admin-specific method to get all messages with full context
   async getAllMessagesForAdmin(): Promise<any[]> {

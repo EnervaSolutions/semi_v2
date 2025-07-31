@@ -3125,6 +3125,7 @@ export async function registerRoutes(app: Express) {
         
         const document = await dbStorage.createDocument({
           applicationId: applicationId ? parseInt(applicationId) : null,
+          companyId: applicationId ? null : (user.companyId || null), // Set companyId when no applicationId, fallback to uploadedBy user's company
           documentType,
           originalName: file.originalname,
           filename: file.filename,
@@ -3189,9 +3190,26 @@ export async function registerRoutes(app: Express) {
       
       // Check user permissions for document access
       if (document.applicationId) {
+        // Document belongs to an application
         const application = await dbStorage.getApplicationById(document.applicationId);
         if (application && user.role !== 'system_admin' && 
             (!user.companyId || application.companyId !== user.companyId) &&
+            !user.role?.startsWith('contractor_')) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      } else if (document.companyId) {
+        // Document belongs directly to a company
+        if (user.role !== 'system_admin' && 
+            (!user.companyId || document.companyId !== user.companyId) &&
+            !user.role?.startsWith('contractor_')) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      } else {
+        // Document has no company/application ID, check if user uploaded it or is from same company
+        const uploader = await dbStorage.getUserById(document.uploadedBy);
+        if (user.role !== 'system_admin' && 
+            document.uploadedBy !== user.id &&
+            (!user.companyId || !uploader || uploader.companyId !== user.companyId) &&
             !user.role?.startsWith('contractor_')) {
           return res.status(403).json({ message: "Access denied" });
         }
@@ -3202,11 +3220,20 @@ export async function registerRoutes(app: Express) {
       res.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
       
       // Stream the file
-      const filePath = path.resolve(document.filePath);
+      let filePath = document.filePath;
+      
+      // Handle relative paths by resolving from current directory
+      if (!path.isAbsolute(filePath)) {
+        filePath = path.resolve(filePath);
+      }
+      
+      console.log(`[DOWNLOAD] Attempting to download file: ${filePath}`);
+      
       if (fs.existsSync(filePath)) {
         res.sendFile(filePath);
       } else {
-        res.status(404).json({ message: "File not found on disk" });
+        console.error(`[DOWNLOAD] File not found: ${filePath}`);
+        res.status(404).json({ message: "File not found on disk", filePath: filePath });
       }
     } catch (error: any) {
       console.error('Error downloading document:', error);
