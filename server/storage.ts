@@ -3060,6 +3060,19 @@ export class DatabaseStorage implements IStorage {
 
   async resolveTicket(ticketNumber: string): Promise<void> {
     console.log(`[STORAGE] Resolving all messages for ticket: ${ticketNumber}`);
+    
+    // First, get the original user who created the ticket
+    const ticketMessages = await db
+      .select({
+        fromUserId: messages.fromUserId,
+        subject: messages.subject
+      })
+      .from(messages)
+      .where(eq(messages.ticketNumber, ticketNumber))
+      .orderBy(messages.createdAt)
+      .limit(1);
+
+    // Update ticket status
     await db
       .update(messages)
       .set({ 
@@ -3068,6 +3081,22 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(messages.ticketNumber, ticketNumber));
+
+    // Create notification for the original user
+    if (ticketMessages.length > 0) {
+      const originalUser = ticketMessages[0].fromUserId;
+      const subject = ticketMessages[0].subject;
+      
+      await this.createNotification({
+        userId: originalUser,
+        type: 'ticket_resolved',
+        title: 'Ticket Resolved',
+        message: `Your support ticket "${subject}" (${ticketNumber}) has been resolved by our admin team.`
+      });
+      
+      console.log(`[STORAGE] Notification sent to user ${originalUser} for resolved ticket ${ticketNumber}`);
+    }
+    
     console.log(`[STORAGE] Ticket ${ticketNumber} marked as resolved`);
   }
 
@@ -3197,12 +3226,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.ticketNumber, ticketNumber));
   }
 
-  async resolveTicket(ticketNumber: string): Promise<void> {
-    await db
-      .update(messages)
-      .set({ isResolved: true, status: 'resolved', updatedAt: new Date() })
-      .where(eq(messages.ticketNumber, ticketNumber));
-  }
 
   // Admin-specific method to get all messages with full context
   async getAllMessagesForAdmin(): Promise<any[]> {
