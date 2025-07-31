@@ -28,7 +28,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     
     await mailService.send({
       to: params.to,
-      from: params.from || 'harsanjit.bhullar@enerva.ca',
+      from: params.from || 'donotreply@enerva.ca',
       subject: params.subject,
       text: params.text,
       html: params.html,
@@ -67,7 +67,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
   
   return sendEmail({
     to: email,
-    from: 'harsanjit.bhullar@enerva.ca',
+    from: 'donotreply@enerva.ca',
     subject: 'SEMI Program - Password Reset Request',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -104,7 +104,7 @@ interface SimpleTeamInvitationParams {
 export async function sendTeamInvitationEmail(params: SimpleTeamInvitationParams): Promise<boolean> {
   return sendEmail({
     to: params.to,
-    from: 'harsanjit.bhullar@enerva.ca',
+    from: 'donotreply@enerva.ca',
     subject: 'Team Invitation - SEMI Program',
     html: params.html,
   });
@@ -287,7 +287,7 @@ export async function sendContractorTeamInvitationEmail(params: ContractorTeamIn
 
   return sendEmail({
     to,
-    from: 'harsanjit.bhullar@enerva.ca',
+    from: 'donotreply@enerva.ca',
     subject: `Contractor Team Invitation - ${contractorCompany} | SEMI Program`,
     html,
     text,
@@ -354,7 +354,7 @@ export async function sendOriginalTeamInvitationEmail(params: OriginalTeamInvita
 
   return sendEmail({
     to: to,
-    from: 'harsanjit.bhullar@enerva.ca',
+    from: 'donotreply@enerva.ca',
     subject: `Invitation to join ${company} - SEMI Program`,
     text: `
       Hi ${firstName},
@@ -429,7 +429,7 @@ export async function sendOriginalTeamInvitationEmail(params: OriginalTeamInvita
 export async function sendTeamMemberPendingEmail(email: string, firstName: string, companyName: string): Promise<boolean> {
   return sendEmail({
     to: email,
-    from: 'harsanjit.bhullar@enerva.ca',
+    from: 'donotreply@enerva.ca',
     subject: 'SEMI Program - Registration Submitted for Approval',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -516,7 +516,7 @@ export async function sendEmailVerificationEmail(email: string, firstName: strin
 
   return await sendEmail({
     to: email,
-    from: "harsanjit.bhullar@enerva.ca",
+    from: "donotreply@enerva.ca",
     subject: "Your Verification Code - SEMI Program Portal",
     html: htmlContent,
     text: `Welcome to SEMI Program Portal! Your verification code is: ${verificationCode}. This code will expire in 10 minutes. Enter this code on the registration page to complete your account setup.`
@@ -538,7 +538,7 @@ export async function sendContractorTeamInvitation(data: {
   
   return sendEmail({
     to: data.email,
-    from: 'harsanjit.bhullar@enerva.ca',
+    from: 'donotreply@enerva.ca',
     subject: `Team Invitation - ${data.companyName}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
