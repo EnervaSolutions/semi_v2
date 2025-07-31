@@ -1639,8 +1639,36 @@ export class DatabaseStorage implements IStorage {
 
     console.log(`[STORAGE DEBUG] Found ${applicationDocuments.length} application documents`);
 
+    // Get documents uploaded by users from this company (fallback for documents without companyId/applicationId)
+    const userUploadedDocuments = await db
+      .select({
+        id: documents.id,
+        applicationId: documents.applicationId,
+        companyId: documents.companyId,
+        filename: documents.filename,
+        originalName: documents.originalName,
+        mimeType: documents.mimeType,
+        size: documents.size,
+        documentType: documents.documentType,
+        isTemplate: documents.isTemplate,
+        isGlobal: documents.isGlobal,
+        uploadedBy: documents.uploadedBy,
+        filePath: documents.filePath,
+        createdAt: documents.createdAt
+      })
+      .from(documents)
+      .innerJoin(users, eq(documents.uploadedBy, users.id))
+      .where(and(
+        eq(users.companyId, companyId),
+        isNull(documents.companyId),
+        isNull(documents.applicationId)
+      ))
+      .orderBy(desc(documents.createdAt));
+
+    console.log(`[STORAGE DEBUG] Found ${userUploadedDocuments.length} user-uploaded documents without company/application ID`);
+
     // Combine and deduplicate documents
-    const allDocuments = [...companyDocuments, ...applicationDocuments];
+    const allDocuments = [...companyDocuments, ...applicationDocuments, ...userUploadedDocuments];
     const uniqueDocuments = allDocuments.filter((doc, index, self) => 
       self.findIndex(d => d.id === doc.id) === index
     );
