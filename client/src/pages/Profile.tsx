@@ -306,19 +306,15 @@ export default function Profile() {
                 <h3 className="text-lg font-medium">Account Status</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 border rounded-lg">
-                    <div className="text-sm font-medium text-gray-500">User ID</div>
-                    <div className="text-sm font-mono">{user?.id}</div>
-                  </div>
-                  <div className="p-4 border rounded-lg">
                     <div className="text-sm font-medium text-gray-500">Account Created</div>
                     <div className="text-sm">
-                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
                     </div>
                   </div>
                   <div className="p-4 border rounded-lg">
                     <div className="text-sm font-medium text-gray-500">Last Updated</div>
                     <div className="text-sm">
-                      {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "N/A"}
+                      {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : user?.updated_at ? new Date(user.updated_at).toLocaleDateString() : "N/A"}
                     </div>
                   </div>
                 </div>
