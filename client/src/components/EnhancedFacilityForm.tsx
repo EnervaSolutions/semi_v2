@@ -157,7 +157,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
       naicsCode: editingFacility.naicsCode || "",
       address: editingFacility.address || "",
       city: editingFacility.city || "",
-      province: editingFacility.province || "",
+      province: editingFacility.province || "Alberta",
       country: editingFacility.country || "Canada",
       postalCode: editingFacility.postalCode || "",
       grossFloorArea: editingFacility.grossFloorArea?.toString() || "",
@@ -205,7 +205,7 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
       naicsCode: "",
       address: "",
       city: "",
-      province: "",
+      province: "Alberta",
       country: "Canada",
       postalCode: "",
       grossFloorArea: "",
@@ -804,22 +804,12 @@ export default function EnhancedFacilityForm({ onSuccess, onCancel, editingFacil
                 </div>
 
                 <div>
-                  <Label htmlFor="province">Province *</Label>
-                  <Select value={watch("province")} onValueChange={(value) => setValue("province", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select province" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PROVINCES.map((province) => (
-                        <SelectItem key={province} value={province}>
-                          {province}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {form.formState.errors.province && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.province.message}</p>
-                  )}
+                  <Label htmlFor="province">Province</Label>
+                  <Input
+                    id="province"
+                    {...form.register("province")}
+                    disabled
+                  />
                 </div>
 
                 <div>
