@@ -87,7 +87,6 @@ function Router() {
         <Route path="/accessibility" component={Accessibility} />
         <Route path="/accept-invite/:token" component={AcceptInvite} />
         <Route path="/accept-contractor-invite/:token" component={AcceptContractorInvite} />
-        <Route path="*" component={NotFound} />
       </Switch>
     );
   }
@@ -127,7 +126,6 @@ function Router() {
           <Route path="/profile" component={Profile} />
           <Route path="/settings" component={Profile} />
           <Route path="/security" component={SecuritySettings} />
-          <Route path="*" component={NotFound} />
         </Switch>
       </Layout>
     );
@@ -149,7 +147,6 @@ function Router() {
           <Route path="/messages" component={ThreadedMessages} />
           <Route path="/settings" component={ContractorProfile} />
           <Route path="/security" component={SecuritySettings} />
-          <Route path="*" component={NotFound} />
         </Switch>
       </Layout>
     );
@@ -179,7 +176,6 @@ function Router() {
         <Route path="/profile" component={Profile} />
         <Route path="/settings" component={Profile} />
         <Route path="/security" component={SecuritySettings} />
-        <Route path="*" component={NotFound} />
       </Switch>
     </Layout>
   );

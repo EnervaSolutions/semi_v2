@@ -201,6 +201,7 @@ const US_STATES = [
 ];
 
 export default function AuthPage() {
+  const [currentLocation, navigate] = useLocation();
   const urlParams = new URLSearchParams(window.location.search);
   const mode = urlParams.get('mode');
   const [isLogin, setIsLogin] = useState(mode !== 'signup');
@@ -484,17 +485,17 @@ export default function AuthPage() {
         setTimeout(() => {
           // Redirect to appropriate dashboard based on user role
           if (data.user?.role === 'system_admin') {
-            window.location.href = "/admin";
+            navigate("/admin");
           } else if (data.user?.role === 'contractor_individual' || 
                      data.user?.role === 'contractor_team_member' || 
                      data.user?.role === 'contractor_account_owner' || 
                      data.user?.role === 'contractor_manager') {
-            window.location.href = "/contractor-dashboard";
+            navigate("/contractor-dashboard");
           } else {
             // For company_admin, team_member, and other roles
-            window.location.href = "/dashboard";
+            navigate("/dashboard");
           }
-        }, 100); // Small delay to ensure auth state is updated
+        }, 500); // Delay to ensure auth state is fully updated before redirect
       }
     },
     onError: (error: Error) => {
@@ -524,14 +525,19 @@ export default function AuthPage() {
       setTwoFactorCode("");
       // Invalidate auth query to update authentication state
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      // Redirect to appropriate dashboard based on user role
-      if (data.user?.role === 'system_admin') {
-        window.location.href = "/admin";
-      } else if (data.user?.role === 'contractor_individual' || data.user?.role === 'contractor_team_member' || data.user?.role === 'contractor_account_owner' || data.user?.role === 'contractor_manager') {
-        window.location.href = "/";
-      } else {
-        window.location.href = "/";
-      }
+      
+      // Add a delay to ensure auth state is fully updated before redirect
+      setTimeout(() => {
+        // Redirect to appropriate dashboard based on user role
+        if (data.user?.role === 'system_admin') {
+          navigate("/admin");
+        } else if (data.user?.role === 'contractor_individual' || data.user?.role === 'contractor_team_member' || data.user?.role === 'contractor_account_owner' || data.user?.role === 'contractor_manager') {
+          navigate("/contractor-dashboard");
+        } else {
+          // For company_admin, team_member, and other roles
+          navigate("/dashboard");
+        }
+      }, 500); // Delay to ensure auth state is fully updated before redirect
     },
     onError: (error: Error) => {
       toast({
