@@ -1520,36 +1520,39 @@ export class DatabaseStorage implements IStorage {
     // Find the next available application number for this specific activity type at this facility
     const existingAppsForActivity = await this.getApplicationsByFacilityAndActivity(facilityId, activityType);
     
-    // Get ALL non-archived applications GLOBALLY to prevent any ID reuse
-    // Archived applications are excluded since their IDs should be available for reuse once cleared from ghost IDs
+    // Get ALL applications GLOBALLY (including archived) to prevent any ID reuse
+    // This ensures we NEVER reuse any ID, even from archived applications
     // Use raw SQL to ensure accurate querying
     const allGlobalAppsResult = await db.execute(sql`
       SELECT application_id FROM applications 
-      WHERE is_archived = false OR is_archived IS NULL
     `);
     
-    // Handle query result properly - use .rows property like other raw SQL queries
-    const allGlobalApps = (allGlobalAppsResult as any).rows?.map((row: any) => ({ 
-      applicationId: row.application_id 
-    })) || [];
+    // Handle query result properly - check different result formats
+    console.log(`[SQL DEBUG] Raw result structure:`, JSON.stringify(allGlobalAppsResult, null, 2));
     
-    console.log(`[COLLISION DEBUG] Found ${allGlobalApps.length} non-archived applications globally:`, allGlobalApps.map(a => a.applicationId));
+    let allGlobalApps: any[] = [];
+    if (Array.isArray(allGlobalAppsResult)) {
+      allGlobalApps = allGlobalAppsResult.map((row: any) => ({ 
+        applicationId: row.application_id 
+      }));
+    } else if ((allGlobalAppsResult as any).rows) {
+      allGlobalApps = (allGlobalAppsResult as any).rows.map((row: any) => ({ 
+        applicationId: row.application_id 
+      }));
+    } else {
+      console.error(`[SQL ERROR] Unexpected result format:`, allGlobalAppsResult);
+    }
+    
+    console.log(`[COLLISION DEBUG] Found ${allGlobalApps.length} applications globally (including archived):`, allGlobalApps.map((a: any) => a.applicationId));
     
     // Get ghost IDs to avoid reusing them - CRITICAL for preventing deleted ID reuse
     const ghostIds = await this.getGhostApplicationIds();
     
     // Create comprehensive set of ALL IDs that have ever been used anywhere
     const usedIds = new Set([
-      ...allGlobalApps.map(app => app.applicationId), // All existing IDs globally
+      ...allGlobalApps.map((app: any) => app.applicationId), // All existing IDs globally
       ...ghostIds.map(ghost => ghost.applicationId) // All ghost IDs (deleted applications)
     ]);
-    
-    console.log(`[GHOST DEBUG] Ghost IDs in system:`, ghostIds.map(g => g.applicationId));
-    console.log(`[GHOST DEBUG] Total protected IDs:`, Array.from(usedIds).sort());
-    
-    console.log(`[COLLISION DEBUG] Activity: ${activityType}, Existing for this activity: ${existingAppsForActivity.length}`);
-    console.log(`[COLLISION DEBUG] All global used IDs:`, Array.from(usedIds).sort());
-    console.log(`[COLLISION DEBUG] Looking for next available ID with format: ${company.shortName}-${facilityCode}-${activityId}XX`);
     
     // Find the next available application number that doesn't conflict with ANY used ID globally
     let appNumber = 1;
@@ -1785,32 +1788,46 @@ export class DatabaseStorage implements IStorage {
     console.log(`[GHOST DEBUG] Getting ghost IDs, companyId filter: ${companyId}`);
     
     try {
-      // Use raw SQL for more reliable querying
-      let query = `
-        SELECT 
-          g.id,
-          g.application_id as "applicationId",
-          g.company_id as "companyId",
-          g.facility_id as "facilityId",
-          g.activity_type as "activityType",
-          g.original_title as "originalTitle",
-          g.deleted_at as "deletedAt",
-          c.name as "companyName",
-          c.short_name as "companyShortName",
-          f.name as "facilityName"
-        FROM ghost_application_ids g
-        LEFT JOIN companies c ON g.company_id = c.id
-        LEFT JOIN facilities f ON g.facility_id = f.id
-      `;
-      
+      // drizzle SQL template literals for reliable querying
       if (companyId) {
-        query += ` WHERE g.company_id = $1 ORDER BY g.application_id`;
-        const result = await db.execute(sql`${sql.raw(query)}`.bind([companyId]));
-        return result.rows || [];
+        const result = await db.execute(sql`
+          SELECT 
+            g.id,
+            g.application_id as "applicationId",
+            g.company_id as "companyId",
+            g.facility_id as "facilityId",
+            g.activity_type as "activityType",
+            g.original_title as "originalTitle",
+            g.deleted_at as "deletedAt",
+            c.name as "companyName",
+            c.short_name as "companyShortName",
+            f.name as "facilityName"
+          FROM ghost_application_ids g
+          LEFT JOIN companies c ON g.company_id = c.id
+          LEFT JOIN facilities f ON g.facility_id = f.id
+          WHERE g.company_id = ${companyId}
+          ORDER BY g.application_id
+        `);
+        return Array.isArray(result) ? result : result.rows || [];
       } else {
-        query += ` ORDER BY g.application_id`;
-        const result = await db.execute(sql`${sql.raw(query)}`);
-        return result.rows || [];
+        const result = await db.execute(sql`
+          SELECT 
+            g.id,
+            g.application_id as "applicationId",
+            g.company_id as "companyId",
+            g.facility_id as "facilityId",
+            g.activity_type as "activityType",
+            g.original_title as "originalTitle",
+            g.deleted_at as "deletedAt",
+            c.name as "companyName",
+            c.short_name as "companyShortName",
+            f.name as "facilityName"
+          FROM ghost_application_ids g
+          LEFT JOIN companies c ON g.company_id = c.id
+          LEFT JOIN facilities f ON g.facility_id = f.id
+          ORDER BY g.application_id
+        `);
+        return Array.isArray(result) ? result : result.rows || [];
       }
     } catch (error) {
       console.error(`[GHOST DEBUG] Error accessing ghost IDs (table may not exist yet):`, error);
@@ -2562,11 +2579,13 @@ export class DatabaseStorage implements IStorage {
         `)
       ]);
   
-      // const allowContractorAssignment = permissionResult.rows[0]?.allow_contractor_assignment ?? false;
-      const allowContractorAssignment =Boolean(permissionResult.rows[0]?.allow_contractor_assignment) ?? false;
+      // Handle different result formats for permission check
+      const permissionRows = Array.isArray(permissionResult) ? permissionResult : permissionResult.rows || [];
+      const allowContractorAssignment = Boolean(permissionRows[0]?.allow_contractor_assignment) ?? false;
     
-      // Format the results
-      const contractors = rawResult.rows.map((row: any) => ({
+      // Format the results - handle different result formats
+      const rawRows = Array.isArray(rawResult) ? rawResult : rawResult.rows || [];
+      const contractors = rawRows.map((row: any) => ({
         id: row.id,
         contractorCompanyId: row.contractor_company_id,
         assignedAt: row.assigned_at,
@@ -7314,8 +7333,9 @@ export class DatabaseStorage implements IStorage {
           WHERE facility_id IN (${sql.raw(facilityIds.join(','))}) AND is_archived = true
         `);
         
-        // Create ghost IDs for remaining applications
-        for (const app of remainingApplications.rows) {
+        // Create ghost IDs for remaining applications - handle different result formats
+        const remainingRows = Array.isArray(remainingApplications) ? remainingApplications : remainingApplications.rows || [];
+        for (const app of remainingRows) {
           await this.addGhostApplicationId(
             app.application_id as string,
             app.company_id as number,
@@ -7832,7 +7852,9 @@ export class DatabaseStorage implements IStorage {
         ORDER BY ti.created_at DESC
       `);
 
-      return invitations.rows.map((row: any) => ({
+      // Handle different result formats
+      const invitationRows = Array.isArray(invitations) ? invitations : invitations.rows || [];
+      return invitationRows.map((row: any) => ({
         id: row.id,
         email: row.email,
         firstName: row.first_name,
