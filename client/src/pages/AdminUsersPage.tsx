@@ -344,18 +344,8 @@ export default function AdminUsersPage() {
 
   // Filter, search, and sort users
   const filteredAndSortedUsers = useMemo(() => {
-    console.log('=== FILTERING AND SORTING USERS ===');
-    console.log('Users input length:', users.length);
-    console.log('Users is array:', Array.isArray(users));
-    console.log('Search Term:', searchTerm);
-    console.log('Role Filter:', roleFilter);
-    console.log('Status Filter:', statusFilter);
-    console.log('User Type Filter:', userTypeFilter);
-    console.log('Company Filter:', companyFilter);
-    console.log('Sort By:', sortBy);
     
     if (!users || !users.length) {
-      console.log('No users available, returning empty array');
       return [];
     }
     
@@ -387,24 +377,6 @@ export default function AdminUsersPage() {
         (user.companyId && user.companyId.toString() === companyFilter);
 
       const result = searchMatch && roleMatch && statusMatch && typeMatch && companyMatch;
-      
-      // Debug first 3 users
-      if (users.indexOf(user) < 3) {
-        console.log(`User ${user.email}:`, {
-          searchMatch: searchMatch,
-          roleMatch: roleMatch,
-          statusMatch: statusMatch,
-          typeMatch: typeMatch,
-          companyMatch: companyMatch,
-          finalResult: result,
-          searchTerm: searchTerm,
-          userRole: user.role,
-          userActive: user.isActive,
-          userContractor: user.isContractor,
-          userCompanyId: user.companyId,
-          companyFilter: companyFilter
-        });
-      }
 
       return result;
     });
@@ -1071,7 +1043,7 @@ export default function AdminUsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedUsers.map((user: any, index: number) => (
+                {!usersLoading && filteredAndSortedUsers.map((user: any, index: number) => (
                   <TableRow 
                     key={user.id} 
                     className={`
@@ -1203,11 +1175,16 @@ export default function AdminUsersPage() {
             </Table>
           </div>
 
-          {filteredAndSortedUsers.length === 0 && (
+          {usersLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading users...</p>
+            </div>
+          ) : filteredAndSortedUsers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               No users found matching your criteria.
             </div>
-          )}
+          ) : null}
         </CardContent>
       </Card>
 
