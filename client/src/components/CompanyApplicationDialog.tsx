@@ -45,9 +45,10 @@ const applicationSchema = z.object({
 
 interface CompanyApplicationDialogProps {
   onSuccess?: () => void;
+  facilityId?: string;
 }
 
-export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicationDialogProps) {
+export default function CompanyApplicationDialog({ onSuccess, facilityId }: CompanyApplicationDialogProps) {
   const [open, setOpen] = useState(false);
   const [generatedId, setGeneratedId] = useState("");
   const queryClient = useQueryClient();
@@ -58,9 +59,21 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       activityType: "",
-      facilityId: "",
+      facilityId: facilityId || "",
     },
   });
+
+  // Update form when facilityId prop changes
+  useEffect(() => {
+    if (facilityId) {
+      console.log("Setting facilityId from prop:", facilityId);
+      form.setValue("facilityId", String(facilityId), { 
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true 
+      });
+    }
+  }, [facilityId, form]);
 
   // Get user's company facilities
   const { data: facilities = [], isLoading: facilitiesLoading } = useQuery({
@@ -99,51 +112,39 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
     enabled: !!selectedFacilityId,
   });
 
-  // Generate preview ID when values change
+  // Get application ID preview from server when values change
   const watchedValues = form.watch();
   useEffect(() => {
-    if (watchedValues.activityType && watchedValues.facilityId && currentCompany && facilities && applications) {
-      const facility = facilities.find((f: any) => f.id.toString() === watchedValues.facilityId);
-      const activityType = ACTIVITY_TYPES[watchedValues.activityType as keyof typeof ACTIVITY_TYPES];
+    const currentFacilityId = facilityId || watchedValues.facilityId;
+    
+    if (watchedValues.activityType && currentFacilityId && open) {
+      // Fetch preview ID from server
+      const fetchPreviewId = async () => {
+        try {
+          const response = await apiRequest(
+            `/api/applications/preview-id?facilityId=${currentFacilityId}&activityType=${watchedValues.activityType}`, 
+            'GET'
+          );
+          const data = await response.json();
+          setGeneratedId(data.applicationId);
+        } catch (error) {
+          console.error("Error fetching preview ID:", error);
+          setGeneratedId("");
+        }
+      };
       
-      if (facility && activityType) {
-        // Calculate facility position within company (same logic as server)
-        const companyFacilities = facilities.filter((f: any) => f.companyId === (currentCompany as any).id);
-        const facilityIndex = companyFacilities.findIndex((f: any) => f.id === (facility as any).id);
-        const facilityCode = String(facilityIndex + 1).padStart(3, '0');
-        
-        // Find existing applications for this facility and activity type
-        const existingApps = applications.filter((app: any) => 
-          app.facilityId === facility.id && 
-          app.activityType === watchedValues.activityType
-        );
-        
-        // Calculate next available application number
-        let appNumber = 1;
-        let foundId: string = '';
-        do {
-          const appNumberStr = String(appNumber).padStart(2, '0');
-          foundId = `${(currentCompany as any).shortName}-${facilityCode}-${activityType.code}${appNumberStr}`;
-          
-          // Check if this ID already exists
-          const exists = existingApps.some(app => app.applicationId === foundId);
-          if (!exists) {
-            break;
-          }
-          appNumber++;
-        } while (appNumber < 100);
-        
-        setGeneratedId(foundId);
-      }
+      fetchPreviewId();
+    } else {
+      setGeneratedId("");
     }
-  }, [watchedValues.activityType, watchedValues.facilityId, currentCompany, facilities, applications]);
+  }, [watchedValues.activityType, watchedValues.facilityId, facilityId, open]);
 
   const createApplicationMutation = useMutation({
     mutationFn: async (data: z.infer<typeof applicationSchema>) => {
       // Auto-generate title based on activity type and facility
       const selectedFacility = facilities.find((f: any) => f.id.toString() === data.facilityId);
       const title = `${data.activityType} Application for ${selectedFacility?.name || 'Facility'}`;
-      
+      console.log("Mutation called");
       return apiRequest('/api/applications', 'POST', {
         ...data,
         facilityId: parseInt(data.facilityId),
@@ -176,8 +177,20 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
   });
 
   const onSubmit = (values: z.infer<typeof applicationSchema>) => {
+    console.log("Submit Handle called", values);
+    console.log("Form errors:", form.formState.errors);
+    console.log("Can create edit:", canCreateEdit(user));
+    
     if (!canCreateEdit(user)) return;
-    createApplicationMutation.mutate(values);
+    
+    // Ensure facilityId is set from prop if provided
+    const submissionData = {
+      ...values,
+      facilityId: facilityId || values.facilityId,
+    };
+    console.log("Submitting data:", submissionData);
+    
+    createApplicationMutation.mutate(submissionData);
   };
 
   const getActivityIcon = (activityType: string) => {
@@ -258,52 +271,69 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Facility Selection - Must be selected first */}
-            <FormField
-              control={form.control}
-              name="facilityId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Facility</FormLabel>
-                  {facilities.length === 0 ? (
-                    <div className="space-y-3">
-                      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                        <p className="text-sm text-gray-600 mb-3">
-                          No facilities found. You need to create a facility before starting an application.
-                        </p>
-                        <Button 
-                          type="button" 
-                          onClick={() => {
-                            setOpen(false);
-                            window.location.href = '/dashboard';
-                          }}
-                          className="w-full"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Go to Dashboard to Create Facility
-                        </Button>
+            {/* Facility Selection - Only show if no facilityId prop provided */}
+            {!facilityId && (
+              <FormField
+                control={form.control}
+                name="facilityId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Facility</FormLabel>
+                    {facilities.length === 0 ? (
+                      <div className="space-y-3">
+                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          <p className="text-sm text-gray-600 mb-3">
+                            No facilities found. You need to create a facility before starting an application.
+                          </p>
+                          <Button 
+                            type="button" 
+                            onClick={() => {
+                              setOpen(false);
+                              window.location.href = '/dashboard';
+                            }}
+                            className="w-full"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Go to Dashboard to Create Facility
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a facility..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {facilities.map((facility: any) => (
-                          <SelectItem key={facility.id} value={facility.id.toString()}>
-                            {facility.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    ) : (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose a facility..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {facilities.map((facility: any) => (
+                            <SelectItem key={facility.id} value={facility.id.toString()}>
+                              {facility.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Show selected facility when pre-selected */}
+            {facilityId && (
+              <div className="space-y-2">
+                <FormLabel>Selected Facility</FormLabel>
+                <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <p className="text-sm font-medium text-gray-900">
+                    {facilities.find((f: any) => f.id.toString() === facilityId || f.id === parseInt(facilityId || '0'))?.name || 'Loading...'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Application will be created for this facility
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Activity Type Selection - Only enabled after facility selection */}
             <FormField
@@ -315,7 +345,7 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
                   {!selectedFacilityId ? (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <p className="text-sm text-gray-600">
-                        Please select a facility first to see available activity types.
+                        {facilityId ? 'Loading available activity types...' : 'Please select a facility first to see available activity types.'}
                       </p>
                     </div>
                   ) : (
@@ -413,7 +443,20 @@ export default function CompanyApplicationDialog({ onSuccess }: CompanyApplicati
                 Cancel
               </Button>
               {canCreateEdit(user) && (
-                <Button type="submit" disabled={createApplicationMutation.isPending}>
+                <Button 
+                  type="submit" 
+                  disabled={createApplicationMutation.isPending}
+                  onClick={() => {
+                    console.log("Button clicked, form valid:", form.formState.isValid);
+                    console.log("Form values:", form.getValues());
+                    console.log("Form errors:", form.formState.errors);
+                    console.log("Validation state:", {
+                      activityType: form.getValues().activityType,
+                      facilityId: form.getValues().facilityId,
+                      facilityIdFromProp: facilityId
+                    });
+                  }}
+                >
                   {createApplicationMutation.isPending ? 'Creating...' : 'Create Application'}
                 </Button>
               )}

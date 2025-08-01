@@ -84,12 +84,14 @@ export default function Applications() {
   const applicationsToShow: any[] = user?.role === 'contractor_individual' ? assignedApplications : applications;
 
   // Filter and search applications
-  const filteredApplications = useMemo(() => {
+  const filteredApplications = useMemo(() => {   
     return applicationsToShow.filter((app: any) => {
       // Search term filter (case insensitive)
       const searchMatch = searchTerm === "" || 
         app.applicationId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.facility?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.facilityName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.activityType?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -141,20 +143,22 @@ export default function Applications() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Applications ({filteredApplications.length} of {applicationsToShow.length})</CardTitle>
-            {canCreateEdit(user) && (
-              <CompanyApplicationDialog onSuccess={() => {}} />
-            )}
-            {hasActiveFilters && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={clearFilters}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <X className="h-4 w-4 mr-2" />
-                Clear Filters
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {hasActiveFilters && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={clearFilters}
+                  className="h-7 px-3 text-xs font-medium text-gray-600 hover:text-gray-900"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear Filters
+                </Button>
+              )}
+              {canCreateEdit(user) && (
+                <CompanyApplicationDialog onSuccess={() => {}} />
+              )}
+            </div>
           </div>
           
           {/* Search and Filter Controls */}

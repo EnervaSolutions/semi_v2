@@ -1815,6 +1815,34 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // GET application ID preview - for showing users what ID will be generated
+  app.get('/api/applications/preview-id', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      if (!user?.companyId) {
+        return res.status(400).json({ message: "User must be associated with a company" });
+      }
+
+      const { facilityId, activityType } = req.query;
+      
+      if (!facilityId || !activityType) {
+        return res.status(400).json({ message: "facilityId and activityType are required" });
+      }
+
+      // Generate the preview ID using the same logic as actual creation
+      const previewId = await dbStorage.generateApplicationId(
+        user.companyId,
+        parseInt(facilityId as string),
+        activityType as string
+      );
+
+      res.json({ applicationId: previewId });
+    } catch (error) {
+      console.error("Error generating application ID preview:", error);
+      res.status(500).json({ message: "Failed to generate application ID preview" });
+    }
+  });
+
   // ============================================================================
   // CRITICAL APPLICATION CREATION ENDPOINT
   // ============================================================================

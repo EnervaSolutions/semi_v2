@@ -225,9 +225,7 @@ export function ApplicationTable({ applications, showColumnSelector = false, com
   // Helper to determine submission status based on detailed status
   const getSubmissionStatus = (application: Application) => {
     const statusLabel = application.detailedStatusLabel || application.detailedStatus || application.status;
-    
-    console.log(`Checking submission status for ${application.applicationId}: statusLabel="${statusLabel}", status="${application.status}"`);
-    
+
     // Check if the status indicates completion (all activities submitted)
     if (statusLabel && statusLabel.includes('Submitted') && !statusLabel.includes('Started')) {
       // If it's a final submission (like "PreActivity Submitted" or template name + "Submitted")
