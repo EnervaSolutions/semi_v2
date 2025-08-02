@@ -5,8 +5,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, X, Settings } from "lucide-react";
+import { Search, Filter, X, Settings, Info } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
+import { useLocation } from "wouter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,10 +48,13 @@ const DEFAULT_COLUMNS: ColumnVisibility = {
 
 export default function Applications() {
   const { user } = useAuth();
+  const [location] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activityFilter, setActivityFilter] = useState("all");
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(DEFAULT_COLUMNS);
+  const [showFilterBanner, setShowFilterBanner] = useState(false);
+  const [filterSource, setFilterSource] = useState("");
 
   // Load saved column preferences
   useEffect(() => {
@@ -80,6 +84,21 @@ export default function Applications() {
     queryKey: ['/api/applications/assigned'],
     enabled: user?.role === 'contractor_individual',
   });
+
+
+  // Handle URL parameters to populate search field
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const facilityName = searchParams.get('facility');
+    
+    if (facilityName) {
+      // Decode the facility name from URL and set it as search term
+      const decodedName = decodeURIComponent(facilityName);
+      setSearchTerm(decodedName);
+      setFilterSource(decodedName);
+      setShowFilterBanner(true);
+    }
+  }, [location]);
 
   const applicationsToShow: any[] = user?.role === 'contractor_individual' ? assignedApplications : applications;
 
@@ -122,6 +141,12 @@ export default function Applications() {
     setSearchTerm("");
     setStatusFilter("all");
     setActivityFilter("all");
+    setShowFilterBanner(false);
+    setFilterSource("");
+  };
+
+  const dismissBanner = () => {
+    setShowFilterBanner(false);
   };
 
   const hasActiveFilters = searchTerm !== "" || statusFilter !== "all" || activityFilter !== "all";
@@ -160,9 +185,31 @@ export default function Applications() {
               )}
             </div>
           </div>
+
+          {/* Filter Banner */}
+          {showFilterBanner && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Info className="h-4 w-4 text-blue-600" />
+                <span className="text-sm text-blue-800">
+                  Showing applications for facility: <strong>{filterSource}</strong>
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={dismissBanner}
+                  className="h-7 w-7 p-0 text-blue-700 hover:bg-blue-100"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          )}
           
           {/* Search and Filter Controls */}
-          <div className="mt-16 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Search Bar */}
               <div className="relative flex-1">
