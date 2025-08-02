@@ -32,12 +32,13 @@ import {
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { canCreateEdit } from "@/lib/permissions";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [showDocumentUpload, setShowDocumentUpload] = useState(false);
   const [showFacilityForm, setShowFacilityForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
@@ -359,7 +360,10 @@ export default function Dashboard() {
                   return (
                     <div key={facility.id} className="border border-gray-200 rounded-lg p-5 hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 shadow-sm">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-start space-x-4">
+                        <div 
+                          className="flex items-start space-x-4 flex-1 cursor-pointer"
+                          onClick={() => navigate(`/applications?facility=${facility.name}`)}
+                        >
                           <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                             <Building className="h-6 w-6 text-blue-600" />
                           </div>
@@ -424,7 +428,8 @@ export default function Dashboard() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setEditingFacility(facility);
                                 setShowFacilityForm(true);
                               }}
@@ -436,12 +441,14 @@ export default function Dashboard() {
 
                           {/*Add new Applications to this facility*/}
                           {canCreateEdit(user) && (
-                            <CompanyApplicationDialog
-                              onSuccess={() => {
-                                setRenderKey(prev => prev + 1);
-                              }}
-                              facilityId={facility.id}
-                            />
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <CompanyApplicationDialog
+                                onSuccess={() => {
+                                  setRenderKey(prev => prev + 1);
+                                }}
+                                facilityId={facility.id}
+                              />
+                            </div>
                           )}
                         </div>
                       </div>
