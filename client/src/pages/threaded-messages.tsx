@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { MessageCircle, Send, User, Clock, Building2, Loader2, Check, Reply, CheckCircle } from "lucide-react";
+import { MessageCircle, Send, User, Clock, Building2, Loader2, Check, Reply, CheckCircle, Plus } from "lucide-react";
 import { format } from "date-fns";
 
 interface Message {
@@ -145,10 +145,15 @@ export default function ThreadedMessages() {
     if (selectedThread && threads.length > 0) {
       const updatedThread = threads.find(t => t.id === selectedThread.id);
       if (updatedThread) {
-        setSelectedThread(updatedThread);
+        // Only update if the thread content has actually changed (e.g., new messages)
+        const hasChanges = updatedThread.messages.length !== selectedThread.messages.length ||
+                          updatedThread.lastActivity !== selectedThread.lastActivity;
+        if (hasChanges) {
+          setSelectedThread(updatedThread);
+        }
       }
     }
-  }, [threads, selectedThread?.id]);
+  }, [threads]);
 
   // Send message mutation
   const sendMessageMutation = useMutation({
@@ -396,6 +401,18 @@ export default function ThreadedMessages() {
                       <Badge variant="secondary">Resolved</Badge>
                     ) : (
                       <Badge variant="destructive">Open</Badge>
+                    )}
+                    {/* New Message Button - only show for non-admin users */}
+                    {user?.role !== 'system_admin' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedThread(null)}
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" />
+                        New Message
+                      </Button>
                     )}
                   </div>
                 </div>
