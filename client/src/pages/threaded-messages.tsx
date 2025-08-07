@@ -9,9 +9,19 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { MessageCircle, Send, User, Clock, Building2, Loader2, Check, Reply, CheckCircle } from "lucide-react";
+import { MessageCircle, Send, User, Clock, Building2, Loader2, Check, Reply, CheckCircle, Plus } from "lucide-react";
 import { format } from "date-fns";
 
 interface Message {
@@ -62,6 +72,8 @@ export default function ThreadedMessages() {
   const { toast } = useToast();
   const [selectedThread, setSelectedThread] = useState<MessageThread | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [showResolveDialog, setShowResolveDialog] = useState(false);
+  const [threadToResolve, setThreadToResolve] = useState<MessageThread | null>(null);
   const [newMessage, setNewMessage] = useState({
     subject: "",
     message: "",
@@ -96,7 +108,7 @@ export default function ThreadedMessages() {
     const threadMap = new Map<string, MessageThread>();
 
     // Sort messages by creation date
-    const sortedMessages = [...messages].sort((a, b) => 
+    const sortedMessages = [...messages].sort((a, b) =>
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
 
@@ -133,7 +145,7 @@ export default function ThreadedMessages() {
     });
 
     // Sort threads by last activity
-    return Array.from(threadMap.values()).sort((a, b) => 
+    return Array.from(threadMap.values()).sort((a, b) =>
       new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
     );
   };
@@ -145,20 +157,27 @@ export default function ThreadedMessages() {
     if (selectedThread && threads.length > 0) {
       const updatedThread = threads.find(t => t.id === selectedThread.id);
       if (updatedThread) {
-        setSelectedThread(updatedThread);
+        // Only update if the thread content has actually changed (e.g., new messages)
+        const hasChanges = updatedThread.messages.length !== selectedThread.messages.length ||
+          updatedThread.lastActivity !== selectedThread.lastActivity;
+        if (hasChanges) {
+          setSelectedThread(updatedThread);
+        }
       }
     }
-  }, [threads, selectedThread?.id]);
+  }, [threads]);
 
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: typeof newMessage) => {
-      return await apiRequest("/api/messages", "POST", {
+      const response = await apiRequest("/api/messages", "POST", {
         ...messageData,
         applicationId: messageData.applicationId && messageData.applicationId !== "none" ? parseInt(messageData.applicationId) : null,
       });
+      return await response.json();
     },
     onSuccess: (data: any) => {
+      console.log("ticket response:", data);
       // Clear form immediately and show ticket number
       setNewMessage({ subject: "", message: "", priority: "normal", applicationId: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
@@ -225,6 +244,40 @@ export default function ThreadedMessages() {
     },
   });
 
+  // User resolve ticket mutation with admin notification
+  const resolveTicketMutation = useMutation({
+    mutationFn: async (thread: any) => {
+      const ticketNumber = (thread.messages[0] as any)?.ticketNumber;
+      if (!ticketNumber) {
+        throw new Error("No ticket number found");
+      }
+
+      const response = await apiRequest("/api/tickets/resolve", "POST", {
+        ticketNumber,
+        resolvedByUser: true,
+        userMessage: "This issue has been resolved by the user."
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+      queryClient.refetchQueries({ queryKey: ["/api/messages"] });
+      toast({
+        title: "Ticket marked as resolved",
+        description: "Your ticket has been marked as resolved and admins have been notified.",
+      });
+      // Clear selected thread to show the updated state
+      setSelectedThread(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to resolve ticket",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSendMessage = () => {
     if (!newMessage.subject.trim() || !newMessage.message.trim()) {
       toast({
@@ -234,18 +287,19 @@ export default function ThreadedMessages() {
       });
       return;
     }
+    console.log(newMessage);
     sendMessageMutation.mutate(newMessage);
   };
 
   const handleReply = (e?: React.MouseEvent | React.FormEvent) => {
     e?.preventDefault(); // Prevent form submission/page refresh
     if (!replyText.trim() || !selectedThread) return;
-    
+
     // Find the original user ID (first non-admin user in the thread)
     const originalUserId = selectedThread.messages.find(m => !m.isAdminMessage)?.fromUserId;
     // Get ticket number from the thread
     const ticketNumber = (selectedThread.messages[0] as any)?.ticketNumber;
-    
+
     replyMessageMutation.mutate({
       subject: `Re: ${selectedThread.subject}`,
       message: replyText,
@@ -259,6 +313,20 @@ export default function ThreadedMessages() {
     if (!selectedThread) return;
     const lastMessage = selectedThread.messages[selectedThread.messages.length - 1];
     markResolvedMutation.mutate(lastMessage.id);
+  };
+
+  const handleResolveTicket = (thread: any) => {
+    if (!thread) return;
+    setThreadToResolve(thread);
+    setShowResolveDialog(true);
+  };
+
+  const confirmResolveTicket = () => {
+    if (threadToResolve) {
+      resolveTicketMutation.mutate(threadToResolve);
+      setShowResolveDialog(false);
+      setThreadToResolve(null);
+    }
   };
 
   // Use the threads variable defined earlier  
@@ -305,11 +373,10 @@ export default function ThreadedMessages() {
               messageThreads.map((thread) => (
                 <div
                   key={thread.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    selectedThread?.id === thread.id
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedThread?.id === thread.id
                       ? "bg-primary/10 border-primary"
                       : "hover:bg-muted/50"
-                  }`}
+                    }`}
                   onClick={() => setSelectedThread(thread)}
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -333,7 +400,7 @@ export default function ThreadedMessages() {
                       )}
                     </div>
                   </div>
-                  
+
                   {user?.role === 'system_admin' && thread.company && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                       <Building2 className="h-3 w-3" />
@@ -341,7 +408,7 @@ export default function ThreadedMessages() {
                       <span>({thread.company.shortName})</span>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <User className="h-3 w-3" />
                     <span>
@@ -394,6 +461,31 @@ export default function ThreadedMessages() {
                     ) : (
                       <Badge variant="destructive">Open</Badge>
                     )}
+                    {/* Mark as Resolved Button - only show for non-admin users on open tickets */}
+                    {user?.role !== 'system_admin' && !selectedThread.isResolved && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResolveTicket(selectedThread)}
+                        className="flex items-center gap-1 text-green-600 border-green-200 hover:bg-green-50"
+                        disabled={resolveTicketMutation.isPending}
+                      >
+                        <CheckCircle className="h-3 w-3" />
+                        {resolveTicketMutation.isPending ? 'Resolving...' : 'Mark as Resolved'}
+                      </Button>
+                    )}
+                    {/* New Message Button - only show for non-admin users */}
+                    {user?.role !== 'system_admin' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedThread(null)}
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" />
+                        New Message
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -403,11 +495,10 @@ export default function ThreadedMessages() {
                 {selectedThread.messages.map((message, index) => (
                   <div
                     key={message.id}
-                    className={`p-4 rounded-lg ${
-                      message.isAdminMessage
+                    className={`p-4 rounded-lg ${message.isAdminMessage
                         ? "bg-blue-50 border-l-4 border-l-blue-500 ml-8"
                         : "bg-gray-50 border-l-4 border-l-gray-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       <User className="h-4 w-4" />
@@ -448,68 +539,68 @@ export default function ThreadedMessages() {
                       <h4 className="font-medium">
                         {user?.role === 'system_admin' ? 'Reply to Ticket' : 'Reply to Conversation'}
                       </h4>
-                      
+
                       <form onSubmit={handleReply} className="space-y-3">
-                    <div>
-                      <Label htmlFor="reply">Your Reply</Label>
-                      <Textarea
-                        id="reply"
-                        placeholder="Type your reply here... (Press Ctrl+Enter to send)"
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                            e.preventDefault();
-                            handleReply(e);
-                          }
-                        }}
-                        className="mt-1 resize-none"
-                        rows={3}
-                      />
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        type="submit"
-                        disabled={!replyText.trim() || replyMessageMutation.isPending}
-                        size="sm"
-                      >
-                        {replyMessageMutation.isPending ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Reply className="h-4 w-4 mr-2" />
-                            Send Reply
-                          </>
-                        )}
-                      </Button>
-                      
-                      {user?.role === 'system_admin' && !selectedThread.isResolved && (
-                        <Button
-                          type="button"
-                          onClick={handleMarkResolved}
-                          disabled={markResolvedMutation.isPending}
-                          variant="outline"
-                          size="sm"
-                        >
-                          {markResolvedMutation.isPending ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                              Updating...
-                            </>
-                          ) : (
-                            <>
-                              <Check className="h-4 w-4 mr-2" />
-                              Mark Resolved
-                            </>
+                        <div>
+                          <Label htmlFor="reply">Your Reply</Label>
+                          <Textarea
+                            id="reply"
+                            placeholder="Type your reply here... (Press Ctrl+Enter to send)"
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                e.preventDefault();
+                                handleReply(e);
+                              }
+                            }}
+                            className="mt-1 resize-none"
+                            rows={3}
+                          />
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            type="submit"
+                            disabled={!replyText.trim() || replyMessageMutation.isPending}
+                            size="sm"
+                          >
+                            {replyMessageMutation.isPending ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Sending...
+                              </>
+                            ) : (
+                              <>
+                                <Reply className="h-4 w-4 mr-2" />
+                                Send Reply
+                              </>
+                            )}
+                          </Button>
+
+                          {user?.role === 'system_admin' && !selectedThread.isResolved && (
+                            <Button
+                              type="button"
+                              onClick={handleMarkResolved}
+                              disabled={markResolvedMutation.isPending}
+                              variant="outline"
+                              size="sm"
+                            >
+                              {markResolvedMutation.isPending ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                  Updating...
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="h-4 w-4 mr-2" />
+                                  Mark Resolved
+                                </>
+                              )}
+                            </Button>
                           )}
-                        </Button>
-                      )}
-                    </div>
-                  </form>
+                        </div>
+                      </form>
                     </>
                   )}
                 </div>
@@ -608,6 +699,40 @@ export default function ThreadedMessages() {
           )}
         </div>
       </div>
+
+      {/* Resolve Ticket Confirmation Dialog */}
+      <AlertDialog open={showResolveDialog} onOpenChange={setShowResolveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark Ticket as Resolved</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to mark this ticket as resolved? This will notify the admin team that you've resolved the issue yourself.
+              {threadToResolve && (
+                <>
+                  <br /><br />
+                  <strong>Ticket:</strong> {threadToResolve.subject}
+                  {(threadToResolve.messages[0] as any)?.ticketNumber && (
+                    <>
+                      <br />
+                      <strong>Ticket Number:</strong> {(threadToResolve.messages[0] as any).ticketNumber}
+                    </>
+                  )}
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmResolveTicket}
+              disabled={resolveTicketMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {resolveTicketMutation.isPending ? 'Resolving...' : 'Mark as Resolved'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

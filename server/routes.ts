@@ -4074,6 +4074,49 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // User resolve ticket - allows users to mark their own tickets as resolved
+  app.post('/api/tickets/resolve', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { ticketNumber, resolvedByUser, userMessage } = req.body;
+
+      if (!ticketNumber) {
+        return res.status(400).json({ message: "Ticket number is required" });
+      }
+
+      console.log(`[TICKETS] User ${user.email} marking ticket ${ticketNumber} as resolved`);
+      
+      // Resolve the ticket
+      await dbStorage.resolveTicket(ticketNumber);
+      
+      // Create a notification message to admins about the user resolution
+      const notificationMessage = {
+        subject: `Ticket ${ticketNumber} resolved by user`,
+        message: `User ${user.firstName} ${user.lastName} (${user.email}) has marked ticket ${ticketNumber} as resolved.\n\nUser's message: ${userMessage || 'No additional message provided.'}`,
+        fromUserId: user.id,
+        toUserId: null, // System message to admins
+        ticketNumber: ticketNumber,
+        isAdminMessage: false,
+        priority: 'normal',
+        applicationId: null,
+        parentMessageId: null,
+        isUserResolution: true // Flag to indicate this is a user resolution notification
+      };
+
+      await dbStorage.createMessage(notificationMessage, ticketNumber);
+      
+      console.log(`[TICKETS] Ticket ${ticketNumber} marked as resolved by user ${user.email} and admin notification sent`);
+      res.json({ 
+        success: true, 
+        message: "Ticket marked as resolved and admin notification sent",
+        ticketNumber 
+      });
+    } catch (error) {
+      console.error("Error resolving ticket by user:", error);
+      res.status(500).json({ message: "Failed to resolve ticket" });
+    }
+  });
+
   // ============================================================================
   // ARCHIVE MANAGEMENT API ENDPOINTS
   // ============================================================================

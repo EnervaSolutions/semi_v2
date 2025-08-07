@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { User, Settings, Key, Shield, ExternalLink, Edit2, Save, X } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Profile() {
   const { toast } = useToast();
@@ -494,9 +495,11 @@ export default function Profile() {
                       <div className="font-medium">Technical Support</div>
                       <div className="text-sm text-gray-500">Get help with technical issues</div>
                     </div>
-                    <Button variant="outline" size="sm" disabled>
+                    <Link href="/messages">
+                    <Button variant="outline" size="sm">
                       Contact Support
                     </Button>
+                    </Link>
                   </div>
                 </div>
               </div>

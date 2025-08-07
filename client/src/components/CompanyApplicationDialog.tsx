@@ -87,7 +87,7 @@ export default function CompanyApplicationDialog({ onSuccess, facilityId }: Comp
   });
 
   // Get current applications for checking limits
-  const { data: applications = [] } = useQuery<any[]>({
+  const { data: applications = [], isLoading: applicationsLoading } = useQuery<any[]>({
     queryKey: ['/api/applications'],
     enabled: open,
   });
@@ -102,6 +102,34 @@ export default function CompanyApplicationDialog({ onSuccess, facilityId }: Comp
   const { data: currentCompany } = useQuery<any>({
     queryKey: ['/api/companies/current'],
     enabled: open,
+  });
+
+  // Get enabled activities map for facilities
+  const { data: facilityActivitiesMap = {} } = useQuery({
+    queryKey: ["/api/facilities/activities-map"],
+    queryFn: async () => {
+      if (!facilities || facilities.length === 0) return {};
+
+      const map: Record<number, string[]> = {};
+      await Promise.all(
+        facilities.map(async (facility: any) => {
+          try {
+            const response = await fetch(`/api/facilities/${facility.id}/activities`);
+            if (response.ok) {
+              const data = await response.json();
+              map[facility.id] = data.enabledActivities || ['FRA'];
+            } else {
+              map[facility.id] = ['FRA']; // Fallback to FRA only
+            }
+          } catch (error) {
+            console.error(`Error fetching activities for facility ${facility.id}:`, error);
+            map[facility.id] = ['FRA']; // Fallback to FRA only
+          }
+        })
+      );
+      return map;
+    },
+    enabled: open && facilities && facilities.length > 0,
   });
 
   // Get enabled activities for the selected facility
@@ -335,6 +363,98 @@ export default function CompanyApplicationDialog({ onSuccess, facilityId }: Comp
               </div>
             )}
 
+            {/* Application Limits for Selected Facility */}
+            {selectedFacilityId && (
+              <div className="space-y-3">
+                <FormLabel>Application Limits for Selected Facility</FormLabel>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                  <h6 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                    Activity Application Limits
+                  </h6>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {applicationsLoading ? (
+                      <div className="col-span-full text-center py-4">
+                        <div className="text-sm text-gray-500">Loading activity data...</div>
+                      </div>
+                    ) : (
+                      activitySettings?.filter((setting: any) => {
+                        // Only show activities that are enabled for this specific facility
+                        const currentFacilityId = parseInt(selectedFacilityId);
+                        const enabledActivities = facilityActivitiesMap[currentFacilityId] || ['FRA'];
+                        return enabledActivities.includes(setting.activityType);
+                      }).sort((a: any, b: any) => {
+                        // Sort activities in correct order: FRA, EAA, SEM, EMIS, CR
+                        const order = ['FRA', 'EAA', 'SEM', 'EMIS', 'CR'];
+                        return order.indexOf(a.activityType) - order.indexOf(b.activityType);
+                      }).map((setting: any) => {
+                        const currentFacilityId = parseInt(selectedFacilityId);
+                        const facilityApplications = applications?.filter((app: any) =>
+                          app.facilityId === currentFacilityId && app.activityType === setting.activityType
+                        ) || [];
+                        const currentCount = facilityApplications.length;
+                        const maxCount = setting.maxApplications;
+                        const isUnlimited = maxCount === null;
+                        const isAtLimit = !isUnlimited && currentCount >= maxCount;
+                        const hasApplications = currentCount > 0;
+                        const isDisabled = false; // Activity is enabled since we filtered for enabled ones
+                        const canStartActivity = !isAtLimit;
+
+                        let tooltipText = '';
+                        if (isDisabled) {
+                          tooltipText = 'This activity will be enabled by the Enerva team at a later time';
+                        } else if (isAtLimit) {
+                          tooltipText = `Application limit reached (${currentCount}/${maxCount}). Cannot create more applications for this activity.`;
+                        } else if (canStartActivity) {
+                          tooltipText = `${currentCount} of ${isUnlimited ? '∞' : maxCount} applications created for ${setting.activityType}`;
+                        }
+
+                        return (
+                          <div
+                            key={setting.activityType}
+                            className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all relative group ${
+                              isDisabled ? 'bg-gray-100 border-gray-300 opacity-60' :
+                              isAtLimit ? 'bg-red-50 border-red-200' :
+                              hasApplications ? 'bg-amber-50 border-amber-200' :
+                              'bg-white border-gray-200'
+                            }`}
+                            title={tooltipText}
+                          >
+                            <span className={`font-medium text-sm ${isDisabled ? 'text-gray-500' : 'text-gray-800'}`}>
+                              {setting.activityType}
+                            </span>
+                            <div className="flex items-center space-x-2">
+                              <span className={`text-sm font-bold ${
+                                isDisabled ? 'text-gray-500' :
+                                isUnlimited ? 'text-green-700' :
+                                isAtLimit ? 'text-red-700' :
+                                hasApplications ? 'text-amber-700' : 'text-gray-600'
+                              }`}>
+                                {currentCount}/{isUnlimited ? '∞' : maxCount}
+                              </span>
+                              <div className={`w-3 h-3 rounded-full ${
+                                isDisabled ? 'bg-gray-400' :
+                                isUnlimited ? 'bg-green-500' :
+                                isAtLimit ? 'bg-red-500' :
+                                hasApplications ? 'bg-amber-500' : 'bg-gray-400'
+                              }`}></div>
+                            </div>
+
+                            {tooltipText && (
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                                {tooltipText}
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Activity Type Selection - Only enabled after facility selection */}
             <FormField
               control={form.control}
@@ -446,16 +566,7 @@ export default function CompanyApplicationDialog({ onSuccess, facilityId }: Comp
                 <Button 
                   type="submit" 
                   disabled={createApplicationMutation.isPending}
-                  onClick={() => {
-                    console.log("Button clicked, form valid:", form.formState.isValid);
-                    console.log("Form values:", form.getValues());
-                    console.log("Form errors:", form.formState.errors);
-                    console.log("Validation state:", {
-                      activityType: form.getValues().activityType,
-                      facilityId: form.getValues().facilityId,
-                      facilityIdFromProp: facilityId
-                    });
-                  }}
+                  onClick={() => {}}
                 >
                   {createApplicationMutation.isPending ? 'Creating...' : 'Create Application'}
                 </Button>
