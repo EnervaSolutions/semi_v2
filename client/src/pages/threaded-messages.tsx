@@ -153,12 +153,14 @@ export default function ThreadedMessages() {
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: typeof newMessage) => {
-      return await apiRequest("/api/messages", "POST", {
+      const response = await apiRequest("/api/messages", "POST", {
         ...messageData,
         applicationId: messageData.applicationId && messageData.applicationId !== "none" ? parseInt(messageData.applicationId) : null,
       });
+      return await response.json();
     },
     onSuccess: (data: any) => {
+      console.log("ticket response:", data);
       // Clear form immediately and show ticket number
       setNewMessage({ subject: "", message: "", priority: "normal", applicationId: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
@@ -234,6 +236,7 @@ export default function ThreadedMessages() {
       });
       return;
     }
+    console.log(newMessage);
     sendMessageMutation.mutate(newMessage);
   };
 
