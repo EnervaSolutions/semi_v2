@@ -233,7 +233,7 @@ export async function registerRoutes(app: Express) {
       
       const emailSent = await sendEmail({
         to: email,
-        from: process.env.SENDGRID_FROM_EMAIL || 'harsanjit.bhullar@enerva.ca',
+        from: process.env.SENDGRID_FROM_EMAIL || 'donotreply@enerva.ca',
         subject: 'SEMI Program - Temporary Password',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">

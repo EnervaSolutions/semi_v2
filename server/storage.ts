@@ -3517,7 +3517,7 @@ export class DatabaseStorage implements IStorage {
           
           const emailSent = await sendEmail({
             to: user.email,
-            from: process.env.SENDGRID_FROM_EMAIL || 'harsanjit.bhullar@enerva.ca',
+            from: process.env.SENDGRID_FROM_EMAIL || 'donotreply@enerva.ca',
             subject: 'SEMI Program - Your Account Setup Instructions',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
