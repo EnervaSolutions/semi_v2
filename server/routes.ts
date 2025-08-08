@@ -8,27 +8,11 @@ import fs from "fs";
 import archiver from "archiver";
 import { v4 as uuidv4 } from 'uuid';
 import { canInviteUsers, canEditPermissions, canCreateEdit, hasPermissionLevel } from './permissions';
+import { storageService } from './storage-service';
 
-// Configure multer for file uploads with proper file path handling
-const multerStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = 'uploads/';
-    // Ensure upload directory exists
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    // Generate unique filename with timestamp and random string
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const extension = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + extension);
-  }
-});
-
+// Configure multer for memory storage (files will be uploaded to Supabase)
 const upload = multer({ 
-  storage: multerStorage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB limit
   }
@@ -3086,7 +3070,12 @@ export async function registerRoutes(app: Express) {
       }
       
       console.log(`[UPLOAD] User ${user.id} uploading ${req.files.length} files for application ${applicationId}`);
-      console.log(`[UPLOAD] Full req.files object:`, JSON.stringify(req.files, null, 2));
+      console.log(`[UPLOAD] Files info:`, req.files.map(f => ({
+        originalname: f.originalname,
+        size: f.size,
+        mimetype: f.mimetype,
+        fieldname: f.fieldname
+      })));
       
       // Verify user has access to this application
       if (applicationId) {
@@ -3106,64 +3095,47 @@ export async function registerRoutes(app: Express) {
       const uploadedDocuments = [];
       
       for (const file of req.files) {
-        console.log(`[UPLOAD DEBUG] Raw file object keys:`, Object.keys(file));
-        console.log(`[UPLOAD DEBUG] File object:`, {
-          originalname: file.originalname,
-          filename: file.filename,
-          path: file.path,
-          destination: file.destination,
-          size: file.size,
-          mimetype: file.mimetype
-        });
+        console.log(`[UPLOAD DEBUG] Processing file: ${file.originalname} (${file.size} bytes, ${file.mimetype})`);
         
-        // Build file path from available properties
-        let filePath = file.path;
-        if (!filePath && file.destination && file.filename) {
-          filePath = path.join(file.destination, file.filename);
-        }
-        if (!filePath && file.filename) {
-          filePath = path.join('uploads', file.filename);
-        }
-        if (!filePath) {
-          // Find the actual uploaded file in uploads directory
-          const uploadDir = 'uploads/';
-          const files = fs.readdirSync(uploadDir);
-          const latestFile = files
-            .filter(f => f.includes(file.originalname.split('.')[0]) || f.startsWith('files-'))
-            .sort((a, b) => {
-              const statA = fs.statSync(path.join(uploadDir, a));
-              const statB = fs.statSync(path.join(uploadDir, b));
-              return statB.mtime.getTime() - statA.mtime.getTime();
-            })[0];
-          
-          if (latestFile) {
-            filePath = path.join(uploadDir, latestFile);
+        try {
+          // Determine folder path based on application or company
+          let folderPath = '';
+          if (applicationId) {
+            folderPath = `applications/${applicationId}`;
+          } else if (user.companyId) {
+            folderPath = `companies/${user.companyId}`;
           } else {
-            filePath = path.join('uploads', file.originalname);
+            folderPath = 'general';
           }
+          
+          // Upload file to Supabase storage
+          console.log(`[SUPABASE UPLOAD] Uploading to folder: ${folderPath}`);
+          const { filePath, publicUrl } = await storageService.uploadFile(file, folderPath);
+          
+          console.log(`[SUPABASE UPLOAD] File uploaded successfully: ${filePath}`);
+          
+          const document = await dbStorage.createDocument({
+            applicationId: applicationId ? parseInt(applicationId) : null,
+            companyId: applicationId ? null : (user.companyId || null),
+            documentType,
+            originalName: file.originalname,
+            filename: path.basename(filePath), // Extract filename from full path
+            filePath: filePath, // This now contains the Supabase storage path
+            size: file.size,
+            mimeType: file.mimetype,
+            uploadedBy: user.id
+          });
+          
+          uploadedDocuments.push(document);
+          console.log(`[UPLOAD] Document created: ${document.id} - ${file.originalname} stored at ${filePath}`);
+          
+        } catch (uploadError) {
+          console.error(`[UPLOAD ERROR] Failed to upload ${file.originalname}:`, uploadError);
+          return res.status(500).json({ 
+            message: `Failed to upload ${file.originalname}`, 
+            error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
+          });
         }
-        
-        console.log(`[UPLOAD DEBUG] Final file path: ${filePath}`);
-        
-        // Verify file exists on disk
-        if (!fs.existsSync(filePath)) {
-          console.log(`[UPLOAD ERROR] File does not exist at path: ${filePath}`);
-          return res.status(500).json({ message: `File not found at ${filePath}` });
-        }
-        
-        const document = await dbStorage.createDocument({
-          applicationId: applicationId ? parseInt(applicationId) : null,
-          companyId: applicationId ? null : (user.companyId || null), // Set companyId when no applicationId, fallback to uploadedBy user's company
-          documentType,
-          originalName: file.originalname,
-          filename: file.filename,
-          filePath: filePath,
-          size: file.size,
-          mimeType: file.mimetype,
-          uploadedBy: user.id
-        });
-        uploadedDocuments.push(document);
-        console.log(`[UPLOAD] Document created: ${document.id} - ${file.originalname} at ${filePath}`);
       }
       
       res.json(uploadedDocuments);
@@ -3217,7 +3189,26 @@ export async function registerRoutes(app: Express) {
       }
       
       // Check user permissions for document access
-      if (document.applicationId) {
+      if (document.messageId) {
+        // Document is a message attachment - simplified access for admins and participants
+        console.log(`[DOWNLOAD] Checking message attachment permissions for message ${document.messageId}`);
+        
+        const message = await dbStorage.getMessageWithDetails(document.messageId);
+        if (!message) {
+          return res.status(404).json({ message: "Associated message not found" });
+        }
+        
+        const isAdmin = user.role === 'system_admin';
+        const isMessageParticipant = message.fromUserId === user.id || message.toUserId === user.id;
+        
+        // Allow admins OR message participants
+        if (!isAdmin && !isMessageParticipant) {
+          console.log(`[DOWNLOAD] Access denied for message attachment. Admin: ${isAdmin}, Participant: ${isMessageParticipant}`);
+          return res.status(403).json({ message: "Access denied to message attachment" });
+        }
+        
+        console.log(`[DOWNLOAD] Message attachment access granted. Admin: ${isAdmin}, Participant: ${isMessageParticipant}`);
+      } else if (document.applicationId) {
         // Document belongs to an application
         const application = await dbStorage.getApplicationById(document.applicationId);
         if (application && user.role !== 'system_admin' && 
@@ -3256,21 +3247,53 @@ export async function registerRoutes(app: Express) {
       }
       res.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
       
-      // Stream the file
-      let filePath = document.filePath;
-      
-      // Handle relative paths by resolving from current directory
-      if (!path.isAbsolute(filePath)) {
-        filePath = path.resolve(filePath);
-      }
-      
+      // Check if this is a Supabase storage path or local file path
+      const filePath = document.filePath;
       console.log(`[DOWNLOAD] Attempting to download file: ${filePath}`);
       
-      if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
+      if (filePath.startsWith('uploads/') || path.isAbsolute(filePath)) {
+        // Legacy local file system path
+        let localFilePath = filePath;
+        if (!path.isAbsolute(localFilePath)) {
+          localFilePath = path.resolve(localFilePath);
+        }
+        
+        if (fs.existsSync(localFilePath)) {
+          console.log(`[DOWNLOAD] Serving local file: ${localFilePath}`);
+          res.sendFile(localFilePath);
+        } else {
+          console.error(`[DOWNLOAD] Local file not found: ${localFilePath}`);
+          res.status(404).json({ message: "File not found on disk", filePath: localFilePath });
+        }
       } else {
-        console.error(`[DOWNLOAD] File not found: ${filePath}`);
-        res.status(404).json({ message: "File not found on disk", filePath: filePath });
+        // Supabase storage path
+        try {
+          console.log(`[DOWNLOAD] Downloading from Supabase storage: ${filePath}`);
+          
+          if (isPreview) {
+            // For preview, redirect to Supabase signed URL
+            const signedUrl = await storageService.getSignedUrl(filePath, 3600); // 1 hour expiry
+            console.log(`[DOWNLOAD] Redirecting to Supabase URL for preview`);
+            res.redirect(signedUrl);
+          } else {
+            // For download, stream the file with proper headers
+            const { data } = await storageService.downloadFile(filePath);
+            
+            // Convert blob to buffer and stream
+            const arrayBuffer = await data.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            
+            console.log(`[DOWNLOAD] Streaming file from Supabase, size: ${buffer.length} bytes`);
+            res.send(buffer);
+          }
+        } catch (supabaseError) {
+          console.error(`[DOWNLOAD] Supabase download error:`, supabaseError);
+          res.status(404).json({ 
+            message: "File not found in storage", 
+            filePath: filePath,
+            error: supabaseError instanceof Error ? supabaseError.message : 'Unknown error'
+          });
+        }
       }
     } catch (error: any) {
       console.error('Error downloading document:', error);
@@ -4371,17 +4394,40 @@ export async function registerRoutes(app: Express) {
       }
 
       console.log("Badge creation - Request body:", req.body);
-      console.log("Badge creation - File:", req.file);
+      if (req.file) {
+        console.log("Badge creation - File:", {
+          originalname: req.file.originalname,
+          size: req.file.size,
+          mimetype: req.file.mimetype
+        });
+      }
 
       const { name, description, imageUrl } = req.body;
-      const imageFile = req.file?.filename;
-
+      
       // Validate required fields
       if (!name || !description) {
         return res.status(400).json({ 
           message: "Name and description are required", 
           received: { name, description, imageUrl } 
         });
+      }
+
+      let imageFile = null;
+      
+      // Handle file upload to Supabase if file is provided
+      if (req.file) {
+        try {
+          console.log(`[BADGE UPLOAD] Uploading badge image: ${req.file.originalname}`);
+          const { filePath } = await storageService.uploadFile(req.file, 'badges');
+          imageFile = filePath;
+          console.log(`[BADGE UPLOAD] Badge image uploaded successfully: ${filePath}`);
+        } catch (uploadError) {
+          console.error(`[BADGE UPLOAD] Failed to upload badge image:`, uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload badge image', 
+            error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
+          });
+        }
       }
 
       const badge = await dbStorage.createBadge({
@@ -4410,8 +4456,20 @@ export async function registerRoutes(app: Express) {
       const { name, description, imageUrl } = req.body;
       const updates: any = { name, description, imageUrl };
       
+      // Handle file upload to Supabase if file is provided
       if (req.file) {
-        updates.imageFile = req.file.filename;
+        try {
+          console.log(`[BADGE UPDATE] Uploading badge image: ${req.file.originalname}`);
+          const { filePath } = await storageService.uploadFile(req.file, 'badges');
+          updates.imageFile = filePath;
+          console.log(`[BADGE UPDATE] Badge image uploaded successfully: ${filePath}`);
+        } catch (uploadError) {
+          console.error(`[BADGE UPDATE] Failed to upload badge image:`, uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload badge image', 
+            error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
+          });
+        }
       }
 
       const badge = await dbStorage.updateBadge(badgeId, updates);
@@ -4506,11 +4564,16 @@ export async function registerRoutes(app: Express) {
       }
 
       console.log("Content creation - Request body:", req.body);
-      console.log("Content creation - File:", req.file);
+      if (req.file) {
+        console.log("Content creation - File:", {
+          originalname: req.file.originalname,
+          size: req.file.size,
+          mimetype: req.file.mimetype
+        });
+      }
 
       const { companyId, contentType, title, content, imageUrl, imageSize, displayOrder } = req.body;
-      const imageFile = req.file?.filename;
-
+      
       // Validate required fields
       if (!companyId || isNaN(parseInt(companyId))) {
         return res.status(400).json({ 
@@ -4519,13 +4582,31 @@ export async function registerRoutes(app: Express) {
         });
       }
 
+      let imageFile = '';
+      
+      // Handle file upload to Supabase if file is provided
+      if (req.file) {
+        try {
+          console.log(`[CONTENT UPLOAD] Uploading content image: ${req.file.originalname}`);
+          const { filePath } = await storageService.uploadFile(req.file, 'recognition-content');
+          imageFile = filePath;
+          console.log(`[CONTENT UPLOAD] Content image uploaded successfully: ${filePath}`);
+        } catch (uploadError) {
+          console.error(`[CONTENT UPLOAD] Failed to upload content image:`, uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload content image', 
+            error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
+          });
+        }
+      }
+
       const recognitionContent = await dbStorage.createRecognitionContent({
         companyId: parseInt(companyId),
         contentType: contentType || 'content',
         title: title || '',
         content: content || '',
         imageUrl: imageUrl || '',
-        imageFile: imageFile || '',
+        imageFile: imageFile,
         imageSize: imageSize || 'medium',
         displayOrder: displayOrder && !isNaN(parseInt(displayOrder)) ? parseInt(displayOrder) : 0,
         createdBy: user.id,
@@ -4569,8 +4650,20 @@ export async function registerRoutes(app: Express) {
         updates.displayOrder = parseInt(displayOrder);
       }
       
+      // Handle file upload to Supabase if file is provided
       if (req.file) {
-        updates.imageFile = req.file.filename;
+        try {
+          console.log(`[CONTENT UPDATE] Uploading content image: ${req.file.originalname}`);
+          const { filePath } = await storageService.uploadFile(req.file, 'recognition-content');
+          updates.imageFile = filePath;
+          console.log(`[CONTENT UPDATE] Content image uploaded successfully: ${filePath}`);
+        } catch (uploadError) {
+          console.error(`[CONTENT UPDATE] Failed to upload content image:`, uploadError);
+          return res.status(500).json({ 
+            message: 'Failed to upload content image', 
+            error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
+          });
+        }
       }
 
       const updatedContent = await dbStorage.updateRecognitionContent(contentId, updates);
@@ -5258,12 +5351,20 @@ export async function registerRoutes(app: Express) {
       if (attachments && attachments.length > 0) {
         for (const file of attachments) {
           try {
-            const filePath = file.path || path.join('uploads', file.filename);
-            console.log(`[MESSAGES API] Processing attachment: ${file.originalname}, filePath: ${filePath}, messageId: ${createdMessage.id}`);
+            console.log(`[MESSAGES API] Processing attachment: ${file.originalname}, messageId: ${createdMessage.id}`);
+            
+            // Determine folder path for message attachments
+            const folderPath = `messages/${createdMessage.id}`;
+            
+            // Upload file to Supabase storage
+            console.log(`[SUPABASE UPLOAD] Uploading message attachment to folder: ${folderPath}`);
+            const { filePath, publicUrl } = await storageService.uploadFile(file, folderPath);
+            
+            console.log(`[SUPABASE UPLOAD] Message attachment uploaded successfully: ${filePath}`);
             
             // Create document record linked to the message
             const documentData = {
-              filename: file.filename,
+              filename: path.basename(filePath), // Extract filename from full path
               originalName: file.originalname,
               mimeType: file.mimetype,
               size: file.size,
@@ -5272,7 +5373,7 @@ export async function registerRoutes(app: Express) {
               applicationId: applicationId ? parseInt(applicationId) : null,
               uploadedBy: user.id,
               messageId: createdMessage.id, // Link to message
-              filePath: filePath, // Add missing filePath
+              filePath: filePath, // This now contains the Supabase storage path
             };
             
             console.log(`[MESSAGES API] Creating document with data:`, documentData);
@@ -5343,6 +5444,50 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Get attachment count for a ticket (by ticket number)
+  app.get('/api/tickets/:ticketNumber/attachment-count', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const ticketNumber = req.params.ticketNumber;
+      
+      console.log(`[TICKET ATTACHMENTS] Getting attachment count for ticket ${ticketNumber} by user: ${user.email}`);
+      
+      // Get all messages in this ticket
+      const ticketMessages = await dbStorage.getMessagesByTicketOrSubject(ticketNumber);
+      if (!ticketMessages || ticketMessages.length === 0) {
+        return res.json({ count: 0 });
+      }
+      
+      // Check if user has access to this ticket
+      const isAdmin = user.role === 'system_admin';
+      const hasAccess = isAdmin || ticketMessages.some(msg => 
+        msg.fromUserId === user.id || msg.toUserId === user.id
+      );
+      
+      if (!hasAccess) {
+        return res.status(403).json({ message: 'Access denied to ticket' });
+      }
+      
+      // Count attachments across all messages in this ticket
+      let totalAttachments = 0;
+      for (const message of ticketMessages) {
+        const attachments = await dbStorage.getMessageAttachments(
+          message.id,
+          message.createdAt,
+          message.applicationId,
+          message.fromUser?.companyId
+        );
+        totalAttachments += attachments.length;
+      }
+      
+      console.log(`[TICKET ATTACHMENTS] Found ${totalAttachments} total attachments for ticket ${ticketNumber}`);
+      res.json({ count: totalAttachments });
+    } catch (error: any) {
+      console.error('[TICKET ATTACHMENTS] Error getting ticket attachment count:', error);
+      res.status(500).json({ message: 'Failed to get ticket attachment count' });
+    }
+  });
+
   // Get attachments for a specific message
   app.get('/api/messages/:id/attachments', requireAuth, async (req: any, res: Response) => {
     try {
@@ -5357,14 +5502,26 @@ export async function registerRoutes(app: Express) {
         return res.status(404).json({ message: 'Message not found' });
       }
       
-      // Check if user has access to this message
+      // Simplified access control: Allow admins and message participants
       const isAdmin = user.role === 'system_admin';
-      const isMessageOwner = message.fromUserId === user.id;
-      const isRecipient = message.toUserId === user.id;
+      const isMessageParticipant = message.fromUserId === user.id || message.toUserId === user.id;
       
-      if (!isAdmin && !isMessageOwner && !isRecipient) {
+      console.log(`[MESSAGE ATTACHMENTS API] Access check for message ${messageId}:`, {
+        userEmail: user.email,
+        userRole: user.role,
+        isAdmin,
+        isMessageParticipant,
+        messageFromUserId: message.fromUserId,
+        messageToUserId: message.toUserId
+      });
+      
+      // Allow access for admins OR message participants
+      if (!isAdmin && !isMessageParticipant) {
+        console.log(`[MESSAGE ATTACHMENTS API] Access denied for message ${messageId} to user ${user.email}`);
         return res.status(403).json({ message: 'Access denied' });
       }
+      
+      console.log(`[MESSAGE ATTACHMENTS API] Access granted for message ${messageId} to user ${user.email} (Admin: ${isAdmin}, Participant: ${isMessageParticipant})`);
       
       // Get attachments for this message
       const attachments = await dbStorage.getMessageAttachments(

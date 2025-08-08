@@ -32,6 +32,7 @@ interface MessageAttachmentsProps {
   disabled?: boolean;
   maxFiles?: number;
   compact?: boolean;
+  existingTicketAttachments?: number; // Count of attachments already in the ticket
 }
 
 const getFileIcon = (file: File) => {
@@ -53,7 +54,8 @@ export function MessageAttachments({
   onFilesChange, 
   disabled = false, 
   maxFiles = 3,
-  compact = false 
+  compact = false,
+  existingTicketAttachments = 0
 }: MessageAttachmentsProps) {
   const { toast } = useToast();
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
@@ -69,11 +71,13 @@ export function MessageAttachments({
       });
     }
 
-    // Check total file count
-    if (attachments.length + acceptedFiles.length > maxFiles) {
+    // Check total file count per ticket (existing + current + new)
+    const totalTicketAttachments = existingTicketAttachments + attachments.length + acceptedFiles.length;
+    if (totalTicketAttachments > maxFiles) {
+      const remaining = maxFiles - existingTicketAttachments - attachments.length;
       toast({
         title: "Too many files",
-        description: `Maximum ${maxFiles} attachments allowed per message.`,
+        description: `Maximum ${maxFiles} attachments allowed per ticket. You have ${existingTicketAttachments} existing attachment(s) and can add ${Math.max(0, remaining)} more.`,
         variant: "destructive",
       });
       return;
@@ -144,7 +148,7 @@ export function MessageAttachments({
               {isDragActive ? 'Drop files here...' : 'Attach files (optional)'}
             </span>
             <Badge variant="outline" className="text-xs">
-              {attachments.length}/{maxFiles}
+              {existingTicketAttachments + attachments.length}/{maxFiles}
             </Badge>
           </div>
         </div>
@@ -204,7 +208,7 @@ export function MessageAttachments({
             PDF, DOC, XLS, CSV, JPG, PNG (max {formatFileSize(FILE_UPLOAD_CONFIG.maxFileSize)})
           </p>
           <Badge variant="outline" className="mt-2">
-            {attachments.length}/{maxFiles} files attached
+            {existingTicketAttachments + attachments.length}/{maxFiles} files attached to ticket
           </Badge>
         </div>
       </div>

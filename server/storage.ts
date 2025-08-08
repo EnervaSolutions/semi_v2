@@ -3250,9 +3250,10 @@ export class DatabaseStorage implements IStorage {
 
   // Get attachments for a message using the messageId field
   async getMessageAttachments(messageId: number, messageTimestamp: Date, applicationId?: number, companyId?: number): Promise<any[]> {
-    console.log(`[STORAGE] Getting attachments for message ${messageId}`);
+    console.log(`[STORAGE] Getting attachments for message ${messageId} (timestamp: ${messageTimestamp})`);
     
     // First try to get documents directly linked to this message
+    console.log(`[STORAGE] Searching for documents with messageId = ${messageId}`);
     const directAttachments = await db
       .select({
         id: documents.id,
@@ -3263,10 +3264,18 @@ export class DatabaseStorage implements IStorage {
         documentType: documents.documentType,
         filePath: documents.filePath,
         createdAt: documents.createdAt,
+        messageId: documents.messageId,
       })
       .from(documents)
       .where(eq(documents.messageId, messageId))
       .orderBy(documents.createdAt);
+    
+    console.log(`[STORAGE] Direct messageId query returned ${directAttachments.length} attachments:`, directAttachments.map(a => ({
+      id: a.id,
+      filename: a.filename,
+      originalName: a.originalName,
+      messageId: a.messageId
+    })));
     
     if (directAttachments.length > 0) {
       console.log(`[STORAGE] Found ${directAttachments.length} direct attachments for message ${messageId}`);

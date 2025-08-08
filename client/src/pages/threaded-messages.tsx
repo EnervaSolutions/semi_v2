@@ -85,6 +85,14 @@ export default function ThreadedMessages() {
   const [newMessageAttachments, setNewMessageAttachments] = useState<File[]>([]);
   const [replyAttachments, setReplyAttachments] = useState<File[]>([]);
 
+  // Get ticket attachment count for the selected thread
+  const ticketNumber = (selectedThread?.messages[0] as any)?.ticketNumber;
+  const { data: ticketAttachmentCount = { count: 0 } } = useQuery({
+    queryKey: [`/api/tickets/${ticketNumber || 'none'}/attachment-count`],
+    enabled: !!ticketNumber,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+
   // Fetch user's applications for the dropdown
   const { data: userApplications = [] } = useQuery({
     queryKey: ["/api/applications"],
@@ -616,6 +624,7 @@ export default function ThreadedMessages() {
                             disabled={replyMessageMutation.isPending}
                             maxFiles={3}
                             compact={true}
+                            existingTicketAttachments={ticketAttachmentCount.count}
                           />
                         </div>
 

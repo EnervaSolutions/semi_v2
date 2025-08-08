@@ -54,6 +54,19 @@ export function MessageAttachmentsDisplay({
     queryKey: [`/api/messages/${messageId}/attachments`],
     enabled: !!messageId,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    onSuccess: (data) => {
+      console.log(`[ATTACHMENTS] SUCCESS: Loaded ${data.length} attachments for message ${messageId}:`, data);
+    },
+    onError: (err: any) => {
+      console.error(`[ATTACHMENTS] ERROR: Failed to load attachments for message ${messageId}:`, err);
+      console.error(`[ATTACHMENTS] Error details:`, {
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        message: err?.message,
+        url: `/api/messages/${messageId}/attachments`
+      });
+    }
   });
 
   const handleDownload = async (attachment: MessageAttachment) => {
