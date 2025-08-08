@@ -3243,8 +3243,17 @@ export async function registerRoutes(app: Express) {
         }
       }
       
-      // Set appropriate headers for file download
-      res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
+      // Check if this is a preview request (query parameter)
+      const isPreview = req.query.preview === 'true';
+      
+      // Set appropriate headers
+      if (isPreview) {
+        // For preview, use inline disposition to display in browser
+        res.setHeader('Content-Disposition', `inline; filename="${document.originalName}"`);
+      } else {
+        // For download, use attachment disposition
+        res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
+      }
       res.setHeader('Content-Type', document.mimeType || 'application/octet-stream');
       
       // Stream the file
@@ -5200,6 +5209,95 @@ export async function registerRoutes(app: Express) {
     }
   });
 
+  // Create new message with attachments
+  app.post('/api/messages/with-attachments', requireAuth, upload.array('attachments', 5), async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const { subject, message, applicationId, parentMessageId, ticketNumber, priority, toUserId } = req.body;
+      const attachments = req.files as Express.Multer.File[];
+
+      console.log(`[MESSAGES API] Creating message with attachments from user: ${user.email}`);
+      console.log(`[MESSAGES API] Attachments received:`, attachments?.length || 0);
+      
+      if (!subject || !message) {
+        return res.status(400).json({ message: 'Subject and message are required' });
+      }
+
+      // For replies, use the existing ticket number or find it from parent message
+      let finalTicketNumber = ticketNumber;
+      if (parentMessageId && !finalTicketNumber) {
+        const parentMessage = await dbStorage.getMessageWithDetails(parentMessageId);
+        if (parentMessage) {
+          finalTicketNumber = parentMessage.ticketNumber;
+          console.log(`[MESSAGES API] Found parent message ticket: ${finalTicketNumber}`);
+        }
+      }
+
+      // Detect if this is an admin reply by checking request body
+      const isAdminReply = !!toUserId && user.role === 'system_admin';
+      
+      const messageData = {
+        fromUserId: user.id,
+        toUserId: isAdminReply ? toUserId : null,
+        subject,
+        message,
+        applicationId: applicationId ? parseInt(applicationId) : null,
+        parentMessageId: parentMessageId ? parseInt(parentMessageId) : null,
+        ticketNumber: finalTicketNumber,
+        priority: priority || 'normal',
+        isAdminMessage: user.role === 'system_admin',
+        isRead: false
+      };
+
+      // Create the message first
+      const createdMessage = await dbStorage.createMessage(messageData, finalTicketNumber);
+      console.log(`[MESSAGES API] Message created with ID: ${createdMessage.id}, ticket: ${createdMessage.ticketNumber}`);
+      
+      // Handle file attachments if any
+      const uploadedAttachments = [];
+      if (attachments && attachments.length > 0) {
+        for (const file of attachments) {
+          try {
+            const filePath = file.path || path.join('uploads', file.filename);
+            console.log(`[MESSAGES API] Processing attachment: ${file.originalname}, filePath: ${filePath}, messageId: ${createdMessage.id}`);
+            
+            // Create document record linked to the message
+            const documentData = {
+              filename: file.filename,
+              originalName: file.originalname,
+              mimeType: file.mimetype,
+              size: file.size,
+              documentType: 'supporting' as const,
+              companyId: user.companyId || null,
+              applicationId: applicationId ? parseInt(applicationId) : null,
+              uploadedBy: user.id,
+              messageId: createdMessage.id, // Link to message
+              filePath: filePath, // Add missing filePath
+            };
+            
+            console.log(`[MESSAGES API] Creating document with data:`, documentData);
+            const document = await dbStorage.createDocument(documentData);
+            uploadedAttachments.push(document);
+            console.log(`[MESSAGES API] Document created with ID: ${document.id}, attachment: ${file.originalname} (${file.size} bytes)`);
+          } catch (uploadError) {
+            console.error(`[MESSAGES API] Error uploading attachment ${file.originalname}:`, uploadError);
+            // Continue with other attachments, don't fail the entire message
+          }
+        }
+      }
+
+      console.log(`[MESSAGES API] Message with ${uploadedAttachments.length} attachments created successfully`);
+      
+      res.status(201).json({
+        ...createdMessage,
+        attachments: uploadedAttachments
+      });
+    } catch (error: any) {
+      console.error('[MESSAGES API] Error creating message with attachments:', error);
+      res.status(500).json({ message: 'Failed to create message with attachments' });
+    }
+  });
+
   // Mark message as read (admin functionality)
   app.patch('/api/messages/:id/read', requireAuth, async (req: any, res: Response) => {
     try {
@@ -5242,6 +5340,45 @@ export async function registerRoutes(app: Express) {
     } catch (error: any) {
       console.error('Error fetching admin messages:', error);
       res.status(500).json({ message: 'Error fetching admin messages', error: error.message });
+    }
+  });
+
+  // Get attachments for a specific message
+  app.get('/api/messages/:id/attachments', requireAuth, async (req: any, res: Response) => {
+    try {
+      const user = req.user;
+      const messageId = parseInt(req.params.id);
+      
+      console.log(`[MESSAGE ATTACHMENTS API] Fetching attachments for message ${messageId} by user: ${user.email}`);
+      
+      // First, get the message to verify access and get context
+      const message = await dbStorage.getMessageWithDetails(messageId);
+      if (!message) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+      
+      // Check if user has access to this message
+      const isAdmin = user.role === 'system_admin';
+      const isMessageOwner = message.fromUserId === user.id;
+      const isRecipient = message.toUserId === user.id;
+      
+      if (!isAdmin && !isMessageOwner && !isRecipient) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Get attachments for this message
+      const attachments = await dbStorage.getMessageAttachments(
+        messageId,
+        message.createdAt,
+        message.applicationId,
+        message.fromUser?.companyId
+      );
+      
+      console.log(`[MESSAGE ATTACHMENTS API] Found ${attachments.length} attachments for message ${messageId}`);
+      res.json(attachments);
+    } catch (error: any) {
+      console.error('[MESSAGE ATTACHMENTS API] Error fetching message attachments:', error);
+      res.status(500).json({ message: 'Failed to fetch message attachments' });
     }
   });
 

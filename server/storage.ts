@@ -298,6 +298,9 @@ export interface IStorage {
   // Enhanced application operations
   updateApplicationStatus(applicationId: number, updates: { status: string; reviewNotes?: string; reviewedBy?: string; reviewedAt?: Date }): Promise<Application>;
   
+  // Message attachments
+  getMessageAttachments(messageId: number, messageTimestamp: Date, applicationId?: number, companyId?: number): Promise<any[]>;
+  
   // Archive management
   getArchivedEntityDetails(entityId: number, entityType: string): Promise<any>;
 }
@@ -3245,6 +3248,84 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.ticketNumber, ticketNumber));
   }
 
+  // Get attachments for a message using the messageId field
+  async getMessageAttachments(messageId: number, messageTimestamp: Date, applicationId?: number, companyId?: number): Promise<any[]> {
+    console.log(`[STORAGE] Getting attachments for message ${messageId}`);
+    
+    // First try to get documents directly linked to this message
+    const directAttachments = await db
+      .select({
+        id: documents.id,
+        filename: documents.filename,
+        originalName: documents.originalName,
+        mimeType: documents.mimeType,
+        size: documents.size,
+        documentType: documents.documentType,
+        filePath: documents.filePath,
+        createdAt: documents.createdAt,
+      })
+      .from(documents)
+      .where(eq(documents.messageId, messageId))
+      .orderBy(documents.createdAt);
+    
+    if (directAttachments.length > 0) {
+      console.log(`[STORAGE] Found ${directAttachments.length} direct attachments for message ${messageId}`);
+      return directAttachments;
+    }
+    
+    // Fallback to time-based search for legacy messages without messageId links
+    console.log(`[STORAGE] No direct attachments found, falling back to time-based search`);
+    const timeThreshold = 10 * 60 * 1000; // 10 minutes in milliseconds
+    const startTime = new Date(messageTimestamp.getTime() - timeThreshold);
+    const endTime = new Date(messageTimestamp.getTime() + timeThreshold);
+    
+    console.log(`[STORAGE] Searching for attachments between ${startTime.toISOString()} and ${endTime.toISOString()}`);
+    
+    const conditions = [
+      and(
+        gte(documents.createdAt, startTime),
+        lte(documents.createdAt, endTime),
+        isNull(documents.messageId) // Only get documents without messageId set
+      )
+    ];
+    
+    // Add applicationId condition if provided
+    if (applicationId) {
+      conditions.push(eq(documents.applicationId, applicationId));
+      console.log(`[STORAGE] Filtering by applicationId: ${applicationId}`);
+    }
+    
+    // Add companyId condition if provided
+    if (companyId) {
+      conditions.push(eq(documents.companyId, companyId));
+      console.log(`[STORAGE] Filtering by companyId: ${companyId}`);
+    }
+    
+    try {
+      const attachments = await db
+        .select({
+          id: documents.id,
+          filename: documents.filename,
+          originalName: documents.originalName,
+          mimeType: documents.mimeType,
+          size: documents.size,
+          documentType: documents.documentType,
+          filePath: documents.filePath,
+          createdAt: documents.createdAt,
+        })
+        .from(documents)
+        .where(and(...conditions))
+        .orderBy(documents.createdAt);
+      
+      console.log(`[STORAGE] Found ${attachments.length} potential attachments for message ${messageId}`);
+      console.log(`[STORAGE] Attachment details:`, attachments.map(a => ({ id: a.id, name: a.originalName, createdAt: a.createdAt })));
+      
+      return attachments;
+    } catch (error) {
+      console.error(`[STORAGE] Error fetching attachments for message ${messageId}:`, error);
+      return [];
+    }
+  }
 
   // Admin-specific method to get all messages with full context
   async getAllMessagesForAdmin(): Promise<any[]> {
