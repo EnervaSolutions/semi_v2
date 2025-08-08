@@ -221,6 +221,7 @@ export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   applicationId: integer("application_id"),
   companyId: integer("company_id"),
+  messageId: integer("message_id"), // Link to message for attachments
   filename: varchar("filename", { length: 255 }).notNull(),
   originalName: varchar("original_name", { length: 255 }).notNull(),
   mimeType: varchar("mime_type", { length: 100 }).notNull(),

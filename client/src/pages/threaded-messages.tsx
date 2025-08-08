@@ -23,6 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { MessageCircle, Send, User, Clock, Building2, Loader2, Check, Reply, CheckCircle, Plus } from "lucide-react";
 import { format } from "date-fns";
+import { MessageAttachments } from "@/components/MessageAttachments";
+import { MessageAttachmentsDisplay } from "@/components/MessageAttachmentsDisplay";
 
 interface Message {
   id: number;
@@ -79,6 +81,16 @@ export default function ThreadedMessages() {
     message: "",
     priority: "normal",
     applicationId: ""
+  });
+  const [newMessageAttachments, setNewMessageAttachments] = useState<File[]>([]);
+  const [replyAttachments, setReplyAttachments] = useState<File[]>([]);
+
+  // Get ticket attachment count for the selected thread
+  const ticketNumber = (selectedThread?.messages[0] as any)?.ticketNumber;
+  const { data: ticketAttachmentCount = { count: 0 } } = useQuery({
+    queryKey: [`/api/tickets/${ticketNumber || 'none'}/attachment-count`],
+    enabled: !!ticketNumber,
+    staleTime: 30 * 1000, // 30 seconds
   });
 
   // Fetch user's applications for the dropdown
@@ -167,19 +179,32 @@ export default function ThreadedMessages() {
     }
   }, [threads]);
 
-  // Send message mutation
+  // Send message mutation - always use with-attachments endpoint for consistency
   const sendMessageMutation = useMutation({
-    mutationFn: async (messageData: typeof newMessage) => {
-      const response = await apiRequest("/api/messages", "POST", {
-        ...messageData,
-        applicationId: messageData.applicationId && messageData.applicationId !== "none" ? parseInt(messageData.applicationId) : null,
-      });
+    mutationFn: async (messageData: typeof newMessage & { attachments?: File[] }) => {
+      const formData = new FormData();
+      formData.append('subject', messageData.subject);
+      formData.append('message', messageData.message);
+      formData.append('priority', messageData.priority);
+      if (messageData.applicationId && messageData.applicationId !== "none") {
+        formData.append('applicationId', messageData.applicationId);
+      }
+      
+      // Add attachments (even if empty array)
+      if (messageData.attachments && messageData.attachments.length > 0) {
+        messageData.attachments.forEach((file) => {
+          formData.append(`attachments`, file);
+        });
+      }
+
+      const response = await apiRequest("/api/messages/with-attachments", "POST", formData);
       return await response.json();
     },
     onSuccess: (data: any) => {
       console.log("ticket response:", data);
       // Clear form immediately and show ticket number
       setNewMessage({ subject: "", message: "", priority: "normal", applicationId: "" });
+      setNewMessageAttachments([]);
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
       // Force immediate refetch for real-time updates
       queryClient.refetchQueries({ queryKey: ["/api/messages"] });
@@ -197,13 +222,36 @@ export default function ThreadedMessages() {
     },
   });
 
-  // Reply to message mutation
+  // Reply to message mutation - always use with-attachments endpoint for consistency
   const replyMessageMutation = useMutation({
-    mutationFn: async (replyData: { subject: string; message: string; toUserId?: string; applicationId?: number; ticketNumber?: string }) => {
-      return await apiRequest("/api/messages", "POST", replyData);
+    mutationFn: async (replyData: { 
+      subject: string; 
+      message: string; 
+      toUserId?: string; 
+      applicationId?: number; 
+      ticketNumber?: string;
+      attachments?: File[];
+    }) => {
+      const formData = new FormData();
+      formData.append('subject', replyData.subject);
+      formData.append('message', replyData.message);
+      if (replyData.toUserId) formData.append('toUserId', replyData.toUserId);
+      if (replyData.applicationId) formData.append('applicationId', replyData.applicationId.toString());
+      if (replyData.ticketNumber) formData.append('ticketNumber', replyData.ticketNumber);
+      
+      // Add attachments (even if empty array)
+      if (replyData.attachments && replyData.attachments.length > 0) {
+        replyData.attachments.forEach((file) => {
+          formData.append('attachments', file);
+        });
+      }
+
+      const response = await apiRequest("/api/messages/with-attachments", "POST", formData);
+      return await response.json();
     },
     onSuccess: () => {
       setReplyText("");
+      setReplyAttachments([]);
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
       // Force immediate refetch for real-time updates
       queryClient.refetchQueries({ queryKey: ["/api/messages"] });
@@ -287,8 +335,11 @@ export default function ThreadedMessages() {
       });
       return;
     }
-    console.log(newMessage);
-    sendMessageMutation.mutate(newMessage);
+    console.log(newMessage, "attachments:", newMessageAttachments);
+    sendMessageMutation.mutate({
+      ...newMessage,
+      attachments: newMessageAttachments
+    });
   };
 
   const handleReply = (e?: React.MouseEvent | React.FormEvent) => {
@@ -306,6 +357,7 @@ export default function ThreadedMessages() {
       toUserId: originalUserId,
       applicationId: selectedThread.messages[0]?.applicationId || undefined,
       ticketNumber: ticketNumber,
+      attachments: replyAttachments,
     });
   };
 
@@ -517,6 +569,12 @@ export default function ThreadedMessages() {
                     <div className="prose prose-sm max-w-none">
                       <p className="whitespace-pre-wrap text-sm">{message.message}</p>
                     </div>
+                    
+                    {/* Message Attachments */}
+                    <MessageAttachmentsDisplay 
+                      messageId={message.id} 
+                      compact={true}
+                    />
                   </div>
                 ))}
               </div>
@@ -556,6 +614,17 @@ export default function ThreadedMessages() {
                             }}
                             className="mt-1 resize-none"
                             rows={3}
+                          />
+                        </div>
+
+                        {/* Reply Attachments */}
+                        <div>
+                          <MessageAttachments
+                            onFilesChange={setReplyAttachments}
+                            disabled={replyMessageMutation.isPending}
+                            maxFiles={3}
+                            compact={true}
+                            existingTicketAttachments={ticketAttachmentCount.count}
                           />
                         </div>
 
@@ -670,6 +739,18 @@ export default function ThreadedMessages() {
                     </Select>
                   </div>
                 </div>
+                
+                {/* File Attachments */}
+                <div>
+                  <Label>Attachments (optional)</Label>
+                  <MessageAttachments
+                    onFilesChange={setNewMessageAttachments}
+                    disabled={sendMessageMutation.isPending}
+                    maxFiles={3}
+                    compact={true}
+                  />
+                </div>
+
                 <Button
                   onClick={handleSendMessage}
                   disabled={sendMessageMutation.isPending}

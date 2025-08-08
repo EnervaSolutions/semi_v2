@@ -16,6 +16,7 @@ import {
   FileText, MapPin, Phone, Mail, Calendar, Activity, Search, Filter
 } from "lucide-react";
 import { format } from "date-fns";
+import { MessageAttachmentsDisplay } from "@/components/MessageAttachmentsDisplay";
 
 interface EnhancedMessage {
   id: number;
@@ -85,7 +86,7 @@ export default function AdminSupportDashboard() {
   const { data: allMessages = [], isLoading } = useQuery({
     queryKey: ["/api/admin/messages"],
     enabled: user?.role === 'system_admin',
-    refetchInterval: 3000, // Refresh every 3 seconds for real-time updates
+    refetchInterval: 5000, // Refresh every 3 seconds for real-time updates
     refetchIntervalInBackground: true, // Continue polling when tab is not active
     staleTime: 0, // Consider data immediately stale to ensure fresh data
   });
@@ -517,6 +518,10 @@ export default function AdminSupportDashboard() {
                             <span>{format(new Date(message.createdAt), "MMM d, yyyy 'at' HH:mm")}</span>
                           </div>
                           <div className="text-sm whitespace-pre-wrap">{message.message}</div>
+                          <MessageAttachmentsDisplay 
+                            messageId={message.id} 
+                            compact={true}
+                          />
                         </div>
                       ))}
                     </div>
